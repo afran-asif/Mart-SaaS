@@ -7,6 +7,7 @@ export interface IStore extends Document {
     logo?: string;
     status: 'active' | 'suspended';
     createdAt: Date;
+    updatedAt: Date;
 }
 
 const storeSchema = new Schema<IStore>(

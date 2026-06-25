@@ -2,7 +2,7 @@ import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import storeRoutes from './routes/storeRoutes';
 
 dotenv.config();
 import { connectDB } from "./config/db";
@@ -21,7 +21,10 @@ app.use(cors({
 app.get("/",(req: Request, res: Response) => {
     res.send("Mart-SaaS Backend Server is Running Perfectly!");
 })
+
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/store', storeRoutes);
+
 const startServer = async () => {
     await connectDB();
     
