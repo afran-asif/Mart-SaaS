@@ -7,7 +7,7 @@ import productRoutes from './routes/productRoutes'
 dotenv.config();
 import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes';
-
+import tenantRoutes from './routes/tenantRoutes'
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
@@ -25,6 +25,7 @@ app.get("/",(req: Request, res: Response) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/store', storeRoutes);
 app.use('/api/v1/products', productRoutes)
+app.use('/api/v1/tenant', tenantRoutes);
 
 const startServer = async () => {
     await connectDB();

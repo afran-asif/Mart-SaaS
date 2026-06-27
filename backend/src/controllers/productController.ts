@@ -2,6 +2,7 @@ import { Response } from "express";
 import { Product } from "../models/Product";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { TenantRequest } from "../middlewares/tenantMiddleware";
 
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try{
@@ -99,3 +100,19 @@ export const deleteProduct = async (req: AuthenticatedRequest, res: Response): P
         res.status(500).json({ message: (error as Error).message });
     }
 }
+
+export const getTenantProducts = async (req: TenantRequest, res: Response): Promise<void> => {
+    try {
+        const storeId = req.storeId;
+
+        const products = await Product.find({ storeId });
+
+        res.status(200).json({
+            success: true,
+            count: products.length,
+            products
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    };
+};
