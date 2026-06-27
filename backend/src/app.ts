@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import storeRoutes from './routes/storeRoutes';
-
+import productRoutes from './routes/productRoutes'
 dotenv.config();
 import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes';
@@ -24,6 +24,7 @@ app.get("/",(req: Request, res: Response) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/store', storeRoutes);
+app.use('/api/v1/products', productRoutes)
 
 const startServer = async () => {
     await connectDB();
