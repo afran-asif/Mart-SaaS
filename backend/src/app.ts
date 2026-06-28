@@ -8,15 +8,20 @@ dotenv.config();
 import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes';
 import tenantRoutes from './routes/tenantRoutes'
+
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true
-}))
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // OPTIONS মেথডটি প্রি-ফ্লাইট রিকোয়েস্ট হ্যান্ডেল করে
+        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    })
+);
 
 app.get("/",(req: Request, res: Response) => {
     res.send("Mart-SaaS Backend Server is Running Perfectly!");
