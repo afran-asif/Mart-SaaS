@@ -20,6 +20,6 @@ export const getAllProducts = async () => {
 }
 
 export const createProduct = async (productData: any) => {
-    const response = await axios.post(`${API_URL}/add`, productData, getAuthHeaders());
+    const response = await axios.post(`${API_URL}`, productData, getAuthHeaders());
     return response.data;
 };
