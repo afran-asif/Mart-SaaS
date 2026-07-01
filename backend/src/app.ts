@@ -31,6 +31,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/store', storeRoutes);
 app.use('/api/v1/products', productRoutes)
 app.use('/api/v1/tenant', tenantRoutes);
+app.use("/uploads", express.static("uploads"));
+
 
 const startServer = async () => {
     await connectDB();
