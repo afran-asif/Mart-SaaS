@@ -4,6 +4,7 @@ import { Product } from "../models/Product";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
+import { uploadToCloudinary } from "../middlewares/uploadMiddleware";
 
 // 📤 ১. নতুন প্রোডাক্ট তৈরি করা (Multer ফাইল সাপোর্টসহ)
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -23,10 +24,16 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
         let productImages: string[] = [];
         
         // যদি ফ্রন্টএন্ড ড্র্যাগ-অ্যান্ড-ড্রপ থেকে ফাইল আপলোড করা হয়
+        // if (req.file) {
+        //     // লোকাল ইউআরএল জেনারেট করা হচ্ছে (যেমন: http://localhost:5000/uploads/1712345678.png)
+        //     const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+        //     productImages.push(imageUrl);
+        // }
+
         if (req.file) {
-            // লোকাল ইউআরএল জেনারেট করা হচ্ছে (যেমন: http://localhost:5000/uploads/1712345678.png)
-            const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-            productImages.push(imageUrl);
+            // req.file.path হলো লোকাল ফাইল ডিরেক্টরি (যেমন: uploads/filename.png)
+            const cloudinaryUrl = await uploadToCloudinary(req.file.path);
+            productImages.push(cloudinaryUrl);
         }
 
         const newProduct = new Product({
@@ -51,6 +58,8 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
     }
 };
 
+
+
 // 🔍 ২. ভেন্ডরের নিজস্ব সব প্রোডাক্ট গেট করা
 export const getVendorProducts = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -67,6 +76,8 @@ export const getVendorProducts = async (req: AuthenticatedRequest, res: Response
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+
 
 // 📝 ৩. প্রোডাক্ট আপডেট করা
 export const updateProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -95,6 +106,8 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
     }
 };
 
+
+
 // 🗑️ ৪. প্রোডাক্ট ডিলিট করা
 export const deleteProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -118,6 +131,8 @@ export const deleteProduct = async (req: AuthenticatedRequest, res: Response): P
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+
 
 // 🌐 ৫. টেন্যান্ট বা সাবডোমেইনের জন্য প্রোডাক্ট গেট করা
 export const getTenantProducts = async (req: TenantRequest, res: Response): Promise<void> => {
