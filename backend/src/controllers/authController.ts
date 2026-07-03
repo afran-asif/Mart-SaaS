@@ -4,7 +4,7 @@ import { Store } from "../models/Store";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const generateToken = (res: Response, userId: string) => {
+const generateToken = (res: Response, userId: string): string => {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET!, {
         expiresIn: '7d',
     });
@@ -15,6 +15,8 @@ const generateToken = (res: Response, userId: string) => {
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    return token; // ✅ token return করা হচ্ছে
 };
 
 export const registerVendor = async (req: Request, res: Response) => {
@@ -48,9 +50,10 @@ export const registerVendor = async (req: Request, res: Response) => {
             subdomain,
         });
 
-        generateToken(res, user._id.toString());
+        const token = generateToken(res, user._id.toString());
         res.status(201).json({
             success: true,
+            token, // ✅ token response-এ পাঠানো হচ্ছে
             user: { id: user._id, name: user.name, email: user.email, role: user.role },
             store: { id: store._id, storeName: store.storeName, subdomain: store.subdomain }
         });
@@ -75,12 +78,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        generateToken(res, user._id.toString());
+        const token = generateToken(res, user._id.toString());
 
         const store = await Store.findOne({ vendorId: user._id });
         
         res.status(200).json({
             success: true,
+            token, // ✅ token response-এ পাঠানো হচ্ছে
             user: { id: user._id, name: user.name, email: user.email, role: user.role },
             store: { storeName: store?.storeName, subdomain: store?.subdomain }
         });

@@ -31,3 +31,36 @@ export const createProduct = async (formData: FormData) => {
     const response = await axios.post(`${API_URL}`, formData, getAuthHeaders(true));
     return response.data;
 };
+
+// src/services/productService.ts
+
+export const deleteProductApi = async (id: string): Promise<{ success: boolean; message: string }> => {
+    try {
+        // ফাংশন নিজেই লোকাল স্টোরেজ থেকে ফ্রেশ টোকেন তুলে নেবে
+        const savedToken = localStorage.getItem("token"); 
+
+        const response = await fetch(`http://localhost:5000/api/v1/products/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${savedToken}`, 
+                "Content-Type": "application/json",
+            },
+        });
+
+        const textData = await response.text();
+        let data;
+        try {
+            data = JSON.parse(textData);
+        } catch (e) {
+            throw new Error("Server did not return valid JSON.");
+        }
+        
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to delete product");
+        }
+
+        return data;
+    } catch (error) {
+        throw new Error((error as Error).message);
+    }
+};

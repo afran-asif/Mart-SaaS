@@ -2,8 +2,13 @@
 
 import React,{ useState } from "react"
 import { registerVendor } from "@/services/authService";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/redux/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+    const dispatch = useDispatch();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -28,7 +33,12 @@ export default function RegisterPage() {
         try{
             const data = await registerVendor(formData);
             if (data.success) {
-                setMessage("Registration Successful! Welcome aboard.");
+                // ✅ Redux store-এ user, store ও token সেভ করা হচ্ছে
+                dispatch(setCredentials({ user: data.user, store: data.store, token: data.token }));
+                setMessage("Registration Successful! Redirecting to dashboard...");
+                setTimeout(() => {
+                    router.push("/dashboard");
+                }, 1500);
             }
         } catch (error: any) {
             setMessage(error.response?.data?.message || "Something went wrong!")

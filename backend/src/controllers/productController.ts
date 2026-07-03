@@ -114,18 +114,17 @@ export const deleteProduct = async (req: AuthenticatedRequest, res: Response): P
         const { id } = req.params;
         const vendorId = req.user._id;
 
-        const product = await Product.findOne({ _id: id, vendorId });
+        // চেক করা হচ্ছে প্রোডাক্টটি এই ভেন্ডরের কি না এবং একই সাথে ডিলিট করা হচ্ছে
+        const product = await Product.findOneAndDelete({ _id: id, vendorId });
 
         if (!product) {
-            res.status(404).json({ message: "Product not found or unauthorized" });
+            res.status(404).json({ success: false, message: "Product not found or unauthorized" });
             return;
         }
 
-        await product.deleteOne();
-
         res.status(200).json({
             success: true,
-            message: "Product deleted successfully",
+            message: "Product deleted successfully"
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });

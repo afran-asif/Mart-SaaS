@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getAllProducts, createProduct } from "@/services/productService";
+import { getAllProducts, createProduct, deleteProductApi } from "@/services/productService";
 
 interface Product {
     _id: string;
@@ -108,6 +108,26 @@ export default function ProductsPage() {
             setFormLoading(false);
         }
     };
+    
+    // 🗑️ প্রোডাক্ট ডিলিট করার হ্যান্ডলার ফাংশন
+    const handleDelete = async (id: string, name: string) => {
+        // উইন্ডো কনফার্মেশন প্রম্পট
+        const confirmDelete = window.confirm(`Are you sure you want to delete "${name}"?`);
+        
+        if (!confirmDelete) return;
+
+        try {
+            // এপিআই কল করা হচ্ছে (service ফাইলের নতুন লজিক অনুযায়ী শুধু id নিবে)
+            await deleteProductApi(id);
+            
+            // 🧹 স্টেট থেকে ডিলিট হওয়া প্রোডাক্টটি ফিল্টার করে রিমুভ করা
+            setProducts((prevProducts) => prevProducts.filter((product) => product._id !== id));
+            
+            alert("Product deleted successfully!");
+        } catch (error) {
+            alert("Error deleting product: " + (error as Error).message);
+        }
+    };
 
     return (
         <div className="space-y-6 relative">
@@ -138,54 +158,59 @@ export default function ProductsPage() {
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
-    <thead>
-        <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-sm font-semibold">
-            {/* 📸 ইমেজ কলামের জন্য হেডার থিম তৈরি করা হলো */}
-            <th className="p-4 pl-6 w-20">Image</th> 
-            <th className="p-4">Product Name</th>
-            <th className="p-4">Category</th>
-            <th className="p-4">Description</th>
-            <th className="p-4">Price</th>
-            <th className="p-4">Stock</th>
-            <th className="p-4 pr-6 text-right">Actions</th>
-        </tr>
-    </thead>
-    <tbody className="divide-y divide-gray-50 text-gray-700 text-sm">
-        {products.map((product) => (
-            <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
-                {/* 🖼️ ১. ক্লাউডিনারি ইমেজ থাম্বনেইল দেখানোর কলাম */}
-                <td className="p-4 pl-6">
-                    {product.images && product.images.length > 0 ? (
-                        <img 
-                            src={product.images[0]} 
-                            alt={product.name} 
-                            className="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm"
-                        />
-                    ) : (
-                        <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm">
-                            📦
-                        </div>
-                    )}
-                </td>
+                            <thead>
+                                <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-sm font-semibold">
+                                    <th className="p-4 pl-6 w-20">Image</th> 
+                                    <th className="p-4">Product Name</th>
+                                    <th className="p-4">Category</th>
+                                    <th className="p-4">Description</th>
+                                    <th className="p-4">Price</th>
+                                    <th className="p-4">Stock</th>
+                                    <th className="p-4 pr-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50 text-gray-700 text-sm">
+                                {products.map((product) => (
+                                    <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="p-4 pl-6">
+                                            {product.images && product.images.length > 0 ? (
+                                                <img 
+                                                    src={product.images[0]} 
+                                                    alt={product.name} 
+                                                    className="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm"
+                                                />
+                                            ) : (
+                                                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm">
+                                                    📦
+                                                </div>
+                                            )}
+                                        </td>
 
-                <td className="p-4 font-medium text-gray-950">{product.name}</td>
-                <td className="p-4">{product.category || "General"}</td>
-                <td className="p-4 truncate max-w-[150px]">{product.description}</td>
-                <td className="p-4">${product.price.toFixed(2)}</td>
-                <td className="p-4">
-                    <span className={`px-2 py-1 rounded-md font-medium text-xs ${product.stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                        {product.stock} left
-                    </span>
-                </td>
-                <td className="p-4 pr-6 text-right space-x-2">
-                    <button className="text-blue-600 hover:underline font-medium">Edit</button>
-                    <button className="text-red-600 hover:underline font-medium">Delete</button>
-                </td>
-            </tr>
-        ))}
-    </tbody>
-</table>
-                        )}
+                                        <td className="p-4 font-medium text-gray-950">{product.name}</td>
+                                        <td className="p-4">{product.category || "General"}</td>
+                                        <td className="p-4 truncate max-w-[150px]">{product.description}</td>
+                                        <td className="p-4">${product.price.toFixed(2)}</td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded-md font-medium text-xs ${product.stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                                                {product.stock} left
+                                            </span>
+                                        </td>
+                                        <td className="p-4 pr-6 text-right space-x-2">
+                                            <button className="text-blue-600 hover:underline font-medium">
+                                                Edit
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(product._id, product.name)}
+                                                className="text-red-600 hover:underline font-medium transition-colors hover:text-red-800"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             )}
 

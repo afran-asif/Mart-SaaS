@@ -9,9 +9,15 @@ export interface AuthenticatedRequest extends Request {
 export const protect = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     let token;
 
-    if(req.cookies && req.cookies.token){
+    // 1️⃣ প্রথমে Authorization header চেক করো (Bearer token)
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+    // 2️⃣ তারপর Cookie চেক করো
+    else if (req.cookies && req.cookies.token) {
         token = req.cookies.token;
     }
+
     if(!token) {
         res.status(401).json({ message: 'Not authorized, no token found' });
         return;
