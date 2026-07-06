@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getAllProducts, createProduct, deleteProductApi } from "@/services/productService";
+import { getAllProducts, createProduct, deleteProductApi, updateProductApi } from "@/services/productService";
 
 interface Product {
     _id: string;
@@ -19,7 +19,7 @@ export default function ProductsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // Modal and New Product States
+    // ➕ Add Modal States
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formLoading, setFormLoading] = useState(false);
     const [newProduct, setNewProduct] = useState({
@@ -33,6 +33,18 @@ export default function ProductsPage() {
     // 🪂 ফাইল স্টোর এবং ড্র্যাগ ট্র্যাকিং স্টেট
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+
+    // ✏️ Edit Modal States
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [editForm, setEditForm] = useState({
+        name: "",
+        price: "",
+        stock: "",
+        category: "General",
+        description: "",
+    });
 
     // Fetch products from backend
     const fetchProducts = async () => {
@@ -111,23 +123,63 @@ export default function ProductsPage() {
     
     // 🗑️ প্রোডাক্ট ডিলিট করার হ্যান্ডলার ফাংশন
     const handleDelete = async (id: string, name: string) => {
-        // উইন্ডো কনফার্মেশন প্রম্পট
         const confirmDelete = window.confirm(`Are you sure you want to delete "${name}"?`);
-        
         if (!confirmDelete) return;
 
         try {
-            // এপিআই কল করা হচ্ছে (service ফাইলের নতুন লজিক অনুযায়ী শুধু id নিবে)
             await deleteProductApi(id);
-            
-            // 🧹 স্টেট থেকে ডিলিট হওয়া প্রোডাক্টটি ফিল্টার করে রিমুভ করা
             setProducts((prevProducts) => prevProducts.filter((product) => product._id !== id));
-            
             alert("Product deleted successfully!");
         } catch (error) {
             alert("Error deleting product: " + (error as Error).message);
         }
     };
+
+    // ✏️ Edit button click — modal খুলবে এবং product-এর data pre-fill হবে
+    const handleEditClick = (product: Product) => {
+        setEditingProduct(product);
+        setEditForm({
+            name: product.name,
+            price: String(product.price),
+            stock: String(product.stock),
+            category: product.category || "General",
+            description: product.description,
+        });
+        setIsEditModalOpen(true);
+    };
+
+    // ✏️ Edit form submit — API call করে product update করবে
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingProduct) return;
+        setEditLoading(true);
+
+        try {
+            const updatedData = {
+                name: editForm.name,
+                price: Number(editForm.price),
+                stock: Number(editForm.stock),
+                category: editForm.category,
+                description: editForm.description,
+            };
+
+            const result = await updateProductApi(editingProduct._id, updatedData);
+
+            // Local state-এ updated product set করা — re-fetch ছাড়াই UI update হবে
+            setProducts((prev) =>
+                prev.map((p) => (p._id === editingProduct._id ? { ...p, ...result.product } : p))
+            );
+
+            setIsEditModalOpen(false);
+            setEditingProduct(null);
+            alert("✅ Product updated successfully!");
+        } catch (error) {
+            alert("❌ Failed to update product: " + (error as Error).message);
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
 
     return (
         <div className="space-y-6 relative">
@@ -196,7 +248,10 @@ export default function ProductsPage() {
                                             </span>
                                         </td>
                                         <td className="p-4 pr-6 text-right space-x-2">
-                                            <button className="text-blue-600 hover:underline font-medium">
+                                            <button 
+                                                onClick={() => handleEditClick(product)}
+                                                className="text-blue-600 hover:underline font-medium transition-colors hover:text-blue-800"
+                                            >
                                                 Edit
                                             </button>
                                             <button 
@@ -336,6 +391,110 @@ export default function ProductsPage() {
                                     className="px-5 py-2.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-gray-400"
                                 >
                                     {formLoading ? "Saving..." : "Add Product"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ✏️ EDIT PRODUCT POPUP MODAL */}
+            {isEditModalOpen && editingProduct && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-2xl font-bold text-gray-900">Edit Product ✏️</h2>
+                            <button
+                                onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
+                                className="text-gray-400 hover:text-gray-700 text-2xl leading-none transition-colors"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-6">
+                            Update the details for <span className="font-semibold text-gray-800">{editingProduct.name}</span>.
+                        </p>
+
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            {/* Product Name */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={editForm.name}
+                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                                />
+                            </div>
+
+                            {/* Price & Stock */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={editForm.price}
+                                        onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={editForm.stock}
+                                        onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
+                                <textarea
+                                    required
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    rows={3}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900 resize-none"
+                                />
+                            </div>
+
+                            {/* Category */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Category</label>
+                                <select
+                                    value={editForm.category}
+                                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                                >
+                                    <option value="Clothing">Clothing</option>
+                                    <option value="Gadgets">Gadgets</option>
+                                    <option value="Accessories">Accessories</option>
+                                    <option value="General">General</option>
+                                </select>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
+                                    className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={editLoading}
+                                    className="px-5 py-2.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-gray-400"
+                                >
+                                    {editLoading ? "Saving..." : "Save Changes"}
                                 </button>
                             </div>
                         </form>
