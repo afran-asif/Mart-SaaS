@@ -64,12 +64,42 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
 export const getVendorProducts = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const vendorId = req.user._id;
+        
+        // 📥 Query параметры রিসিভ করা
+        const { search, category, page = 1, limit = 10 } = req.query;
 
-        const products = await Product.find({ vendorId });
+        // 🎯 বেসিক ফিল্টার অবজেক্ট
+        const filterQuery: any = { vendorId };
+
+        // 🔍 Search লজিক (Case-insensitive)
+        if (search) {
+            filterQuery.name = { $regex: search as string, $options: "i" };
+        }
+
+        // 🏷️ Category Filter লজিক
+        if (category && category !== "General" && category !== "All") {
+            filterQuery.category = category;
+        }
+
+        // 📄 Pagination গণনা
+        const pageNum = Number(page);
+        const limitNum = Number(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        // 📊 ক্যোয়ারি রান করা
+        const products = await Product.find(filterQuery)
+            .skip(skip)
+            .limit(limitNum)
+            .sort({ createdAt: -1 });
+
+        const totalProducts = await Product.countDocuments(filterQuery);
 
         res.status(200).json({
             success: true,
             count: products.length,
+            totalProducts,
+            totalPages: Math.ceil(totalProducts / limitNum),
+            currentPage: pageNum,
             products
         });
     } catch (error) {
