@@ -10,7 +10,7 @@ import { uploadToCloudinary } from "../middlewares/uploadMiddleware";
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         // FormData থেকে পাঠানো ফিল্ডগুলো রিসিভ করা হচ্ছে
-        const { name, price, description, stock } = req.body;
+        const { name, price, description, category, stock } = req.body;
         const vendorId = req.user._id;
 
         // ভেন্ডরের স্টোর খুঁজে বের করা
@@ -42,6 +42,7 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
             name,
             price: Number(price),       // FormData ডেটা স্ট্রিং হিসেবে পাঠায়, তাই নাম্বারে কাস্ট করা হলো
             description,
+            category,
             images: productImages,      // লোকাল ইমেজের ইউআরএল অ্যারেতে সেট হলো
             stock: Number(stock)        // নাম্বারে কাস্ট করা হলো
         });

@@ -20,11 +20,27 @@ const getAuthHeaders = (isFormData = false) => {
     };
 };
 
-// ১. সব প্রোডাক্ট নিয়ে আসার এপিআই
-export const getAllProducts = async () => {
-    const response = await axios.get(`${API_URL}`, getAuthHeaders(false));
-    return response.data;
+// 📄 ১. গেট অল প্রোডাক্টস ইন্টারফেস
+export interface GetProductsParams {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
 }
+
+// 🔍 ১. সব প্রোডাক্ট নিয়ে আসার এপিআই (Search, Filter, Pagination সহ)
+export const getAllProducts = async (params: GetProductsParams = {}) => {
+    const response = await axios.get(`${API_URL}`, {
+        ...getAuthHeaders(false),
+        params: {
+            page: params.page || 1,
+            limit: params.limit || 10,
+            search: params.search || undefined,
+            category: params.category || undefined,
+        },
+    });
+    return response.data;
+};
 
 // 📤 ২. নতুন প্রোডাক্ট যোগ করার এপিআই (FormData সাপোর্টসহ)
 export const createProduct = async (formData: FormData) => {
@@ -63,4 +79,4 @@ export const updateProductApi = async (
     } catch (error: any) {
         throw new Error(error.response?.data?.message || "Failed to update product");
     }
-};
+};
