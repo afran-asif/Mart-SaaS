@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
+import toast from "react-hot-toast";
 import { getAllProducts, createProduct, deleteProductApi, updateProductApi } from "@/services/productService";
 
 interface Product {
@@ -17,13 +18,13 @@ interface Product {
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
     // 🔍 Search, Filter & Pagination States
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [sortBy, setSortBy] = useState("default");
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 8;
 
     // ➕ Add Modal States
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,7 +37,7 @@ export default function ProductsPage() {
         description: "",
     });
     
-    // 🪂 File & Drag Tracking States
+    // File & Drag Tracking States
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
 
@@ -48,7 +49,7 @@ export default function ProductsPage() {
         name: "",
         price: "",
         stock: "",
-        category: "",
+        category: "General",
         description: "",
     });
 
@@ -58,7 +59,7 @@ export default function ProductsPage() {
             const data = await getAllProducts();
             setProducts(data.products || data);
         } catch (err: any) {
-            setError("❌ Failed to load products. Please try again.");
+            toast.error("Failed to load products. Please refresh.");
         } finally {
             setLoading(false);
         }
@@ -68,15 +69,30 @@ export default function ProductsPage() {
         fetchProducts();
     }, []);
 
-    // 🔍 Client-side Filter & Search Logic
+   // 🔍 Client-side Filter, Search & Sort Logic
     const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
-            const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        let result = products.filter((product) => {
+            const matchesSearch =
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 product.description.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
+            const matchesCategory =
+                selectedCategory === "All" || product.category === selectedCategory;
             return matchesSearch && matchesCategory;
         });
-    }, [products, searchTerm, selectedCategory]);
+
+        // 🔃 Apply Sorting
+        if (sortBy === "price-low") {
+            result.sort((a, b) => a.price - b.price);
+        } else if (sortBy === "price-high") {
+            result.sort((a, b) => b.price - a.price);
+        } else if (sortBy === "name-asc") {
+            result.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortBy === "stock-low") {
+            result.sort((a, b) => a.stock - b.stock);
+        }
+
+        return result;
+    }, [products, searchTerm, selectedCategory, sortBy]);
 
     // 📄 Pagination Calculation
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
@@ -85,12 +101,11 @@ export default function ProductsPage() {
         return filteredProducts.slice(start, start + itemsPerPage);
     }, [filteredProducts, currentPage, itemsPerPage]);
 
-    // Reset pagination to page 1 when search or category changes
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, selectedCategory]);
 
-    // 🎛️ Drag & Drop Event Handlers
+    // Drag & Drop Handlers
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(true);
@@ -104,62 +119,85 @@ export default function ProductsPage() {
         e.preventDefault();
         setIsDragging(false);
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            setSelectedFile(e.dataTransfer.files[0]);
+            validateAndSetFile(e.dataTransfer.files[0]);
         }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedFile(e.target.files[0]);
+            validateAndSetFile(e.target.files[0]);
         }
     };
 
-    // Handle form submit for adding a product
+    // File Validation
+    const validateAndSetFile = (file: File) => {
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please upload a valid image file.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            toast.error("Image size must be less than 5MB.");
+            return;
+        }
+        setSelectedFile(file);
+    };
+
+    // Add Product Handler
     const handleAddProduct = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Form Validations
+        if (!newProduct.name.trim()) return toast.error("Product name is required.");
+        if (Number(newProduct.price) <= 0) return toast.error("Price must be greater than 0.");
+        if (Number(newProduct.stock) < 0) return toast.error("Stock cannot be negative.");
+
         setFormLoading(true);
+        const toastId = toast.loading("Adding product...");
 
         try {
             const formData = new FormData();
-            formData.append("name", newProduct.name);
+            formData.append("name", newProduct.name.trim());
             formData.append("price", newProduct.price);
             formData.append("stock", newProduct.stock);
             formData.append("category", newProduct.category);
-            formData.append("description", newProduct.description);
+            formData.append("description", newProduct.description.trim());
 
             if (selectedFile) {
-                formData.append("image", selectedFile); 
+                formData.append("image", selectedFile);
             }
 
             await createProduct(formData);
             
+            toast.success("Product added successfully!", { id: toastId });
             setIsModalOpen(false);
             setNewProduct({ name: "", price: "", stock: "", description: "", category: "General" });
             setSelectedFile(null);
             
             fetchProducts();
         } catch (err: any) {
-            alert("❌ Failed to add product. Check console or backend logs.");
+            toast.error(err.response?.data?.message || "Failed to add product.", { id: toastId });
         } finally {
             setFormLoading(false);
         }
     };
-    
-    // Delete product handler
+
+    // Delete Product Handler
     const handleDelete = async (id: string, name: string) => {
         const confirmDelete = window.confirm(`Are you sure you want to delete "${name}"?`);
         if (!confirmDelete) return;
 
+        const toastId = toast.loading("Deleting product...");
+
         try {
             await deleteProductApi(id);
-            setProducts((prevProducts) => prevProducts.filter((product) => product._id !== id));
-            alert("Product deleted successfully!");
-        } catch (error) {
-            alert("Error deleting product: " + (error as Error).message);
+            setProducts((prev) => prev.filter((p) => p._id !== id));
+            toast.success("Product deleted successfully!", { id: toastId });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to delete product.", { id: toastId });
         }
     };
 
-    // Edit button click
+    // Edit Modal Click
     const handleEditClick = (product: Product) => {
         setEditingProduct(product);
         setEditForm({
@@ -172,19 +210,24 @@ export default function ProductsPage() {
         setIsEditModalOpen(true);
     };
 
-    // Edit form submit
+    // Edit Form Submit
     const handleEditSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingProduct) return;
+
+        if (!editForm.name.trim()) return toast.error("Product name is required.");
+        if (Number(editForm.price) <= 0) return toast.error("Price must be greater than 0.");
+
         setEditLoading(true);
+        const toastId = toast.loading("Updating product...");
 
         try {
             const updatedData = {
-                name: editForm.name,
+                name: editForm.name.trim(),
                 price: Number(editForm.price),
                 stock: Number(editForm.stock),
                 category: editForm.category,
-                description: editForm.description,
+                description: editForm.description.trim(),
             };
 
             const result = await updateProductApi(editingProduct._id, updatedData);
@@ -195,9 +238,9 @@ export default function ProductsPage() {
 
             setIsEditModalOpen(false);
             setEditingProduct(null);
-            alert("✅ Product updated successfully!");
-        } catch (error) {
-            alert("❌ Failed to update product: " + (error as Error).message);
+            toast.success("Product updated successfully!", { id: toastId });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to update product.", { id: toastId });
         } finally {
             setEditLoading(false);
         }
@@ -219,9 +262,10 @@ export default function ProductsPage() {
                 </button>
             </div>
 
-            {/* 🔍 Search Input & Category Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                <div className="w-full sm:w-1/2 relative">
+            {/* 🔍 Search Input, Category Filter & Sort Controls */}
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                {/* Search Input */}
+                <div className="w-full lg:w-1/2 relative">
                     <input
                         type="text"
                         placeholder="Search products by name or description..."
@@ -232,28 +276,51 @@ export default function ProductsPage() {
                     <span className="absolute left-3.5 top-3 text-gray-400">🔍</span>
                 </div>
 
-                <div className="w-full sm:w-auto flex items-center gap-2">
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">Filter:</label>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                    >
-                        <option value="All">All Categories</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Gadgets">Gadgets</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="General">General</option>
-                    </select>
+                {/* Filters & Sorting */}
+                <div className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-3">
+                    {/* Category Filter */}
+                    <div className="w-full sm:w-auto flex items-center gap-2">
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
+                            Filter:
+                        </label>
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                        >
+                            <option value="All">All Categories</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Gadgets">Gadgets</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="General">General</option>
+                        </select>
+                    </div>
+
+                    {/* 🔃 Sort Control */}
+                    <div className="w-full sm:w-auto flex items-center gap-2">
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
+                            Sort:
+                        </label>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                        >
+                            <option value="default">Default</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="name-asc">Name: A to Z</option>
+                            <option value="stock-low">Stock: Low to High</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            {/* Loading/Error States */}
+            {/* Loading State */}
             {loading && <p className="text-gray-600 font-medium p-4">Loading items...</p>}
-            {error && <p className="text-red-500 font-medium p-4">{error}</p>}
 
             {/* Products Table */}
-            {!loading && !error && (
+            {!loading && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     {filteredProducts.length === 0 ? (
                         <div className="p-10 text-center text-gray-500">
@@ -318,7 +385,7 @@ export default function ProductsPage() {
                                 </tbody>
                             </table>
 
-                            {/* 📄 Pagination Bar Control */}
+                            {/* 📄 Pagination Controls */}
                             <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-gray-100 gap-4 text-xs font-medium text-gray-500">
                                 <div>
                                     Showing <span className="text-gray-900 font-semibold">{((currentPage - 1) * itemsPerPage) + 1}</span> to{" "}
@@ -367,20 +434,19 @@ export default function ProductsPage() {
 
             {/* ADD PRODUCT POPUP MODAL */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fadeIn">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Product 🛒</h2>
-                        <p className="text-sm text-gray-500 mb-6">Fill in the details below to add a product to your current store.</p>
+                        <p className="text-sm text-gray-500 mb-6">Fill in the details below to add a product.</p>
                         
                         <form onSubmit={handleAddProduct} className="space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
                                 <input 
                                     type="text" 
-                                    required
                                     value={newProduct.name}
                                     onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                                    placeholder="e.g., Luxury Black Hoodie" 
+                                    placeholder="e.g., SESTONE Oversized Hoodie" 
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                                 />
                             </div>
@@ -390,7 +456,6 @@ export default function ProductsPage() {
                                     <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
                                     <input 
                                         type="number" 
-                                        required
                                         value={newProduct.price}
                                         onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
                                         placeholder="29.99" 
@@ -401,7 +466,6 @@ export default function ProductsPage() {
                                     <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
                                     <input 
                                         type="number" 
-                                        required
                                         value={newProduct.stock}
                                         onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
                                         placeholder="50" 
@@ -413,7 +477,6 @@ export default function ProductsPage() {
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
                                 <textarea 
-                                    required
                                     value={newProduct.description}
                                     onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                                     placeholder="Enter product description..." 
@@ -422,7 +485,7 @@ export default function ProductsPage() {
                                 />
                             </div>
 
-                            {/* 🪂 Drag & Drop Image Box */}
+                            {/* Drag & Drop Box */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Image</label>
                                 <div
@@ -506,16 +569,12 @@ export default function ProductsPage() {
                                 ×
                             </button>
                         </div>
-                        <p className="text-sm text-gray-500 mb-6">
-                            Update the details for <span className="font-semibold text-gray-800">{editingProduct.name}</span>.
-                        </p>
 
-                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                        <form onSubmit={handleEditSubmit} className="space-y-4 mt-4">
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
                                 <input
                                     type="text"
-                                    required
                                     value={editForm.name}
                                     onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
@@ -527,7 +586,6 @@ export default function ProductsPage() {
                                     <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
                                     <input
                                         type="number"
-                                        required
                                         value={editForm.price}
                                         onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
@@ -537,7 +595,6 @@ export default function ProductsPage() {
                                     <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
                                     <input
                                         type="number"
-                                        required
                                         value={editForm.stock}
                                         onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
@@ -548,7 +605,6 @@ export default function ProductsPage() {
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
                                 <textarea
-                                    required
                                     value={editForm.description}
                                     onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                                     rows={3}
