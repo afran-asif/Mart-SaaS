@@ -39,6 +39,7 @@ export default function ProductsPage() {
     
     // File & Drag Tracking States
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
 
     // ✏️ Edit Modal States
@@ -69,7 +70,16 @@ export default function ProductsPage() {
         fetchProducts();
     }, []);
 
-   // 🔍 Client-side Filter, Search & Sort Logic
+    // 🧹 Clean up object URL memory leak when preview changes or component unmounts
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
+    // 🔍 Client-side Filter, Search & Sort Logic
     const filteredProducts = useMemo(() => {
         let result = products.filter((product) => {
             const matchesSearch =
@@ -129,7 +139,7 @@ export default function ProductsPage() {
         }
     };
 
-    // File Validation
+    // 🖼️ File Validation & Image Preview Generator
     const validateAndSetFile = (file: File) => {
         if (!file.type.startsWith("image/")) {
             toast.error("Please upload a valid image file.");
@@ -139,7 +149,22 @@ export default function ProductsPage() {
             toast.error("Image size must be less than 5MB.");
             return;
         }
+
+        if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
+        }
+
         setSelectedFile(file);
+        setImagePreview(URL.createObjectURL(file));
+    };
+
+    // 🗑️ Remove Image Handler
+    const handleRemoveImage = () => {
+        if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setSelectedFile(null);
+        setImagePreview(null);
     };
 
     // Add Product Handler
@@ -171,7 +196,7 @@ export default function ProductsPage() {
             toast.success("Product added successfully!", { id: toastId });
             setIsModalOpen(false);
             setNewProduct({ name: "", price: "", stock: "", description: "", category: "General" });
-            setSelectedFile(null);
+            handleRemoveImage();
             
             fetchProducts();
         } catch (err: any) {
@@ -247,405 +272,434 @@ export default function ProductsPage() {
     };
 
     return (
-        <div className="space-y-6 relative">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">My Products</h1>
-                    <p className="text-gray-500 mt-1">Manage and monitor your store items effortlessly.</p>
+    <div className="space-y-6 relative">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 className="text-3xl font-bold text-gray-900">My Products</h1>
+            <p className="text-gray-500 mt-1">Manage and monitor your store items effortlessly.</p>
+        </div>
+        <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-sm shrink-0"
+        >
+            + Add New Product
+        </button>
+        </div>
+
+        {/* Search Input, Category Filter & Sort Controls */}
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+        {/* Search Input */}
+        <div className="w-full lg:w-1/2 relative">
+            <input
+            type="text"
+            placeholder="Search products by name or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+            />
+            <span className="absolute left-3.5 top-3 text-gray-400">🔍</span>
+        </div>
+
+        {/* Filters & Sorting */}
+        <div className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-3">
+            {/* Category Filter */}
+            <div className="w-full sm:w-auto flex items-center gap-2">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
+                Filter:
+            </label>
+            <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+            >
+                <option value="All">All Categories</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Gadgets">Gadgets</option>
+                <option value="Accessories">Accessories</option>
+                <option value="General">General</option>
+            </select>
+            </div>
+
+            {/* Sort Control */}
+            <div className="w-full sm:w-auto flex items-center gap-2">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
+                Sort:
+            </label>
+            <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+            >
+                <option value="default">Default</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="stock-low">Stock: Low to High</option>
+            </select>
+            </div>
+        </div>
+        </div>
+
+        {/* Loading State */}
+        {loading && <p className="text-gray-600 font-medium p-4">Loading items...</p>}
+
+        {/* Products Table */}
+        {!loading && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {filteredProducts.length === 0 ? (
+            <div className="p-10 text-center text-gray-500">
+                No products found matching your criteria.
+            </div>
+            ) : (
+            <>
+                <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-sm font-semibold">
+                        <th className="p-4 pl-6 w-20">Image</th>
+                        <th className="p-4">Product Name</th>
+                        <th className="p-4">Category</th>
+                        <th className="p-4">Description</th>
+                        <th className="p-4">Price</th>
+                        <th className="p-4">Stock</th>
+                        <th className="p-4 pr-6 text-right">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 text-gray-700 text-sm">
+                    {paginatedProducts.map((product) => (
+                        <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="p-4 pl-6">
+                            {product.images && product.images.length > 0 ? (
+                            <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm"
+                            />
+                            ) : (
+                            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm">
+                                📦
+                            </div>
+                            )}
+                        </td>
+                        <td className="p-4 font-medium text-gray-950">{product.name}</td>
+                        <td className="p-4">{product.category || "General"}</td>
+                        <td className="p-4 truncate max-w-[150px]">{product.description}</td>
+                        <td className="p-4">${Number(product.price).toFixed(2)}</td>
+                        <td className="p-4">
+                            <span className={`px-2 py-1 rounded-md font-medium text-xs ${product.stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                            {product.stock} left
+                            </span>
+                        </td>
+                        <td className="p-4 pr-6 text-right space-x-2">
+                            <button
+                            onClick={() => handleEditClick(product)}
+                            className="text-blue-600 hover:underline font-medium transition-colors hover:text-blue-800"
+                            >
+                            Edit
+                            </button>
+                            <button
+                            onClick={() => handleDelete(product._id, product.name)}
+                            className="text-red-600 hover:underline font-medium transition-colors hover:text-red-800"
+                            >
+                            Delete
+                            </button>
+                        </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
                 </div>
-                <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-sm shrink-0"
+
+                {/* Pagination Controls */}
+                <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-gray-100 gap-4 text-xs font-medium text-gray-500">
+                <div>
+                    Showing <span className="text-gray-900 font-semibold">{((currentPage - 1) * itemsPerPage) + 1}</span> to{" "}
+                    <span className="text-gray-900 font-semibold">
+                    {Math.min(currentPage * itemsPerPage, filteredProducts.length)}
+                    </span> of{" "}
+                    <span className="text-gray-900 font-semibold">{filteredProducts.length}</span> entries
+                </div>
+
+                <div className="flex items-center gap-1">
+                    <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                    Previous
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                        currentPage === page
+                            ? "bg-orange-600 text-white"
+                            : "text-gray-600 hover:bg-gray-100"
+                        }`}
+                    >
+                        {page}
+                    </button>
+                    ))}
+
+                    <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                    Next
+                    </button>
+                </div>
+                </div>
+            </>
+            )}
+        </div>
+        )}
+
+        {/* ADD PRODUCT MODAL */}
+        {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Product 🛒</h2>
+            <p className="text-sm text-gray-500 mb-6">Fill in the details below to add a product.</p>
+
+            <form onSubmit={handleAddProduct} className="space-y-4">
+                <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
+                <input
+                    type="text"
+                    value={newProduct.name}
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                    placeholder="e.g., SESTONE Oversized Hoodie"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
+                    <input
+                    type="number"
+                    step="0.01"
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                    placeholder="29.99"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
+                    <input
+                    type="number"
+                    value={newProduct.stock}
+                    onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                    placeholder="50"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                    />
+                </div>
+                </div>
+
+                <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
+                <textarea
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    placeholder="Enter product description..."
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900 resize-none"
+                />
+                </div>
+
+                <div>
+    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+        Product Image
+    </label>
+
+    {imagePreview ? (
+        /* 🖼️ Active Image Preview Card */
+        <div className="relative border border-gray-200 rounded-xl p-2.5 bg-gray-50 flex items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3 min-w-0">
+                <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-14 h-14 object-cover rounded-lg border border-gray-200 shrink-0 bg-white"
+                />
+                <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-900 truncate">
+                        {selectedFile?.name}
+                    </p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                        {selectedFile ? (selectedFile.size / (1024 * 1024)).toFixed(2) : 0} MB
+                    </p>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0"
+                title="Remove image"
+            >
+                ✕ Remove
+            </button>
+        </div>
+    ) : (
+        /* 📦 Empty Dropzone */
+        <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                isDragging ? "border-orange-500 bg-orange-50/50" : "border-gray-200 hover:border-orange-400"
+            }`}
+            onClick={() => document.getElementById("fileInput")?.click()}
+        >
+            <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+            />
+            <div className="text-xs text-gray-500 space-y-1">
+                <p className="font-semibold text-gray-700 text-sm">Drag & Drop image here</p>
+                <p>or <span className="text-orange-500 underline">browse</span> computer</p>
+            </div>
+        </div>
+    )}
+</div>
+
+                <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Category</label>
+                <select
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                 >
-                    + Add New Product
+                    <option value="Clothing">Clothing</option>
+                    <option value="Gadgets">Gadgets</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="General">General</option>
+                </select>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-6">
+                <button
+                    type="button"
+                    onClick={() => {
+                    setIsModalOpen(false);
+                    setSelectedFile(null);
+                    }}
+                    className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={formLoading}
+                    className="px-5 py-2.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-gray-400"
+                >
+                    {formLoading ? "Saving..." : "Add Product"}
+                </button>
+                </div>
+            </form>
+            </div>
+        </div>
+        )}
+
+        {/* EDIT PRODUCT MODAL */}
+        {isEditModalOpen && editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold text-gray-900">Edit Product ✏️</h2>
+                <button
+                onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
+                className="text-gray-400 hover:text-gray-700 text-2xl leading-none transition-colors"
+                >
+                ×
                 </button>
             </div>
 
-            {/* 🔍 Search Input, Category Filter & Sort Controls */}
-            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                {/* Search Input */}
-                <div className="w-full lg:w-1/2 relative">
+            <form onSubmit={handleEditSubmit} className="space-y-4 mt-4">
+                <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
+                <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
                     <input
-                        type="text"
-                        placeholder="Search products by name or description..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                    type="number"
+                    step="0.01"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
                     />
-                    <span className="absolute left-3.5 top-3 text-gray-400">🔍</span>
+                </div>
+                <div>
+                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
+                    <input
+                    type="number"
+                    value={editForm.stock}
+                    onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                    />
+                </div>
                 </div>
 
-                {/* Filters & Sorting */}
-                <div className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-3">
-                    {/* Category Filter */}
-                    <div className="w-full sm:w-auto flex items-center gap-2">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
-                            Filter:
-                        </label>
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                        >
-                            <option value="All">All Categories</option>
-                            <option value="Clothing">Clothing</option>
-                            <option value="Gadgets">Gadgets</option>
-                            <option value="Accessories">Accessories</option>
-                            <option value="General">General</option>
-                        </select>
-                    </div>
-
-                    {/* 🔃 Sort Control */}
-                    <div className="w-full sm:w-auto flex items-center gap-2">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
-                            Sort:
-                        </label>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                        >
-                            <option value="default">Default</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="name-asc">Name: A to Z</option>
-                            <option value="stock-low">Stock: Low to High</option>
-                        </select>
-                    </div>
+                <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
+                <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900 resize-none"
+                />
                 </div>
+
+                <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Category</label>
+                <select
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
+                >
+                    <option value="Clothing">Clothing</option>
+                    <option value="Gadgets">Gadgets</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="General">General</option>
+                </select>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-6">
+                <button
+                    type="button"
+                    onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
+                    className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="px-5 py-2.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-gray-400"
+                >
+                    {editLoading ? "Updating..." : "Update Product"}
+                </button>
+                </div>
+            </form>
             </div>
-
-            {/* Loading State */}
-            {loading && <p className="text-gray-600 font-medium p-4">Loading items...</p>}
-
-            {/* Products Table */}
-            {!loading && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {filteredProducts.length === 0 ? (
-                        <div className="p-10 text-center text-gray-500">
-                            No products found matching your criteria.
-                        </div>
-                    ) : (
-                        <>
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-sm font-semibold">
-                                        <th className="p-4 pl-6 w-20">Image</th> 
-                                        <th className="p-4">Product Name</th>
-                                        <th className="p-4">Category</th>
-                                        <th className="p-4">Description</th>
-                                        <th className="p-4">Price</th>
-                                        <th className="p-4">Stock</th>
-                                        <th className="p-4 pr-6 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50 text-gray-700 text-sm">
-                                    {paginatedProducts.map((product) => (
-                                        <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
-                                            <td className="p-4 pl-6">
-                                                {product.images && product.images.length > 0 ? (
-                                                    <img 
-                                                        src={product.images[0]} 
-                                                        alt={product.name} 
-                                                        className="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm"
-                                                    />
-                                                ) : (
-                                                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm">
-                                                        📦
-                                                    </div>
-                                                )}
-                                            </td>
-
-                                            <td className="p-4 font-medium text-gray-950">{product.name}</td>
-                                            <td className="p-4">{product.category || "General"}</td>
-                                            <td className="p-4 truncate max-w-[150px]">{product.description}</td>
-                                            <td className="p-4">${product.price.toFixed(2)}</td>
-                                            <td className="p-4">
-                                                <span className={`px-2 py-1 rounded-md font-medium text-xs ${product.stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                                                    {product.stock} left
-                                                </span>
-                                            </td>
-                                            <td className="p-4 pr-6 text-right space-x-2">
-                                                <button 
-                                                    onClick={() => handleEditClick(product)}
-                                                    className="text-blue-600 hover:underline font-medium transition-colors hover:text-blue-800"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleDelete(product._id, product.name)}
-                                                    className="text-red-600 hover:underline font-medium transition-colors hover:text-red-800"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {/* 📄 Pagination Controls */}
-                            <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t border-gray-100 gap-4 text-xs font-medium text-gray-500">
-                                <div>
-                                    Showing <span className="text-gray-900 font-semibold">{((currentPage - 1) * itemsPerPage) + 1}</span> to{" "}
-                                    <span className="text-gray-900 font-semibold">
-                                        {Math.min(currentPage * itemsPerPage, filteredProducts.length)}
-                                    </span> of{" "}
-                                    <span className="text-gray-900 font-semibold">{filteredProducts.length}</span> entries
-                                </div>
-
-                                <div className="flex items-center gap-1">
-                                    <button
-                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                        disabled={currentPage === 1}
-                                        className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Previous
-                                    </button>
-
-                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                        <button
-                                            key={page}
-                                            onClick={() => setCurrentPage(page)}
-                                            className={`px-3 py-1.5 rounded-lg font-semibold transition-colors ${
-                                                currentPage === page
-                                                    ? "bg-orange-600 text-white"
-                                                    : "text-gray-600 hover:bg-gray-100"
-                                            }`}
-                                        >
-                                            {page}
-                                        </button>
-                                    ))}
-
-                                    <button
-                                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                        disabled={currentPage === totalPages}
-                                        className="px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </div>
-                        </>
-                    )}
-                </div>
-            )}
-
-            {/* ADD PRODUCT POPUP MODAL */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Product 🛒</h2>
-                        <p className="text-sm text-gray-500 mb-6">Fill in the details below to add a product.</p>
-                        
-                        <form onSubmit={handleAddProduct} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
-                                <input 
-                                    type="text" 
-                                    value={newProduct.name}
-                                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                                    placeholder="e.g., SESTONE Oversized Hoodie" 
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
-                                    <input 
-                                        type="number" 
-                                        value={newProduct.price}
-                                        onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                                        placeholder="29.99" 
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
-                                    <input 
-                                        type="number" 
-                                        value={newProduct.stock}
-                                        onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-                                        placeholder="50" 
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
-                                <textarea 
-                                    value={newProduct.description}
-                                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                                    placeholder="Enter product description..." 
-                                    rows={3}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900 resize-none"
-                                />
-                            </div>
-
-                            {/* Drag & Drop Box */}
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Image</label>
-                                <div
-                                    onDragOver={handleDragOver}
-                                    onDragLeave={handleDragLeave}
-                                    onDrop={handleDrop}
-                                    className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
-                                        isDragging ? "border-orange-500 bg-orange-50/50" : "border-gray-200 hover:border-orange-400"
-                                    }`}
-                                    onClick={() => document.getElementById("fileInput")?.click()}
-                                >
-                                    <input
-                                        id="fileInput"
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleFileChange}
-                                    />
-                                    {selectedFile ? (
-                                        <div className="text-sm text-gray-800 flex items-center justify-center gap-2">
-                                            <span>📸</span>
-                                            <span className="font-semibold text-orange-600 truncate max-w-[200px]">{selectedFile.name}</span>
-                                        </div>
-                                    ) : (
-                                        <div className="text-xs text-gray-500 space-y-1">
-                                            <p className="font-semibold text-gray-700 text-sm">Drag & Drop image here</p>
-                                            <p>or <span className="text-orange-500 underline">browse</span> computer</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Category</label>
-                                <select 
-                                    value={newProduct.category}
-                                    onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                                >
-                                    <option value="Clothing">Clothing</option>
-                                    <option value="Gadgets">Gadgets</option>
-                                    <option value="Accessories">Accessories</option>
-                                    <option value="General">General</option>
-                                </select>
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-6">
-                                <button 
-                                    type="button"
-                                    onClick={() => {
-                                        setIsModalOpen(false);
-                                        setSelectedFile(null);
-                                    }}
-                                    className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    type="submit"
-                                    disabled={formLoading}
-                                    className="px-5 py-2.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-gray-400"
-                                >
-                                    {formLoading ? "Saving..." : "Add Product"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* EDIT PRODUCT POPUP MODAL */}
-            {isEditModalOpen && editingProduct && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-2xl font-bold text-gray-900">Edit Product ✏️</h2>
-                            <button
-                                onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
-                                className="text-gray-400 hover:text-gray-700 text-2xl leading-none transition-colors"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleEditSubmit} className="space-y-4 mt-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Product Name</label>
-                                <input
-                                    type="text"
-                                    value={editForm.name}
-                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Price ($)</label>
-                                    <input
-                                        type="number"
-                                        value={editForm.price}
-                                        onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Stock Qty</label>
-                                    <input
-                                        type="number"
-                                        value={editForm.stock}
-                                        onChange={(e) => setEditForm({ ...editForm, stock: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Description</label>
-                                <textarea
-                                    value={editForm.description}
-                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                    rows={3}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900 resize-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Category</label>
-                                <select
-                                    value={editForm.category}
-                                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
-                                >
-                                    <option value="Clothing">Clothing</option>
-                                    <option value="Gadgets">Gadgets</option>
-                                    <option value="Accessories">Accessories</option>
-                                    <option value="General">General</option>
-                                </select>
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => { setIsEditModalOpen(false); setEditingProduct(null); }}
-                                    className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={editLoading}
-                                    className="px-5 py-2.5 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-gray-400"
-                                >
-                                    {editLoading ? "Saving..." : "Save Changes"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
+        )}
+    </div>
     );
 }
