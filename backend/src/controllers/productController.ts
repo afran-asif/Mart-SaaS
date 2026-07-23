@@ -20,20 +20,15 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
             return;
         }
 
-        // 🖼️ ইমেজ ফাইল প্রসেসিং
+        // 🖼️ Multi-Image File Processing (max 5 images)
         let productImages: string[] = [];
-        
-        // যদি ফ্রন্টএন্ড ড্র্যাগ-অ্যান্ড-ড্রপ থেকে ফাইল আপলোড করা হয়
-        // if (req.file) {
-        //     // লোকাল ইউআরএল জেনারেট করা হচ্ছে (যেমন: http://localhost:5000/uploads/1712345678.png)
-        //     const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-        //     productImages.push(imageUrl);
-        // }
 
-        if (req.file) {
-            // req.file.path হলো লোকাল ফাইল ডিরেক্টরি (যেমন: uploads/filename.png)
-            const cloudinaryUrl = await uploadToCloudinary(req.file.path);
-            productImages.push(cloudinaryUrl);
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+            // প্রতিটি ফাইল Cloudinary-তে প্যারালেলে আপলোড করা হচ্ছে
+            const uploadPromises = (req.files as Express.Multer.File[]).map((file) =>
+                uploadToCloudinary(file.path)
+            );
+            productImages = await Promise.all(uploadPromises);
         }
 
         const newProduct = new Product({
