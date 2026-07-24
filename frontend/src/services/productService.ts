@@ -27,6 +27,16 @@ export interface GetProductsParams {
     search?: string;
     category?: string;
 }
+export interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  category?: string;
+  stock?: number;
+  image?: string;
+  images?: string[];
+  description?: string;
+}
 
 // 🔍 ১. সব প্রোডাক্ট নিয়ে আসার এপিআই (Search, Filter, Pagination সহ)
 export const getAllProducts = async (params: GetProductsParams = {}) => {
