@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/v1/products";
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
+  ? `${process.env.NEXT_PUBLIC_API_URL}/v1/products` 
+  : "http://localhost:5000/api/v1/products";
 
 // 🔐 ফাইল আপলোডের সুবিধার্থে হেডার লজিক আলাদা করা হলো
 const getAuthHeaders = (isFormData = false) => {
