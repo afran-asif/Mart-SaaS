@@ -70,22 +70,24 @@ export const deleteProductApi = async (id: string): Promise<{ success: boolean; 
     }
 };
 
-// 🔄 ৪. প্রোডাক্ট আপডেট করার এপিআই (JSON অবজেক্ট এবং JSON হেডারসহ)
+// 🔄 ৪. প্রোডাক্ট আপডেট করার এপিআই (FormData বা JSON অবজেক্ট সহ)
 export const updateProductApi = async (
     id: string,
-    productData: {
+    productData: FormData | {
         name: string;
         price: number;
         stock: number;
         category: string;
         description: string;
+        existingImages?: string[];
     }
 ): Promise<{ success: boolean; message: string; product: any }> => {
     try {
+        const isFormData = productData instanceof FormData;
         const response = await axios.put(
             `${API_URL}/${id}`,
             productData,
-            getAuthHeaders(false)
+            getAuthHeaders(isFormData)
         );
         return response.data;
     } catch (error: any) {

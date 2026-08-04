@@ -12,7 +12,7 @@ router.route("/")
 
 // 🆔 ২. আইডি ভিত্তিক রাউট ("/:id") - প্রোডাক্ট আপডেট এবং ডিলিট করা
 router.route("/:id")
-    .put(protect, authorize("vendor"), updateProduct)
+    .put(protect, authorize("vendor"), upload.array("images", 5), updateProduct)
     .delete(protect, authorize("vendor"), deleteProduct);
 
 export default router;

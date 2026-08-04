@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 interface ImageUploaderProps {
     selectedFiles: File[];
     imagePreviews: string[];
+    existingImagesCount?: number;
     maxImages?: number;
     onFilesAdd: (files: File[], previews: string[]) => void;
     onRemove: (index: number) => void;
@@ -16,6 +17,7 @@ interface ImageUploaderProps {
 export default function ImageUploader({
     selectedFiles,
     imagePreviews,
+    existingImagesCount = 0,
     maxImages = 5,
     onFilesAdd,
     onRemove,
@@ -24,8 +26,10 @@ export default function ImageUploader({
     const [isDragging, setIsDragging] = React.useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const totalImagesCount = existingImagesCount + selectedFiles.length;
+
     const validateAndAddFiles = (files: File[]) => {
-        const remaining = maxImages - selectedFiles.length;
+        const remaining = maxImages - totalImagesCount;
         if (remaining <= 0) {
             toast.error(`Maximum ${maxImages} images allowed.`);
             return;
@@ -84,12 +88,12 @@ export default function ImageUploader({
                 </label>
                 <span
                     className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        selectedFiles.length >= maxImages
+                        totalImagesCount >= maxImages
                             ? "bg-orange-100 text-orange-700"
                             : "bg-gray-100 text-gray-500"
                     }`}
                 >
-                    {selectedFiles.length}/{maxImages}
+                    {totalImagesCount}/{maxImages}
                 </span>
             </div>
 
@@ -129,7 +133,7 @@ export default function ImageUploader({
             )}
 
             {/* Dropzone — hidden when limit reached */}
-            {selectedFiles.length < maxImages && (
+            {totalImagesCount < maxImages && (
                 <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -163,7 +167,7 @@ export default function ImageUploader({
             )}
 
             {/* Clear all button */}
-            {selectedFiles.length > 1 && (
+            {totalImagesCount > 1 && (
                 <button
                     type="button"
                     onClick={onClearAll}

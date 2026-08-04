@@ -117,11 +117,53 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
             res.status(404).json({ message: "Product not found or unauthorized" });
             return;
         }
+
+        const { name, price, description, category, stock, existingImages } = req.body;
+
+        const updateData: any = {};
+        if (name !== undefined) updateData.name = name;
+        if (price !== undefined) updateData.price = Number(price);
+        if (stock !== undefined) updateData.stock = Number(stock);
+        if (category !== undefined) updateData.category = category;
+        if (description !== undefined) updateData.description = description;
+
+        // Image Handling
+        let finalImages: string[] = [];
+
+        // Parse existingImages if sent via FormData or JSON
+        if (existingImages !== undefined) {
+            if (Array.isArray(existingImages)) {
+                finalImages = existingImages;
+            } else if (typeof existingImages === "string") {
+                try {
+                    finalImages = JSON.parse(existingImages);
+                } catch {
+                    finalImages = [existingImages];
+                }
+            }
+        } else if (!req.files || (req.files as any[]).length === 0) {
+            // If neither existingImages nor req.files were provided in request, keep existing product images
+            finalImages = product.images || [];
+        }
+
+        // Upload new files to Cloudinary if provided
+        if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+            const uploadPromises = (req.files as Express.Multer.File[]).map((file) =>
+                uploadToCloudinary(file.path)
+            );
+            const newUploadedImages = await Promise.all(uploadPromises);
+            finalImages = [...finalImages, ...newUploadedImages];
+        }
+
+        // Set final images array (limit to max 5)
+        updateData.images = finalImages.slice(0, 5);
+
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
-            { $set: req.body },
+            { $set: updateData },
             { new: true, runValidators: true }
         );
+
         res.status(200).json({
             success: true,
             message: "Product updated successfully",

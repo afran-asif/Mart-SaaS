@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { updateProductApi } from "@/services/productService";
 import { Product } from "@/types/product";
+import ImageUploader from "./ImageUploader";
 
 interface EditProductModalProps {
     isOpen: boolean;
@@ -12,6 +13,8 @@ interface EditProductModalProps {
     onClose: () => void;
     onSuccess: (updatedProduct: Product) => void;
 }
+
+const MAX_IMAGES = 5;
 
 export default function EditProductModal({
     isOpen,
@@ -28,7 +31,17 @@ export default function EditProductModal({
         description: "",
     });
 
-    // Populate form whenever the target product changes
+    // Existing remote images and newly selected files
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [newFiles, setNewFiles] = useState<File[]>([]);
+    const [newPreviews, setNewPreviews] = useState<string[]>([]);
+
+    // Revoke blob URLs helper
+    const cleanupBlobUrls = (previews: string[]) => {
+        previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+
+    // Populate form and images whenever the target product changes
     useEffect(() => {
         if (product) {
             setEditForm({
@@ -38,8 +51,52 @@ export default function EditProductModal({
                 category: product.category || "General",
                 description: product.description,
             });
+
+            // Initialize existing images array from product
+            const currentImages = product.images && product.images.length > 0
+                ? product.images
+                : (product.image ? [product.image] : []);
+            setExistingImages(currentImages);
+
+            // Reset new files
+            cleanupBlobUrls(newPreviews);
+            setNewFiles([]);
+            setNewPreviews([]);
         }
     }, [product]);
+
+    // Clean up on unmount
+    useEffect(() => {
+        return () => {
+            cleanupBlobUrls(newPreviews);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleFilesAdd = (addedFiles: File[], addedPreviews: string[]) => {
+        setNewFiles((prev) => [...prev, ...addedFiles]);
+        setNewPreviews((prev) => [...prev, ...addedPreviews]);
+    };
+
+    const handleRemoveImage = (index: number) => {
+        if (index < existingImages.length) {
+            // Remove from existing remote images
+            setExistingImages((prev) => prev.filter((_, i) => i !== index));
+        } else {
+            // Remove from new local files
+            const newIndex = index - existingImages.length;
+            URL.revokeObjectURL(newPreviews[newIndex]);
+            setNewFiles((prev) => prev.filter((_, i) => i !== newIndex));
+            setNewPreviews((prev) => prev.filter((_, i) => i !== newIndex));
+        }
+    };
+
+    const handleClearAllImages = () => {
+        setExistingImages([]);
+        cleanupBlobUrls(newPreviews);
+        setNewFiles([]);
+        setNewPreviews([]);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,20 +104,25 @@ export default function EditProductModal({
 
         if (!editForm.name.trim()) return toast.error("Product name is required.");
         if (Number(editForm.price) <= 0) return toast.error("Price must be greater than 0.");
+        if (Number(editForm.stock) < 0) return toast.error("Stock cannot be negative.");
 
         setEditLoading(true);
         const toastId = toast.loading("Updating product...");
 
         try {
-            const updatedData = {
-                name: editForm.name.trim(),
-                price: Number(editForm.price),
-                stock: Number(editForm.stock),
-                category: editForm.category,
-                description: editForm.description.trim(),
-            };
+            const formData = new FormData();
+            formData.append("name", editForm.name.trim());
+            formData.append("price", editForm.price);
+            formData.append("stock", editForm.stock);
+            formData.append("category", editForm.category);
+            formData.append("description", editForm.description.trim());
+            formData.append("existingImages", JSON.stringify(existingImages));
 
-            const result = await updateProductApi(product._id, updatedData);
+            newFiles.forEach((file) => {
+                formData.append("images", file);
+            });
+
+            const result = await updateProductApi(product._id, formData);
 
             toast.success("Product updated successfully!", { id: toastId });
             onSuccess({ ...product, ...result.product });
@@ -73,6 +135,8 @@ export default function EditProductModal({
     };
 
     if (!isOpen || !product) return null;
+
+    const combinedPreviews = [...existingImages, ...newPreviews];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -141,6 +205,17 @@ export default function EditProductModal({
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900 resize-none"
                         />
                     </div>
+
+                    {/* Image Uploader */}
+                    <ImageUploader
+                        selectedFiles={newFiles}
+                        imagePreviews={combinedPreviews}
+                        existingImagesCount={existingImages.length}
+                        maxImages={MAX_IMAGES}
+                        onFilesAdd={handleFilesAdd}
+                        onRemove={handleRemoveImage}
+                        onClearAll={handleClearAllImages}
+                    />
 
                     {/* Category */}
                     <div>
