@@ -1,7 +1,5 @@
 // src/services/orderService.ts
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { api } from "./api";
 
 export interface OrderItem {
     product: {
@@ -18,6 +16,7 @@ export interface Order {
     _id: string;
     customerName: string;
     customerEmail: string;
+    phone?: string;
     shippingAddress: string;
     totalAmount: number;
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
@@ -25,14 +24,34 @@ export interface Order {
     createdAt: string;
 }
 
-// Fetch all orders
+export interface CreateOrderPayload {
+    customerName: string;
+    customerEmail: string;
+    shippingAddress: string;
+    phone?: string;
+    totalAmount: number;
+    storeId: string; // ✅ কোন store এ order হচ্ছে
+    items: {
+        product: string;
+        quantity: number;
+        price: number;
+    }[];
+}
+
+// 📥 Fetch all orders for this vendor (token required)
 export const getAllOrders = async (): Promise<Order[]> => {
-    const response = await axios.get(`${API_URL}/orders`);
+    const response = await api.get("/orders");
     return response.data.orders || response.data;
 };
 
-// Update order status
+// ➕ Create a new order
+export const createOrder = async (orderData: CreateOrderPayload) => {
+    const response = await api.post("/orders", orderData);
+    return response.data;
+};
+
+// 🔄 Update order status (vendor only)
 export const updateOrderStatusApi = async (orderId: string, status: string) => {
-    const response = await axios.patch(`${API_URL}/orders/${orderId}/status`, { status });
+    const response = await api.patch(`/orders/${orderId}/status`, { status });
     return response.data;
 };

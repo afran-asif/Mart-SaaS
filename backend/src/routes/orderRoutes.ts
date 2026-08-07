@@ -1,28 +1,97 @@
-import express, { Request, Response } from "express";
+import express, { Response } from "express";
 import Order from "../models/Order";
+import { Store } from "../models/Store";
+import { protect, AuthenticatedRequest } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-// 📥 GET /api/orders — Fetch all orders
-router.get("/", async (req: Request, res: Response) => {
+// Helper — vendor এর storeId বের করা
+const getVendorStoreId = async (vendorId: string): Promise<string | null> => {
+    const store = await Store.findOne({ vendorId });
+    return store ? store._id.toString() : null;
+};
+
+// 📥 GET /api/v1/orders — Fetch only this vendor's orders
+router.get("/", protect, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const orders = await Order.find().populate("items.product").sort({ createdAt: -1 });
+        const storeId = await getVendorStoreId(req.user._id.toString());
+
+        if (!storeId) {
+            res.status(404).json({ message: "Store not found for this vendor." });
+            return;
+        }
+
+        const orders = await Order.find({ storeId })
+            .populate("items.product", "name price images")
+            .sort({ createdAt: -1 });
+
         res.status(200).json({ success: true, orders });
     } catch (error: any) {
         res.status(500).json({ message: error.message || "Failed to fetch orders" });
     }
 });
 
-// 🔄 PATCH /api/orders/:id/status — Update order status
-router.patch("/:id/status", async (req: Request, res: Response) => {
+// ➕ POST /api/v1/orders — Create a new order (customer places order)
+router.post("/", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const {
+            customerName,
+            customerEmail,
+            shippingAddress,
+            phone,
+            totalAmount,
+            items,
+            storeId,   // frontend থেকে পাঠাতে হবে (কোন store এ order হচ্ছে)
+        } = req.body;
+
+        if (!customerName || !customerEmail || !shippingAddress || !totalAmount || !items?.length || !storeId) {
+            res.status(400).json({ message: "Please provide all required order fields including storeId." });
+            return;
+        }
+
+        // storeId থেকে vendorId বের করা
+        const store = await Store.findById(storeId);
+        if (!store) {
+            res.status(404).json({ message: "Store not found." });
+            return;
+        }
+
+        const newOrder = await Order.create({
+            vendorId: store.vendorId,
+            storeId,
+            customerName,
+            customerEmail,
+            shippingAddress,
+            phone,
+            totalAmount,
+            items,
+            status: "Pending",
+        });
+
+        res.status(201).json({ success: true, order: newOrder });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed to create order" });
+    }
+});
+
+// 🔄 PATCH /api/v1/orders/:id/status — Update order status (vendor only)
+router.patch("/:id/status", protect, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { status } = req.body;
-        const updatedOrder = await Order.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            { new: true }
-        );
-        res.status(200).json({ success: true, order: updatedOrder });
+
+        const storeId = await getVendorStoreId(req.user._id.toString());
+
+        // নিশ্চিত করা — এই order এই vendor এর
+        const order = await Order.findOne({ _id: req.params.id, storeId });
+        if (!order) {
+            res.status(404).json({ message: "Order not found or not authorized." });
+            return;
+        }
+
+        order.status = status;
+        await order.save();
+
+        res.status(200).json({ success: true, order });
     } catch (error: any) {
         res.status(500).json({ message: error.message || "Failed to update order status" });
     }

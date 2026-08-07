@@ -1,11 +1,12 @@
-import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
+import express, { Application, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import storeRoutes from './routes/storeRoutes';
 import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
-dotenv.config();
 import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes';
 import tenantRoutes from './routes/tenantRoutes';
@@ -31,7 +32,7 @@ app.get("/",(req: Request, res: Response) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/store', storeRoutes);
 app.use('/api/v1/products', productRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/v1/orders", orderRoutes);
 app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
 
