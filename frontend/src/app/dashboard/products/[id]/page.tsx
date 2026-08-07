@@ -5,10 +5,13 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { getAllProducts, Product } from "@/services/productService";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/redux/cartSlice";
 
 export default function ProductDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const dispatch = useDispatch();
   const productId = params?.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -47,6 +50,7 @@ export default function ProductDetailsPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
+    dispatch(addToCart({ product, quantity }));
     toast.success(`${quantity}× ${product.name} added to cart!`);
   };
 

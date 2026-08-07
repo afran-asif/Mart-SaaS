@@ -2,13 +2,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/services/orderService";
+import { clearCart, removeFromCart } from "@/redux/cartSlice";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { items, totalAmount } = useSelector(
     (state: any) => state.cart || { items: [], totalAmount: 0 }
   );
@@ -36,6 +38,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!items || items.length === 0) {
+      toast.error("Your cart is empty!");
+      return;
+    }
+
     setLoading(true);
     try {
       const orderPayload = {
@@ -44,8 +51,8 @@ export default function CheckoutPage() {
         shippingAddress: formData.shippingAddress,
         phone: formData.phone,
         totalAmount: totalAmount || 0,
-        storeId: store?.id || store?._id || "", // ✅ vendor এর storeId
-        items: (items || []).map((item: any) => ({
+        storeId: store?.id || store?._id || "",
+        items: items.map((item: any) => ({
           product: item._id,
           quantity: item.quantity,
           price: item.price,
@@ -53,6 +60,7 @@ export default function CheckoutPage() {
       };
 
       await createOrder(orderPayload);
+      dispatch(clearCart());
       toast.success("🎉 Order placed successfully!");
       router.push("/dashboard/orders");
     } catch (error: any) {
