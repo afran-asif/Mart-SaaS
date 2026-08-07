@@ -48,6 +48,12 @@ export default function OrdersPage() {
         }
     };
 
+    const formatDate = (dateString?: string | Date) => {
+        if (!dateString) return "N/A";
+        const d = new Date(dateString);
+        return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString();
+    };
+
     // Update Status Handler
     const handleStatusChange = async (orderId: string, newStatus: string) => {
         const toastId = toast.loading("Updating order status...");
@@ -146,7 +152,7 @@ export default function OrdersPage() {
                                             <div className="text-xs text-gray-400">{order.customerEmail}</div>
                                         </td>
                                         <td className="p-4 text-xs text-gray-500">
-                                            {new Date(order.createdAt).toLocaleDateString()}
+                                            {formatDate(order.createdAt)}
                                         </td>
                                         <td className="p-4 font-semibold text-gray-900">
                                             ${order.totalAmount.toFixed(2)}

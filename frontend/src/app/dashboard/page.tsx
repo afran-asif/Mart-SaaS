@@ -64,6 +64,12 @@ export default function DashboardPage() {
     }
   };
 
+  const formatDate = (dateString?: string | Date) => {
+    if (!dateString) return "N/A";
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString();
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -155,7 +161,7 @@ export default function DashboardPage() {
                       <p className="text-[11px] text-gray-400">{order.customerEmail}</p>
                     </td>
                     <td className="py-3.5 px-2 text-xs text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                      {formatDate(order.createdAt)}
                     </td>
                     <td className="py-3.5 px-2 font-semibold text-gray-900">
                       ${order.totalAmount.toFixed(2)}
