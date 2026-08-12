@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { TenantRequest } from "../middlewares/tenantMiddleware";
 
 export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -33,6 +34,31 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             }
         });
     } catch(error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+
+
+export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Promise<void> => {
+    try {
+        const store = req.store;
+
+        if (!store) {
+            res.status(404).json({ message: "Store not found" });
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            store: {
+                id: store._id,
+                storeName: store.storeName,
+                subdomain: store.subdomain,
+                logo: store.logo,
+            }
+        });
+    } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
 };

@@ -217,3 +217,25 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+
+export const getTenantProductById = async (req: TenantRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const storeId = req.storeId;
+
+        const product = await Product.findOne({ _id: id, storeId });
+
+        if (!product) {
+            res.status(404).json({ message: "Product not found in this store" });
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            product
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};

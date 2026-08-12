@@ -3,6 +3,7 @@ import { Store } from "../models/Store";
 
 export interface TenantRequest extends Request {
     storeId?: string;
+    store?: any;
 }
 
 export const tenantResolver = async (req: TenantRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -22,6 +23,7 @@ export const tenantResolver = async (req: TenantRequest, res: Response, next: Ne
         }
 
         req.storeId = store._id.toString();
+        req.store = store;
 
         next();
     } catch (error) {

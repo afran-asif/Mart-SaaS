@@ -15,3 +15,15 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// ✅ Response error interceptor — backend এর actual error message বের করা
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Something went wrong";
+        return Promise.reject(new Error(message));
+    }
+);
