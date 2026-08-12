@@ -5,12 +5,37 @@ export const api = axios.create({
     withCredentials: true,
 });
 
-// ✅ প্রতিটি request-এ localStorage থেকে token যুক্ত করা
+// ✅ Subdomain বের করার হেল্পার ফাংশন
+const getSubdomain = (): string | null => {
+    if (typeof window === "undefined") return null;
+
+    const hostname = window.location.hostname; // যেমন: sestone.localhost বা sestone.yourdomain.com
+    const parts = hostname.split(".");
+
+    // লোকাল ডেভেলপমেন্টে: sestone.localhost → ["sestone", "localhost"]
+    // প্রোডাকশনে: sestone.yourdomain.com → ["sestone", "yourdomain", "com"]
+    if (hostname === "localhost" || hostname === "yourdomain.com" || hostname.startsWith("www.")) {
+        return null; // main domain, কোনো subdomain নেই
+    }
+
+    if (parts.length >= 2) {
+        return parts[0]; // প্রথম অংশটাই subdomain
+    }
+
+    return null;
+};
+
+// ✅ প্রতিটি request-এ token + tenant subdomain যুক্ত করা
 api.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
         const token = localStorage.getItem("token");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        const subdomain = getSubdomain();
+        if (subdomain) {
+            config.headers["X-Tenant-Subdomain"] = subdomain;
         }
     }
     return config;
