@@ -1,4 +1,6 @@
-// app/store/[subdomain]/product/[id]/page.tsx
+import AddToCartButton from "@/components/storefront/AddToCartButton";
+import CartIcon from "@/components/storefront/CartIcon";
+import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 interface Product {
     _id: string;
     name: string;
@@ -57,16 +59,7 @@ export default async function ProductDetailPage({
     return (
         <div className="min-h-screen bg-[#F6F3EC]">
             {/* সিম্পল হেডার — ব্যাক লিংক সহ */}
-            <header className="sticky top-0 z-10 bg-[#F6F3EC]/95 backdrop-blur-sm border-b border-[#1B1E19]/10">
-                <div className="max-w-6xl mx-auto px-6 py-4">
-                    <a
-                        href="/"
-                        className="inline-flex items-center gap-1.5 text-sm text-[#274B3B] font-medium hover:underline underline-offset-4"
-                    >
-                        ← দোকানে ফিরে যান
-                    </a>
-                </div>
-            </header>
+            <StorefrontHeader variant="sub" />
 
             <main className="max-w-6xl mx-auto px-6 py-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -128,17 +121,7 @@ export default async function ProductDetailPage({
                             )}
                         </div>
 
-                        {/* Add to Cart বাটন — এখনো ফাংশনাল না, পরের ধাপে যুক্ত হবে */}
-                        <button
-                            disabled={outOfStock}
-                            className={`w-full py-3.5 rounded-lg font-medium text-sm transition-colors ${
-                                outOfStock
-                                    ? "bg-[#8B8F82]/20 text-[#8B8F82] cursor-not-allowed"
-                                    : "bg-[#274B3B] text-[#F6F3EC] hover:bg-[#1F3D2F]"
-                            }`}
-                        >
-                            {outOfStock ? "স্টক নেই" : "কার্টে যোগ করুন"}
-                        </button>
+                        <AddToCartButton product={product}/>
                     </div>
                 </div>
             </main>

@@ -1,4 +1,7 @@
-// app/store/[subdomain]/page.tsx
+import CartIcon from "@/components/storefront/CartIcon";
+import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+
+
 interface Product {
     _id: string;
     name: string;
@@ -68,32 +71,7 @@ export default async function StorePage({
     return (
         <div className="min-h-screen bg-[#F6F3EC]">
             {/* Header — শপ ব্যানার */}
-            <header className="sticky top-0 z-10 bg-[#F6F3EC]/95 backdrop-blur-sm border-b border-[#1B1E19]/10">
-                <div className="max-w-6xl mx-auto px-6 py-5 flex items-center gap-4">
-                    {store.logo ? (
-                        <img
-                            src={store.logo}
-                            alt={store.storeName}
-                            className="w-11 h-11 rounded-full object-cover border-2 border-[#274B3B]"
-                        />
-                    ) : (
-                        <div className="w-11 h-11 rounded-full bg-[#274B3B] flex items-center justify-center text-[#F6F3EC] font-['Space_Grotesk'] font-bold text-lg">
-                            {store.storeName.charAt(0).toUpperCase()}
-                        </div>
-                    )}
-                    <div>
-                        <h1 className="font-['Space_Grotesk'] font-bold text-xl text-[#1B1E19] leading-tight">
-                            {store.storeName}
-                        </h1>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7A23D]" />
-                            <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wider text-[#8B8F82]">
-                                Open now
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} />
 
             {/* Product Grid */}
             <main className="max-w-6xl mx-auto px-6 py-10">

@@ -29,10 +29,18 @@ const calculateTotals = (items: CartItem[]) => {
     return { totalQuantity, totalAmount };
 };
 
+// Helper — dynamic storage key বানানো (subdomain অনুযায়ী)
+const getCartStorageKey = (): string => {
+    if (typeof window === "undefined") return "mart_cart";
+    const hostname = window.location.hostname;
+    const subdomain = hostname.split(".")[0];
+    return `mart_cart_${subdomain}`;
+};
+
 // Helper — localStorage-এ সেভ করা
 const saveCartToStorage = (items: CartItem[]) => {
     if (typeof window !== "undefined") {
-        localStorage.setItem("mart_cart", JSON.stringify(items));
+        localStorage.setItem(getCartStorageKey(), JSON.stringify(items));
     }
 };
 
@@ -105,13 +113,13 @@ const cartSlice = createSlice({
             state.totalQuantity = 0;
             state.totalAmount = 0;
             if (typeof window !== "undefined") {
-                localStorage.removeItem("mart_cart");
+                localStorage.removeItem(getCartStorageKey());
             }
         },
 
         rehydrateCart: (state) => {
             if (typeof window !== "undefined") {
-                const cartData = localStorage.getItem("mart_cart");
+                const cartData = localStorage.getItem(getCartStorageKey());
                 if (cartData) {
                     try {
                         const items: CartItem[] = JSON.parse(cartData);
@@ -120,7 +128,7 @@ const cartSlice = createSlice({
                         state.totalQuantity = totals.totalQuantity;
                         state.totalAmount = totals.totalAmount;
                     } catch {
-                        localStorage.removeItem("mart_cart");
+                        localStorage.removeItem(getCartStorageKey());
                     }
                 }
             }
