@@ -115,7 +115,7 @@ export default async function StorePage({
                             return (
                                 <a
                                     key={product._id}
-                                    href={`/store/${subdomain}/product/${product._id}`}
+                                    href={`/product/${product._id}`}
                                     className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#274B3B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F6F3EC] rounded-lg"
                                 >
                                     <div className="relative bg-white rounded-lg overflow-hidden border border-[#1B1E19]/8 transition-shadow duration-200 group-hover:shadow-md">
