@@ -1,4 +1,3 @@
-// app/store/[subdomain]/cart/page.tsx
 "use client";
 
 import { useSelector, useDispatch } from "react-redux";

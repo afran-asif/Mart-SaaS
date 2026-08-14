@@ -1,4 +1,3 @@
-// components/storefront/StorefrontHeader.tsx
 import CartIcon from "./CartIcon";
 
 interface StorefrontHeaderProps {

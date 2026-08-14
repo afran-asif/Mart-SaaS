@@ -16,12 +16,18 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
+const allowedOriginPattern = /^http:\/\/([a-zA-Z0-9-]+\.)?localhost:3000$/;
+
 app.use(
     cors({
-        origin: "http://localhost:3000",
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true); // Postman/server-to-server এর জন্য
+            if (allowedOriginPattern.test(origin)) {
+                return callback(null, true);
+            }
+            return callback(new Error("Not allowed by CORS"));
+        },
         credentials: true,
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // OPTIONS মেথডটি প্রি-ফ্লাইট রিকোয়েস্ট হ্যান্ডেল করে
-        allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
     })
 );
 

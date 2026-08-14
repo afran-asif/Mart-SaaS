@@ -14,12 +14,14 @@ interface CartState {
     items: CartItem[];
     totalQuantity: number;
     totalAmount: number;
+    hydrated: boolean;   // ✅ নতুন ফ্ল্যাগ
 }
 
 const initialState: CartState = {
     items: [],
     totalQuantity: 0,
     totalAmount: 0,
+    hydrated: false,   // ✅ শুরুতে false
 };
 
 // Helper — totalQuantity ও totalAmount হিসাব করা
@@ -132,6 +134,7 @@ const cartSlice = createSlice({
                     }
                 }
             }
+            state.hydrated = true;
         },
     },
 });
