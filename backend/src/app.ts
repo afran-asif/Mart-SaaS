@@ -10,6 +10,7 @@ import orderRoutes from './routes/orderRoutes';
 import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes';
 import tenantRoutes from './routes/tenantRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -41,7 +42,7 @@ app.use('/api/v1/products', productRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
-
+app.use("/api/v1/payment", paymentRoutes);
 
 const startServer = async () => {
     await connectDB();

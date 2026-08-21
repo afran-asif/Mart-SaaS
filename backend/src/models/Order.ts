@@ -9,6 +9,9 @@ export interface IOrder extends Document {
     shippingAddress: string;
     totalAmount: number;
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
+    paymentStatus: "Unpaid" | "Paid" | "Failed";
+    paymentMethod: "COD" | "SSLCommerz";
+    transactionId?: string;
     items: Array<{
         product: Types.ObjectId;
         quantity: number;
@@ -47,6 +50,20 @@ const OrderSchema: Schema = new Schema(
                 price: { type: Number, required: true, min: 0 },
             },
         ],
+        paymentStatus: {
+            type: String,
+            enum: ["Unpaid", "Paid", "Failed"],
+            default: "Unpaid",
+        },
+        paymentMethod: {
+            type: String,
+            enum: ["COD", "SSLCommerz"],
+            default: "COD",
+        },
+        transactionId: {
+            type: String,
+            default: null,
+        },
     },
     { timestamps: true }
 );
