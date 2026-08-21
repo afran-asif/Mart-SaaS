@@ -64,16 +64,21 @@ export default function CheckoutPage() {
                 price: item.price,
             }));
 
-            const res = await api.post("/orders", {
+            const res = await api.post("/payment/initiate", {
                 ...form,
                 storeId,
                 items: orderItems,
                 totalAmount,
             });
-            orderPlacedRef.current = true;   // ✅ redirect guard বন্ধ করে দাও
-            dispatch(clearCart());
-            toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
-            router.push(`/order-confirmed?orderId=${res.data.order._id}`);
+            if (res.data.success && res.data.paymentUrl) {
+                orderPlacedRef.current = true;   // redirect guard বন্ধ করা, cart clear হলেও যেন হোমে না পাঠায়
+                dispatch(clearCart());
+
+                 // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
+                window.location.href = res.data.paymentUrl;
+            } else {
+                toast.error("পেমেন্ট শুরু করা যায়নি");
+            }
         } catch (error: any) {
             toast.error(error.message || "অর্ডার করতে সমস্যা হয়েছে");
         } finally {

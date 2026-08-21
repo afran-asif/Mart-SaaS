@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import mongoose from "mongoose";
-import SSLCommerzPayment from "sslcommerz-lts";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const SSLCommerzPayment = require("sslcommerz-lts");
 import Order from "../models/Order";
 import { Store } from "../models/Store";
 import { Product } from "../models/Product";
@@ -82,10 +83,10 @@ export const initiatePayment = async (req: Request, res: Response) => {
             total_amount: totalAmount,
             currency: "BDT",
             tran_id: order._id.toString(), // order._id কেই transaction id হিসেবে ব্যবহার করছি
-            success_url: `${BACKEND_URL}/api/v1/payment/success`,
-            fail_url: `${BACKEND_URL}/api/v1/payment/fail`,
-            cancel_url: `${BACKEND_URL}/api/v1/payment/cancel`,
-            ipn_url: `${BACKEND_URL}/api/v1/payment/ipn`,
+            success_url: `${BACKEND_URL}/api/v1/payment/success?subdomain=${store.subdomain}`,
+            fail_url: `${BACKEND_URL}/api/v1/payment/fail?subdomain=${store.subdomain}`,
+            cancel_url: `${BACKEND_URL}/api/v1/payment/cancel?subdomain=${store.subdomain}`,
+            ipn_url: `${BACKEND_URL}/api/v1/payment/ipn?subdomain=${store.subdomain}`,
             shipping_method: "Courier",
             product_name: "Order from " + store.storeName,
             product_category: "General",
@@ -97,6 +98,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             ship_name: customerName,
             ship_add1: shippingAddress,
             ship_city: "Dhaka",
+            ship_postcode: "1000",
             ship_country: "Bangladesh",
         };
 
@@ -126,8 +128,10 @@ export const initiatePayment = async (req: Request, res: Response) => {
 
 // ✅ Payment সফল হলে
 export const paymentSuccess = async (req: Request, res: Response) => {
+    console.log("✅ SUCCESS HANDLER HIT:", req.body);
     try {
         const { tran_id } = req.body;
+        const subdomain = req.query.subdomain as string;   // ✅ query থেকে subdomain নেওয়া
 
         const order = await Order.findById(tran_id);
         if (!order) {
@@ -140,7 +144,8 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         await order.save();
 
         // ✅ কাস্টমারকে frontend এর confirmation page এ পাঠানো
-        res.redirect(`${process.env.FRONTEND_URL}/order-confirmed?orderId=${order._id}`);
+        // ✅ সঠিক subdomain সহ redirect
+        res.redirect(`http://${subdomain}.localhost:3000/order-confirmed?orderId=${order._id}`);
     } catch (error: any) {
         res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
     }
@@ -148,11 +153,13 @@ export const paymentSuccess = async (req: Request, res: Response) => {
 
 // ❌ Payment fail হলে
 export const paymentFail = async (req: Request, res: Response) => {
+    console.log("❌ FAIL HANDLER HIT:", req.body); // ✅ ডিবাগ লাইন
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         const { tran_id } = req.body;
+        const subdomain = req.query.subdomain as string;   // ✅ query থেকে subdomain নেওয়া
         const order = await Order.findById(tran_id).session(session);
 
         if (order && order.paymentStatus === "Unpaid") {
@@ -166,7 +173,7 @@ export const paymentFail = async (req: Request, res: Response) => {
         }
 
         await session.commitTransaction();
-        res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+        res.redirect(`http://${subdomain}.localhost:3000/payment-failed`);
     } catch (error: any) {
         await session.abortTransaction();
         res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
@@ -182,6 +189,7 @@ export const paymentCancel = async (req: Request, res: Response) => {
 
     try {
         const { tran_id } = req.body;
+        const subdomain = req.query.subdomain as string;   // ✅ query থেকে subdomain নেওয়া
         const order = await Order.findById(tran_id).session(session);
 
         if (order && order.paymentStatus === "Unpaid") {
@@ -194,7 +202,7 @@ export const paymentCancel = async (req: Request, res: Response) => {
         }
 
         await session.commitTransaction();
-        res.redirect(`${process.env.FRONTEND_URL}/`);
+        res.redirect(`http://${subdomain}.localhost:3000/`);
     } catch (error: any) {
         await session.abortTransaction();
         res.redirect(`${process.env.FRONTEND_URL}/`);

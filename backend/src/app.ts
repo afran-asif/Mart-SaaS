@@ -11,13 +11,17 @@ import { connectDB } from "./config/db";
 import authRoutes from './routes/authRoutes';
 import tenantRoutes from './routes/tenantRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import paymentCallbackRoutes from './routes/paymentCallbackRoutes'
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const allowedOriginPattern = /^http:\/\/([a-zA-Z0-9-]+\.)?localhost:3000$/;
+
+app.use("/api/v1/payment", paymentCallbackRoutes);
 
 app.use(
     cors({
