@@ -1,18 +1,20 @@
 import { Response, Request } from "express";
 import mongoose from "mongoose";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const SSLCommerzPayment = require("sslcommerz-lts");
 import Order from "../models/Order";
 import { Store } from "../models/Store";
 import { Product } from "../models/Product";
+const SSLCommerzPayment = require("sslcommerz-lts");
+
 
 const store_id = process.env.SSLCOMMERZ_STORE_ID as string;
 const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD as string;
 const is_live = process.env.SSLCOMMERZ_IS_LIVE === "true";
-
+const FRONTEND_PROTOCOL = process.env.FRONTEND_PROTOCOL || "http";
+const FRONTEND_BASE_DOMAIN = process.env.FRONTEND_BASE_DOMAIN || "localhost:3000";
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"
 
-// 💳 ১. Payment শুরু করা — order তৈরি + SSLCommerz session initiate
+//Payment শুরু করা — order তৈরি + SSLCommerz session initiate
 export const initiatePayment = async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -126,12 +128,12 @@ export const initiatePayment = async (req: Request, res: Response) => {
     }
 };
 
-// ✅ Payment সফল হলে
+//Payment সফল হলে
 export const paymentSuccess = async (req: Request, res: Response) => {
     console.log("✅ SUCCESS HANDLER HIT:", req.body);
     try {
         const { tran_id } = req.body;
-        const subdomain = req.query.subdomain as string;   // ✅ query থেকে subdomain নেওয়া
+        const subdomain = req.query.subdomain as string;
 
         const order = await Order.findById(tran_id);
         if (!order) {
@@ -143,23 +145,23 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         order.transactionId = req.body.val_id || tran_id;
         await order.save();
 
-        // ✅ কাস্টমারকে frontend এর confirmation page এ পাঠানো
-        // ✅ সঠিক subdomain সহ redirect
-        res.redirect(`http://${subdomain}.localhost:3000/order-confirmed?orderId=${order._id}`);
+
+        //কাস্টমারকে frontend এর confirmation page এ পাঠানো ,সঠিক subdomain সহ redirect
+        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
     } catch (error: any) {
-        res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+        res.redirect(`${FRONTEND_URL}/payment-failed`);
     }
 };
 
-// ❌ Payment fail হলে
+//Payment fail হলে
 export const paymentFail = async (req: Request, res: Response) => {
-    console.log("❌ FAIL HANDLER HIT:", req.body); // ✅ ডিবাগ লাইন
+    console.log("❌ FAIL HANDLER HIT:", req.body); //ডিবাগ লাইন
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         const { tran_id } = req.body;
-        const subdomain = req.query.subdomain as string;   // ✅ query থেকে subdomain নেওয়া
+        const subdomain = req.query.subdomain as string;
         const order = await Order.findById(tran_id).session(session);
 
         if (order && order.paymentStatus === "Unpaid") {
@@ -173,23 +175,23 @@ export const paymentFail = async (req: Request, res: Response) => {
         }
 
         await session.commitTransaction();
-        res.redirect(`http://${subdomain}.localhost:3000/payment-failed`);
+        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed`);
     } catch (error: any) {
         await session.abortTransaction();
-        res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+        res.redirect(`${FRONTEND_URL}/payment-failed`);
     } finally {
         session.endSession();
     }
 };
 
-// 🚫 Payment cancel হলে (কাস্টমার নিজে বাতিল করলে)
+//Payment cancel হলে (কাস্টমার নিজে বাতিল করলে)
 export const paymentCancel = async (req: Request, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         const { tran_id } = req.body;
-        const subdomain = req.query.subdomain as string;   // ✅ query থেকে subdomain নেওয়া
+        const subdomain = req.query.subdomain as string;
         const order = await Order.findById(tran_id).session(session);
 
         if (order && order.paymentStatus === "Unpaid") {
@@ -202,16 +204,17 @@ export const paymentCancel = async (req: Request, res: Response) => {
         }
 
         await session.commitTransaction();
-        res.redirect(`http://${subdomain}.localhost:3000/`);
+        
+        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed?reason=cancelled`);
     } catch (error: any) {
         await session.abortTransaction();
-        res.redirect(`${process.env.FRONTEND_URL}/`);
+        res.redirect(`${FRONTEND_URL}/`);
     } finally {
         session.endSession();
     }
 };
 
-// 🔔 IPN — সার্ভার-টু-সার্ভার কনফার্মেশন (সবচেয়ে বিশ্বস্ত সোর্স)
+//IPN — সার্ভার-টু-সার্ভার কনফার্মেশন (সবচেয়ে বিশ্বস্ত সোর্স)
 export const paymentIPN = async (req: Request, res: Response) => {
     try {
         const { tran_id, status } = req.body;
