@@ -28,6 +28,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             totalAmount,
             items,
             storeId,
+            paymentMethod,
         } = req.body;
 
         if (!customerName || !customerEmail || !shippingAddress || !totalAmount || !items?.length || !storeId) {
@@ -80,7 +81,17 @@ export const initiatePayment = async (req: Request, res: Response) => {
 
         const order = newOrder[0];
 
-        // SSLCommerz এ পাঠানোর ডেটা
+        if (paymentMethod === "COD") {
+            await session.commitTransaction();
+            res.status(200).json({
+                success: true,
+                paymentMethod: "COD",
+                orderId: order._id,
+            })
+            return;
+        }
+
+        // SSLCommerz এ পাঠানোর ডেটা (gateway session)
         const sslData = {
             total_amount: totalAmount,
             currency: "BDT",
@@ -117,6 +128,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
 
         res.status(200).json({
             success: true,
+            paymentMethod: "SSLCommerz",
             paymentUrl: apiResponse.GatewayPageURL,
             orderId: order._id,
         });

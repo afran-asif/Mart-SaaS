@@ -23,6 +23,7 @@ export default function CheckoutPage() {
         phone: "",
         shippingAddress: "",
     });
+    const [ paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCommerz">("COD");
 
     // পেজ লোড হওয়ার সাথে সাথে বর্তমান store এর _id ফেচ করা
     useEffect(() => {
@@ -69,13 +70,19 @@ export default function CheckoutPage() {
                 storeId,
                 items: orderItems,
                 totalAmount,
+                paymentMethod,
             });
-            if (res.data.success && res.data.paymentUrl) {
+            if (res.data.success) {
                 orderPlacedRef.current = true;   // redirect guard বন্ধ করা, cart clear হলেও যেন হোমে না পাঠায়
                 dispatch(clearCart());
-
-                 // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
+                
+                if (res.data.paymentMethod === "COD") {
+                    toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
+                    router.push(`/order-confirmed?orderId=${res.data.orderId}`);
+                } else if (res.data.paymentUrl) {
+                    // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
                 window.location.href = res.data.paymentUrl;
+                }
             } else {
                 toast.error("পেমেন্ট শুরু করা যায়নি");
             }
@@ -180,7 +187,36 @@ export default function CheckoutPage() {
                             <span className="font-['IBM_Plex_Mono']">৳{totalAmount}</span>
                         </div>
                     </div>
-
+                    {/* Payment Method নির্বাচন */}
+                    <div>
+                        <label className="block text-sm font-medium text-[#1B1E19] mb-2">
+                            পেমেন্ট মাধ্যম
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod("COD")}
+                                className={`py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
+                                    paymentMethod === "COD"
+                                        ? "border-[#274B3B] bg-[#274B3B]/5 text-[#274B3B]"
+                                        : "border-[#1B1E19]/15 text-[#8B8F82] hover:border-[#1B1E19]/30"
+                                }`}
+                            >
+                                ক্যাশ অন ডেলিভারি
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod("SSLCommerz")}
+                                className={`py-3 px-4 rounded-lg border text-sm font-medium transition-colors ${
+                                    paymentMethod === "SSLCommerz"
+                                        ? "border-[#274B3B] bg-[#274B3B]/5 text-[#274B3B]"
+                                        : "border-[#1B1E19]/15 text-[#8B8F82] hover:border-[#1B1E19]/30"
+                                }`}
+                            >
+                                bKash / Nagad / Card
+                            </button>
+                        </div>
+                    </div>
                     <button
                         type="submit"
                         disabled={loading}
