@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
 
     const isMainDomain =
         hostname === "localhost:3000" ||
-        hostname === "mart-saas-1.onrender.com" ||  
+        hostname === "mart-saa-s.vercel.app" ||  
         hostname === "vendoo.shop" ||          
         hostname === "www.vendoo.shop";
 
