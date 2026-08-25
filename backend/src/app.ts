@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const allowedOriginPattern = /^http:\/\/([a-zA-Z0-9-]+\.)?localhost:3000$/;
+const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saas-1\.onrender\.com)$/;
 
 app.use("/api/v1/payment", paymentCallbackRoutes);
 
