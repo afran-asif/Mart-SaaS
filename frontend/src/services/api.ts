@@ -9,13 +9,18 @@ export const api = axios.create({
 const getSubdomain = (): string | null => {
     if (typeof window === "undefined") return null;
 
-    const hostname = window.location.hostname; // যেমন: sestone.localhost বা sestone.yourdomain.com
+    const hostname = window.location.hostname;
     const parts = hostname.split(".");
 
-    // লোকাল ডেভেলপমেন্টে: sestone.localhost → ["sestone", "localhost"]
-    // প্রোডাকশনে: sestone.yourdomain.com → ["sestone", "yourdomain", "com"]
-    if (hostname === "localhost" || hostname === "yourdomain.com" || hostname.startsWith("www.")) {
-        return null; // main domain, কোনো subdomain নেই
+    // main domain গুলো — কোনো subdomain নেই
+    if (
+        hostname === "localhost" ||
+        hostname === "mart-saa-s.vercel.app" ||
+        hostname === "vendoo.shop" ||
+        hostname === "www.vendoo.shop" ||
+        hostname.startsWith("www.")
+    ) {
+        return null;
     }
 
     if (parts.length >= 2) {
