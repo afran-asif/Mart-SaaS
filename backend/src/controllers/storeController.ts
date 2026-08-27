@@ -62,3 +62,28 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+export const getMyStore = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const vendorId = req.user._id;
+        const store = await Store.findOne({vendorId});
+
+        if (!store) {
+            res.status(404).json({ message: "Store not found for this vendor"});
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            store: {
+                id: store._id,
+                storeName: store.storeName,
+                subdomain: store.subdomain,
+                logo: store.logo,
+                status: store.status,
+            },
+        });
+    } catch (error) {
+        res.status(500).json ({ message: (error as Error).message })
+    }
+};
