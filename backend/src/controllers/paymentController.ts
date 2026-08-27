@@ -73,7 +73,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
                     items,
                     status: "Pending",
                     paymentStatus: "Unpaid",
-                    paymentMethod: "SSLCommerz",
+                    paymentMethod: paymentMethod === "COD" ? "COD" : "SSLCommerz",
                 },
             ],
             { session }

@@ -17,7 +17,7 @@ const validTransitions: Record<string, string[]> = {
     Delivered: [],   // terminal — কোথাও যেতে পারবে না
     Cancelled: [],   // terminal — কোথাও যেতে পারবে না
 };
-// 📥 Fetch only this vendor's orders
+//Fetch only this vendor's orders
 export const getVendorOrders = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const storeId = await getVendorStoreId(req.user._id.toString());
@@ -37,7 +37,7 @@ export const getVendorOrders = async (req: AuthenticatedRequest, res: Response) 
     }
 };
 
-// ➕ Create a new order (customer places order) — with atomic stock deduction
+//Create a new order (customer places order) — with atomic stock deduction
 export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -110,7 +110,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-// 🔄 Update order status (vendor only)
+//Update order status (vendor only)
 export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -126,7 +126,7 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
             return;
         }
 
-        // ✅ স্ট্যাটাস ফ্লো ভ্যালিডেশন
+        //স্ট্যাটাস ফ্লো ভ্যালিডেশন
         const allowedNextStatuses = validTransitions[order.status] || [];
         if (!allowedNextStatuses.includes(status)) {
             await session.abortTransaction();
@@ -152,5 +152,93 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
         res.status(500).json({ message: error.message || "Failed to update order status" });
     } finally {
         session.endSession();
+    }
+};
+
+// orderController.ts এর নিচে যোগ করো
+
+export const getVendorAnalytics = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const storeId = await getVendorStoreId(req.user._id.toString());
+        
+
+        if (!storeId) {
+            res.status(404).json({ message: "Store not found for this vendor." });
+            return;
+        }
+
+        const storeObjectId = new mongoose.Types.ObjectId(storeId);
+        const totalProducts = await Product.countDocuments({ storeId: storeObjectId });
+        
+        // ১. মোট revenue এবং অর্ডার সংখ্যা (শুধু Paid orders থেকে revenue গণনা)
+        const revenueResult = await Order.aggregate([
+            {
+                $match: {
+                    storeId: storeObjectId,
+                    $or: [
+                        { paymentStatus: "Paid" },
+                        { paymentMethod: "COD", status: "Delivered" },
+                    ],
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalRevenue: { $sum: "$totalAmount" },
+                    paidOrderCount: { $sum: 1 },
+                },
+            },
+        ]);
+
+        // ২. Order status অনুযায়ী breakdown
+        const statusBreakdown = await Order.aggregate([
+            { $match: { storeId: storeObjectId } },
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 },
+                },
+            },
+        ]);
+
+        // ৩. Payment status অনুযায়ী breakdown
+        const paymentBreakdown = await Order.aggregate([
+            { $match: { storeId: storeObjectId } },
+            {
+                $group: {
+                    _id: "$paymentStatus",
+                    count: { $sum: 1 },
+                },
+            },
+        ]);
+
+        // ৪. মোট অর্ডার সংখ্যা (সব status মিলিয়ে)
+        const totalOrders = await Order.countDocuments({ storeId: storeObjectId });
+
+        // ৫. সাম্প্রতিক ৫টা অর্ডার
+        const recentOrders = await Order.find({ storeId: storeObjectId })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select("customerName totalAmount status paymentStatus createdAt");
+
+        res.status(200).json({
+            success: true,
+            analytics: {
+                totalRevenue: revenueResult[0]?.totalRevenue || 0,
+                totalOrders,
+                totalProducts,
+                statusBreakdown: statusBreakdown.reduce((acc, item) => {
+                    acc[item._id] = item.count;
+                    return acc;
+                }, {} as Record<string, number>),
+                paymentBreakdown: paymentBreakdown.reduce((acc, item) => {
+                    acc[item._id] = item.count;
+                    return acc;
+                }, {} as Record<string, number>),
+                recentOrders,
+            },
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed to fetch analytics" });
     }
 };
