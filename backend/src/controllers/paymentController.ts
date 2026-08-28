@@ -3,11 +3,12 @@ import mongoose from "mongoose";
 import Order from "../models/Order";
 import { Store } from "../models/Store";
 import { Product } from "../models/Product";
+import { decrypt } from "../utils/encryption";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
 
-const store_id = process.env.SSLCOMMERZ_STORE_ID as string;
-const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD as string;
+const PLATFORM_STORE_ID = process.env.SSLCOMMERZ_STORE_ID as string;
+const PLATFORM_STORE_PASSWD = process.env.SSLCOMMERZ_STORE_PASSWORD as string;
 const is_live = process.env.SSLCOMMERZ_IS_LIVE === "true";
 const FRONTEND_PROTOCOL = process.env.FRONTEND_PROTOCOL || "http";
 const FRONTEND_BASE_DOMAIN = process.env.FRONTEND_BASE_DOMAIN || "localhost:3000";
@@ -37,7 +38,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             return;
         }
 
-        const store = await Store.findById(storeId).session(session);
+        const store = await Store.findById(storeId).select("+sslcommerzStorePassword").session(session);
         if (!store) {
             await session.abortTransaction();
             res.status(404).json({ message: "Store not found." });
@@ -91,6 +92,15 @@ export const initiatePayment = async (req: Request, res: Response) => {
             return;
         }
 
+        // Hybrid SSLCommerz Credential Logic
+        let sslStoreId = PLATFORM_STORE_ID;
+        let sslStorePasswd = PLATFORM_STORE_PASSWD;
+
+        if (store.useOwnSSLCommerz && store.sslcommerzStoreId && store.sslcommerzStorePassword) {
+            sslStoreId = store.sslcommerzStoreId;
+            sslStorePasswd = decrypt(store.sslcommerzStorePassword);
+        }
+
         // SSLCommerz এ পাঠানোর ডেটা (gateway session)
         const sslData = {
             total_amount: totalAmount,
@@ -115,7 +125,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             ship_country: "Bangladesh",
         };
 
-        const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+        const sslcz = new SSLCommerzPayment(sslStoreId, sslStorePasswd, is_live);
         const apiResponse = await sslcz.init(sslData);
 
         if (!apiResponse?.GatewayPageURL) {
@@ -144,23 +154,68 @@ export const initiatePayment = async (req: Request, res: Response) => {
 export const paymentSuccess = async (req: Request, res: Response) => {
     console.log("✅ SUCCESS HANDLER HIT:", req.body);
     try {
-        const { tran_id } = req.body;
+        const { tran_id, val_id } = req.body;
         const subdomain = req.query.subdomain as string;
 
+        // Step 1: Order খোঁজো
         const order = await Order.findById(tran_id);
         if (!order) {
-            res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
+            res.redirect(`${FRONTEND_URL}/payment-failed`);
             return;
         }
 
+        // Step 2: Already Paid হলে আবার process করার দরকার নেই (IPN already করে থাকতে পারে)
+        if (order.paymentStatus === "Paid") {
+            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
+            return;
+        }
+
+        // Step 3: val_id না থাকলে reject করো
+        if (!val_id) {
+            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed`);
+            return;
+        }
+
+        // Step 4: Store থেকে SSL credentials নাও (vendor নিজের SSL ব্যবহার করলে)
+        const store = await Store.findById(order.storeId).select("+sslcommerzStorePassword");
+        let sslStoreId = PLATFORM_STORE_ID;
+        let sslStorePasswd = PLATFORM_STORE_PASSWD;
+
+        if (store?.useOwnSSLCommerz && store.sslcommerzStoreId && store.sslcommerzStorePassword) {
+            sslStoreId = store.sslcommerzStoreId;
+            sslStorePasswd = decrypt(store.sslcommerzStorePassword);
+        }
+
+        // Step 5: SSLCommerz API তে validation call — payment সত্যিই হয়েছে কিনা confirm করো
+        const sslcz = new SSLCommerzPayment(sslStoreId, sslStorePasswd, is_live);
+        const validation = await sslcz.validate({ val_id });
+
+        if (!validation || validation.status !== "VALID") {
+            console.log("❌ SSLCommerz validation failed:", validation);
+            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed`);
+            return;
+        }
+
+        // Step 6: Race condition fix —
+        // যদি fail/cancel callback আগে এসে stock restore করে দিয়ে থাকে,
+        // তাহলে success এ আবার stock কমাতে হবে, নইলে product free-তে যাবে
+        if (order.status === "Cancelled" && (order.paymentStatus === "Failed" || order.paymentStatus === "Cancelled")) {
+            for (const item of order.items) {
+                await Product.findByIdAndUpdate(item.product, {
+                    $inc: { stock: -item.quantity },
+                });
+            }
+            order.status = "Pending";
+        }
+
+        // Step 7: সব ঠিক — Paid করো
         order.paymentStatus = "Paid";
-        order.transactionId = req.body.val_id || tran_id;
+        order.transactionId = val_id;
         await order.save();
 
-
-        //কাস্টমারকে frontend এর confirmation page এ পাঠানো ,সঠিক subdomain সহ redirect
         res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
     } catch (error: any) {
+        console.error("paymentSuccess error:", error);
         res.redirect(`${FRONTEND_URL}/payment-failed`);
     }
 };
@@ -210,7 +265,7 @@ export const paymentCancel = async (req: Request, res: Response) => {
             for (const item of order.items) {
                 await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } }, { session });
             }
-            order.paymentStatus = "Failed";
+            order.paymentStatus = "Cancelled";
             order.status = "Cancelled";
             await order.save({ session });
         }

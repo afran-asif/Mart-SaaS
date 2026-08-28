@@ -6,6 +6,9 @@ export interface IStore extends Document {
     subdomain: string;
     logo?: string;
     status: 'active' | 'suspended';
+    useOwnSSLCommerz: boolean;
+    sslcommerzStoreId?: string;
+    sslcommerzStorePassword?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -43,6 +46,17 @@ const storeSchema = new Schema<IStore>(
             type: String,
             enum: ['active','suspended'],
             default: 'active'
+        },
+        useOwnSSLCommerz: {
+            type: Boolean,
+            default: false
+        },
+        sslcommerzStoreId: {
+            type: String,
+        },
+        sslcommerzStorePassword: {
+            type: String,
+            select: false
         },
     },
     { timestamps: true }

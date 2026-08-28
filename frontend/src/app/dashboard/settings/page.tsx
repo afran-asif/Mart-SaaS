@@ -10,12 +10,17 @@ interface StoreData {
     subdomain: string;
     logo: string | null;
     status: string;
+    useOwnSSLCommerz: boolean;
+    sslcommerzStoreId?: string;
 }
 
 export default function SettingsPage() {
     const [store, setStore] = useState<StoreData | null>(null);
     const [storeName, setStoreName] = useState("");
     const [logo, setLogo] = useState("");
+    const [useOwnSSLCommerz, setUseOwnSSLCommerz] = useState(false);
+    const [sslcommerzStoreId, setSslcommerzStoreId] = useState("");
+    const [sslcommerzStorePassword, setSslcommerzStorePassword] = useState("");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -23,9 +28,12 @@ export default function SettingsPage() {
         const fetchStore = async () => {
             try {
                 const res = await api.get("/store/config");
-                setStore(res.data.store);
-                setStoreName(res.data.store.storeName);
-                setLogo(res.data.store.logo || "");
+                const data = res.data.store;
+                setStore(data);
+                setStoreName(data.storeName);
+                setLogo(data.logo || "");
+                setUseOwnSSLCommerz(data.useOwnSSLCommerz || false);
+                setSslcommerzStoreId(data.sslcommerzStoreId || "");
             } catch (error: any) {
                 toast.error(error.message || "স্টোরের তথ্য লোড করা যায়নি");
             } finally {
@@ -40,11 +48,22 @@ export default function SettingsPage() {
         setSaving(true);
 
         try {
-            const res = await api.put("/store/config", {
+            const payload: any = {
                 storeName,
                 logo,
-            });
+                useOwnSSLCommerz,
+            };
+
+            // পাসওয়ার্ড শুধু তখনই পাঠানো, যখন vendor নতুন করে কিছু লিখেছে
+            // (খালি রাখলে existing encrypted password অপরিবর্তিত থাকবে)
+            if (useOwnSSLCommerz) {
+                if (sslcommerzStoreId) payload.sslcommerzStoreId = sslcommerzStoreId;
+                if (sslcommerzStorePassword) payload.sslcommerzStorePassword = sslcommerzStorePassword;
+            }
+
+            const res = await api.put("/store/config", payload);
             setStore(res.data.store);
+            setSslcommerzStorePassword(""); // সেভ করার পর password field খালি করে দাও (নিরাপত্তার জন্য)
             toast.success("স্টোর তথ্য আপডেট হয়েছে");
         } catch (error: any) {
             toast.error(error.message || "আপডেট করা যায়নি");
@@ -68,7 +87,6 @@ export default function SettingsPage() {
                 আপনার দোকানের তথ্য এখান থেকে পরিবর্তন করুন
             </p>
 
-            {/* Read-only info */}
             <div className="bg-gray-50 rounded-lg p-4 mb-6 text-sm">
                 <p className="text-gray-500">
                     সাবডোমেইন: <span className="font-mono text-gray-800">{store.subdomain}.vendoo.shop</span>
@@ -100,6 +118,62 @@ export default function SettingsPage() {
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-700 text-sm"
                     />
                 </div>
+
+                {/* --- Hybrid SSLCommerz সেকশন --- */}
+                <div className="border-t border-gray-200 pt-4 mt-2">
+                    <div className="flex items-center justify-between mb-3">
+                        <div>
+                            <p className="text-sm font-medium">নিজস্ব SSLCommerz অ্যাকাউন্ট ব্যবহার করুন</p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                টাকা সরাসরি আপনার নিজের অ্যাকাউন্টে জমা হবে
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setUseOwnSSLCommerz(!useOwnSSLCommerz)}
+                            className={`relative w-11 h-6 rounded-full transition-colors ${
+                                useOwnSSLCommerz ? "bg-green-700" : "bg-gray-300"
+                            }`}
+                        >
+                            <span
+                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                    useOwnSSLCommerz ? "translate-x-5" : "translate-x-0.5"
+                                }`}
+                            />
+                        </button>
+                    </div>
+
+                    {useOwnSSLCommerz && (
+                        <div className="flex flex-col gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p className="text-xs text-yellow-800">
+                                ⚠️ এটার জন্য আপনার একটা বৈধ SSLCommerz merchant অ্যাকাউন্ট (ট্রেড লাইসেন্স-সহ) থাকতে হবে।
+                            </p>
+
+                            <div>
+                                <label className="block text-xs font-medium mb-1">SSLCommerz Store ID</label>
+                                <input
+                                    type="text"
+                                    value={sslcommerzStoreId}
+                                    onChange={(e) => setSslcommerzStoreId(e.target.value)}
+                                    placeholder="আপনার Store ID"
+                                    className="w-full px-3 py-2 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-medium mb-1">SSLCommerz Store Password</label>
+                                <input
+                                    type="password"
+                                    value={sslcommerzStorePassword}
+                                    onChange={(e) => setSslcommerzStorePassword(e.target.value)}
+                                    placeholder={store.sslcommerzStoreId ? "পরিবর্তন করতে না চাইলে খালি রাখুন" : "আপনার Store Password"}
+                                    className="w-full px-3 py-2 rounded-md border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-700"
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+                {/* --- Hybrid SSLCommerz সেকশন শেষ --- */}
 
                 <button
                     type="submit"

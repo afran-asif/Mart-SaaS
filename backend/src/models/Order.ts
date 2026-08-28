@@ -9,7 +9,7 @@ export interface IOrder extends Document {
     shippingAddress: string;
     totalAmount: number;
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
-    paymentStatus: "Unpaid" | "Paid" | "Failed";
+    paymentStatus: "Unpaid" | "Paid" | "Failed" | "Cancelled";
     paymentMethod: "COD" | "SSLCommerz";
     transactionId?: string;
     items: Array<{
@@ -52,7 +52,7 @@ const OrderSchema: Schema = new Schema(
         ],
         paymentStatus: {
             type: String,
-            enum: ["Unpaid", "Paid", "Failed"],
+            enum: ["Unpaid", "Paid", "Failed", "Cancelled"],
             default: "Unpaid",
         },
         paymentMethod: {
