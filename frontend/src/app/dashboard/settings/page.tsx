@@ -29,6 +29,10 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    // ✅ কম্পোনেন্টের একদম উপরে নিয়ে আসা হলো — সব জায়গায় একই ভ্যালু ব্যবহার হবে
+    const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
+    const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
+
     useEffect(() => {
         const fetchStore = async () => {
             try {
@@ -51,7 +55,8 @@ export default function SettingsPage() {
 
     const handleCopySubdomain = () => {
         if (!store) return;
-        navigator.clipboard.writeText(`https://${store.subdomain}.vendoo.shop`);
+        // ✅ এখন storeUrl-এর মতোই একই env-aware URL কপি হবে
+        navigator.clipboard.writeText(`${protocol}://${store.subdomain}.${baseDomain}`);
         setCopied(true);
         toast.success("Store URL copied.");
         setTimeout(() => setCopied(false), 2000);
@@ -103,7 +108,9 @@ export default function SettingsPage() {
         );
     }
 
-    const storeUrl = `http://${store.subdomain}.localhost:3000`;
+    // ✅ এখন শুধু store.subdomain জুড়ে দিলেই হয়, baseDomain/protocol উপরে define করা
+    const storeUrl = `${protocol}://${store.subdomain}.${baseDomain}`;
+    const displayDomain = `${store.subdomain}.${baseDomain}`;
 
     return (
         <div className="space-y-8">
@@ -118,7 +125,7 @@ export default function SettingsPage() {
 
                 <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-gray-100 shadow-sm">
                     <span className="px-2.5 font-mono text-xs font-semibold text-gray-700 truncate max-w-[180px]">
-                        {store.subdomain}.vendoo.shop
+                        {displayDomain}
                     </span>
                     <button
                         type="button"
@@ -127,14 +134,6 @@ export default function SettingsPage() {
                     >
                         {copied ? "Copied" : "Copy"}
                     </button>
-                    {/* <a
-                        href={storeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg transition-colors"
-                    >
-                        Visit Store
-                    </a> */}
                 </div>
             </div>
 
@@ -179,7 +178,6 @@ export default function SettingsPage() {
                             <p className="text-xs text-gray-400 mt-1">Recommended: 200×200px, transparent PNG.</p>
                         </div>
 
-                        {/* Store status — এখন editable */}
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                                 Store Status
@@ -303,7 +301,6 @@ export default function SettingsPage() {
                             </button>
                         </div>
 
-                        {/* Credentials — smooth expand */}
                         <div
                             className={`grid transition-all duration-300 ease-in-out ${
                                 useOwnSSLCommerz ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
@@ -386,7 +383,6 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="border border-gray-100 rounded-2xl p-5 bg-gray-50/60 text-center space-y-4">
-                            {/* Logo / initial */}
                             <div className="relative w-20 h-20 mx-auto rounded-2xl overflow-hidden border-2 border-white shadow-sm bg-white flex items-center justify-center">
                                 {logo.trim() && !logoError ? (
                                     // eslint-disable-next-line @next/next/no-img-element
@@ -408,7 +404,7 @@ export default function SettingsPage() {
                                     {storeName || "Your Store Name"}
                                 </h4>
                                 <p className="text-xs font-mono text-gray-400 mt-0.5">
-                                    {store.subdomain}.vendoo.shop
+                                    {displayDomain}
                                 </p>
                             </div>
 
