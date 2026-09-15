@@ -1,6 +1,6 @@
-"use client"
-
-import React,{ useState } from "react"
+"use client";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { registerVendor } from "@/services/authService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/authSlice";
@@ -16,6 +16,21 @@ export default function RegisterPage() {
         storeName: "",
         subdomain: "",
     });
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const sub = params.get("subdomain");
+            if (sub) {
+                const cleanSub = sub.toLowerCase().replace(/[^a-z0-9-]/g, "-");
+                setFormData((prev) => ({
+                    ...prev,
+                    subdomain: cleanSub,
+                    storeName: prev.storeName || cleanSub.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+                }));
+            }
+        }
+    }, []);
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -147,6 +162,18 @@ export default function RegisterPage() {
                 </p>
             )}
             </form>
+
+            <div className="text-center pt-2 border-t border-gray-100">
+                <p className="text-xs text-gray-500">
+                    Already have a vendor account?{" "}
+                    <Link href="/login" className="font-semibold text-orange-600 hover:text-orange-700">
+                        Sign In
+                    </Link>
+                </p>
+                <Link href="/" className="mt-3 inline-block text-xs text-gray-400 hover:text-gray-600">
+                    ← Back to Home
+                </Link>
+            </div>
         </div>
         </div>
     );

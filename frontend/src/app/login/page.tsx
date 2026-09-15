@@ -1,5 +1,6 @@
-"use client"
-import React,{ useState } from "react";
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
 import { loginVendor } from "@/services/authService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/authSlice";
@@ -99,6 +100,18 @@ export default function LoginPage() {
             </p>
         )}
         </form>
+
+        <div className="text-center pt-2 border-t border-gray-100">
+            <p className="text-xs text-gray-500">
+                Don't have a vendor store yet?{" "}
+                <Link href="/register" className="font-semibold text-orange-600 hover:text-orange-700">
+                    Create Store
+                </Link>
+            </p>
+            <Link href="/" className="mt-3 inline-block text-xs text-gray-400 hover:text-gray-600">
+                ← Back to Home
+            </Link>
+        </div>
     </div>
     </div>
 );
