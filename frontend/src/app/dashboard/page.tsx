@@ -81,58 +81,49 @@ export default function DashboardPage() {
     const totalOrders = analytics?.totalOrders || 0;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                     Welcome Back, {user?.name || "Vendor"}!
                 </h1>
-                <p className="text-gray-500 mt-1">Here is what's happening with your store today.</p>
+                <p className="text-gray-500 mt-1 text-sm">Here is what's happening with your store today.</p>
             </div>
 
-            {/* সামারি কার্ড */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-500">Total Sales</p>
-                        <p className="text-3xl font-bold text-green-700 mt-2">
+                        <p className="text-2xl sm:text-3xl font-bold text-green-700 mt-2">
                             ৳{loading ? "..." : analytics?.totalRevenue.toFixed(2)}
                         </p>
                     </div>
-                    {/* <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center text-xl font-bold">
-                        💰
-                    </div> */}
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-500">Active Products</p>
-                        <p className="text-3xl font-bold text-gray-900 mt-2">
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
                             {loading ? "..." : analytics?.totalProducts}
                         </p>
                     </div>
-                    {/* <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl font-bold">
-                        🛍️
-                    </div> */}
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
                         <p className="text-sm font-medium text-gray-500">Total Orders</p>
-                        <p className="text-3xl font-bold text-gray-900 mt-2">
+                        <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
                             {loading ? "..." : totalOrders}
                         </p>
                         <p className="text-xs text-amber-600 font-medium mt-1">{pendingOrders} Pending</p>
                     </div>
-                    {/* <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
-                        📦
-                    </div> */}
                 </div>
             </div>
 
-            {/* Status + Payment Breakdown — পাশাপাশি */}
+            {/* Status + Payment Breakdown */}
             {!loading && analytics && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
                         <h2 className="text-sm font-bold text-gray-900 mb-4">Order Status Breakdown</h2>
                         <div className="flex flex-col gap-3">
                             {["Pending", "Processing", "Delivered", "Cancelled"].map((status) => {
@@ -156,9 +147,9 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
                         <h2 className="text-sm font-bold text-gray-900 mb-4">Payment Status</h2>
-                        <div className="flex gap-6">
+                        <div className="flex gap-4 sm:gap-6 flex-wrap">
                             <div>
                                 <p className="text-xs text-gray-500">Paid</p>
                                 <p className="text-lg font-semibold text-green-700">
@@ -183,17 +174,17 @@ export default function DashboardPage() {
             )}
 
             {/* Recent Orders */}
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
+            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900">Recent Orders</h2>
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900">Recent Orders</h2>
                         <p className="text-xs text-gray-500">Latest transactions in your store.</p>
                     </div>
                     <Link
                         href="/dashboard/orders"
-                        className="text-xs font-semibold text-orange-600 hover:underline flex items-center gap-1"
+                        className="text-xs font-semibold text-orange-600 hover:underline flex items-center gap-1 shrink-0"
                     >
-                        View All Orders →
+                        View All →
                     </Link>
                 </div>
 
@@ -202,41 +193,43 @@ export default function DashboardPage() {
                 ) : !analytics || analytics.recentOrders.length === 0 ? (
                     <p className="text-sm text-gray-400 py-4 text-center">No orders recorded yet.</p>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                                    <th className="py-3 px-2">Order ID</th>
-                                    <th className="py-3 px-2">Customer</th>
-                                    <th className="py-3 px-2">Date</th>
-                                    <th className="py-3 px-2">Total</th>
-                                    <th className="py-3 px-2">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50 text-sm">
-                                {analytics.recentOrders.map((order) => (
-                                    <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="py-3.5 px-2 font-mono text-xs font-bold text-gray-900">
-                                            #{order._id.slice(-6).toUpperCase()}
-                                        </td>
-                                        <td className="py-3.5 px-2">
-                                            <p className="font-medium text-gray-900">{order.customerName}</p>
-                                        </td>
-                                        <td className="py-3.5 px-2 text-xs text-gray-500">
-                                            {formatDate(order.createdAt)}
-                                        </td>
-                                        <td className="py-3.5 px-2 font-semibold text-gray-900">
-                                            ৳{order.totalAmount.toFixed(2)}
-                                        </td>
-                                        <td className="py-3.5 px-2">
-                                            <span className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border ${getStatusBadge(order.status)}`}>
-                                                {order.status}
-                                            </span>
-                                        </td>
+                    <div className="overflow-x-auto -mx-5 sm:-mx-6">
+                        <div className="px-5 sm:px-6 min-w-full">
+                            <table className="w-full text-left border-collapse min-w-[480px]">
+                                <thead>
+                                    <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">
+                                        <th className="py-3 px-2">Order ID</th>
+                                        <th className="py-3 px-2">Customer</th>
+                                        <th className="py-3 px-2 hidden sm:table-cell">Date</th>
+                                        <th className="py-3 px-2">Total</th>
+                                        <th className="py-3 px-2">Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50 text-sm">
+                                    {analytics.recentOrders.map((order) => (
+                                        <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
+                                            <td className="py-3.5 px-2 font-mono text-xs font-bold text-gray-900">
+                                                #{order._id.slice(-6).toUpperCase()}
+                                            </td>
+                                            <td className="py-3.5 px-2">
+                                                <p className="font-medium text-gray-900 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{order.customerName}</p>
+                                            </td>
+                                            <td className="py-3.5 px-2 text-xs text-gray-500 hidden sm:table-cell">
+                                                {formatDate(order.createdAt)}
+                                            </td>
+                                            <td className="py-3.5 px-2 font-semibold text-gray-900 text-xs sm:text-sm whitespace-nowrap">
+                                                ৳{order.totalAmount.toFixed(2)}
+                                            </td>
+                                            <td className="py-3.5 px-2">
+                                                <span className={`px-2 py-1 text-[10px] sm:text-[11px] font-semibold rounded-lg border ${getStatusBadge(order.status)}`}>
+                                                    {order.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>

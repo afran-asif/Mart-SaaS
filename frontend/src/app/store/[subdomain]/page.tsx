@@ -74,7 +74,7 @@ export default async function StorePage({
             <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} />
 
             {/* Product Grid */}
-            <main className="max-w-6xl mx-auto px-6 py-10">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
                 <p className="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase text-[#8B8F82] mb-6">
                     Shop · {products.length} {products.length === 1 ? "item" : "items"}
                 </p>

@@ -100,8 +100,8 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+            <div className="bg-white rounded-t-2xl sm:rounded-2xl p-5 sm:p-8 w-full sm:max-w-md shadow-xl border border-gray-100 max-h-[92vh] overflow-y-auto">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Product 🛒</h2>
                 <p className="text-sm text-gray-500 mb-6">Fill in the details below to add a product.</p>
 

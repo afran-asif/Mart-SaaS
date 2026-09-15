@@ -107,8 +107,8 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-[#F6F3EC]">
             <StorefrontHeader variant="sub" />
 
-            <main className="max-w-2xl mx-auto px-6 py-10">
-                <h1 className="font-['Space_Grotesk'] text-3xl font-bold text-[#1B1E19] mb-1">
+            <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+                <h1 className="font-['Space_Grotesk'] text-2xl sm:text-3xl font-bold text-[#1B1E19] mb-1">
                     চেকআউট
                 </h1>
                 <p className="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase text-[#8B8F82] mb-8">

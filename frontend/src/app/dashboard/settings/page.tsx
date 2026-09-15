@@ -113,31 +113,31 @@ export default function SettingsPage() {
     const displayDomain = `${store.subdomain}.${baseDomain}`;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Store Settings</h1>
-                    <p className="text-gray-500 mt-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Store Settings</h1>
+                    <p className="text-gray-500 mt-1 text-sm">
                         Manage your storefront identity and payment routing.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-gray-100 shadow-sm">
-                    <span className="px-2.5 font-mono text-xs font-semibold text-gray-700 truncate max-w-[180px]">
+                <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-gray-100 shadow-sm self-start sm:self-auto">
+                    <span className="px-2.5 font-mono text-xs font-semibold text-gray-700 truncate max-w-[160px] sm:max-w-[180px]">
                         {displayDomain}
                     </span>
                     <button
                         type="button"
                         onClick={handleCopySubdomain}
-                        className="px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-orange-600 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-orange-600 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
                     >
                         {copied ? "Copied" : "Copy"}
                     </button>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
                 {/* --- বাম কলাম: ফর্ম ফিল্ড --- */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Store Identity card */}

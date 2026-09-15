@@ -9,7 +9,7 @@ interface StorefrontHeaderProps {
 export default function StorefrontHeader({ variant, storeName, storeLogo }: StorefrontHeaderProps) {
     return (
         <header className="sticky top-0 z-10 bg-[#F6F3EC]/95 backdrop-blur-sm border-b border-[#1B1E19]/10">
-            <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
                 {variant === "home" ? (
                     <div className="flex items-center gap-4">
                         {storeLogo ? (

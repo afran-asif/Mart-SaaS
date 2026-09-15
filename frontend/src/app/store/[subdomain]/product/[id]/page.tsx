@@ -61,8 +61,8 @@ export default async function ProductDetailPage({
             {/* সিম্পল হেডার — ব্যাক লিংক সহ */}
             <StorefrontHeader variant="sub" />
 
-            <main className="max-w-6xl mx-auto px-6 py-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
                     {/* বাম পাশ — ছবি */}
                     <div>
                         <div className="relative aspect-square rounded-lg overflow-hidden bg-[#EFECE3] border border-[#1B1E19]/8">

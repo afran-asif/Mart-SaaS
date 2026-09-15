@@ -97,12 +97,12 @@ export default function ProductsPage() {
     };
 
     return (
-        <div className="space-y-6 relative">
+        <div className="space-y-5 sm:space-y-6 relative">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">My Products</h1>
-                    <p className="text-gray-500 mt-1">Manage and monitor your store items effortlessly.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Products</h1>
+                    <p className="text-gray-500 mt-1 text-sm">Manage and monitor your store items effortlessly.</p>
                 </div>
                 <button
                     onClick={() => setIsAddModalOpen(true)}

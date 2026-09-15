@@ -12,6 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter();
     const { user, store, isAuthenticated } = useSelector((state: any) => state.auth);
     const [authChecked, setAuthChecked] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -21,6 +22,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setAuthChecked(true);
         }
     }, [isAuthenticated, router]);
+
+    // Close sidebar on route change (mobile)
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [pathname]);
 
     const menuItems = [
         { name: "Overview", path: "/dashboard" },
@@ -47,10 +53,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
+            {/* Mobile Overlay */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 z-20 bg-black/40 lg:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 bg-white shadow-md flex flex-col justify-between">
+            <aside
+                className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white shadow-md flex flex-col justify-between transform transition-transform duration-300 ease-in-out
+                    ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+            >
                 <div className="p-6">
-                    <h2 className="text-2xl font-bold text-orange-600">MARTsaas</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold text-orange-600">MARTsaas</h2>
+                        {/* Close button (mobile only) */}
+                        <button
+                            className="lg:hidden text-gray-400 hover:text-gray-700 text-2xl leading-none"
+                            onClick={() => setSidebarOpen(false)}
+                        >
+                            ×
+                        </button>
+                    </div>
                     <p className="text-xs text-gray-500 mt-1">Shop: {store?.storeName || "My Store"}</p>
 
                     <nav className="mt-8 space-y-2">
@@ -87,7 +113,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </aside>
 
-            <main className="flex-1 overflow-y-auto p-10">{children}</main>
+            {/* Main content area */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Mobile Top Bar */}
+                <div className="lg:hidden flex items-center justify-between bg-white border-b border-gray-200 px-4 py-3 shrink-0">
+                    <button
+                        onClick={() => setSidebarOpen(true)}
+                        className="p-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                        aria-label="Open menu"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <h2 className="text-lg font-bold text-orange-600">MARTsaas</h2>
+                    <div className="w-9" /> {/* Spacer to center the title */}
+                </div>
+
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">{children}</main>
+            </div>
         </div>
     );
 }

@@ -81,34 +81,34 @@ export default function OrdersPage() {
     }, [orders, searchTerm, statusFilter]);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5 sm:space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-                <p className="text-gray-500 mt-1">Track and manage store purchases.</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders</h1>
+                <p className="text-gray-500 mt-1 text-sm">Track and manage store purchases.</p>
             </div>
 
             {/* Toolbar */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                <div className="w-full sm:w-1/2 relative">
+            <div className="flex flex-col gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="w-full relative">
                     <input
                         type="text"
                         placeholder="Search by Order ID, Customer Name or Email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                        className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                     />
-                    <span className="absolute left-3.5 top-3 text-gray-400">🔍</span>
+                    <span className="absolute left-3 top-3 text-gray-400 text-sm">🔍</span>
                 </div>
 
-                <div className="w-full sm:w-auto flex items-center gap-2">
+                <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
                         Status:
                     </label>
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                        className="flex-1 sm:flex-none px-3 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                     >
                         <option value="All">All Statuses</option>
                         <option value="Pending">Pending</option>
@@ -130,77 +130,79 @@ export default function OrdersPage() {
                             No orders found matching your criteria.
                         </div>
                     ) : (
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-sm font-semibold">
-                                    <th className="p-4 pl-6">Order ID</th>
-                                    <th className="p-4">Customer</th>
-                                    <th className="p-4">Date</th>
-                                    <th className="p-4">Total</th>
-                                    <th className="p-4">Status</th>
-                                    <th className="p-4 pr-6 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50 text-gray-700 text-sm">
-                                {filteredOrders.map((order) => (
-                                    <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="p-4 pl-6 font-mono text-xs font-semibold text-gray-900">
-                                            #{order._id.slice(-6).toUpperCase()}
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="font-medium text-gray-950">{order.customerName}</div>
-                                            <div className="text-xs text-gray-400">{order.customerEmail}</div>
-                                        </td>
-                                        <td className="p-4 text-xs text-gray-500">
-                                            {formatDate(order.createdAt)}
-                                        </td>
-                                        <td className="p-4 font-semibold text-gray-900">
-                                            ${order.totalAmount.toFixed(2)}
-                                        </td>
-                                        <td className="p-4">
-                                            <select
-                                                value={order.status}
-                                                onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                                                className={`px-3 py-1 text-xs font-semibold rounded-lg border focus:outline-none transition-colors cursor-pointer ${getStatusBadge(
-                                                    order.status
-                                                )}`}
-                                            >
-                                                <option value="Pending">Pending</option>
-                                                <option value="Processing">Processing</option>
-                                                <option value="Delivered">Delivered</option>
-                                                <option value="Cancelled">Cancelled</option>
-                                            </select>
-                                        </td>
-                                        <td className="p-4 pr-6 text-right">
-                                            <button
-                                                onClick={() => setSelectedOrder(order)}
-                                                className="text-orange-600 hover:underline font-medium text-xs transition-colors"
-                                            >
-                                                View Items
-                                            </button>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[560px]">
+                                <thead>
+                                    <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-xs sm:text-sm font-semibold">
+                                        <th className="p-3 sm:p-4 pl-4 sm:pl-6">Order ID</th>
+                                        <th className="p-3 sm:p-4">Customer</th>
+                                        <th className="p-3 sm:p-4 hidden md:table-cell">Date</th>
+                                        <th className="p-3 sm:p-4">Total</th>
+                                        <th className="p-3 sm:p-4">Status</th>
+                                        <th className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50 text-gray-700 text-xs sm:text-sm">
+                                    {filteredOrders.map((order) => (
+                                        <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
+                                            <td className="p-3 sm:p-4 pl-4 sm:pl-6 font-mono text-xs font-semibold text-gray-900">
+                                                #{order._id.slice(-6).toUpperCase()}
+                                            </td>
+                                            <td className="p-3 sm:p-4">
+                                                <div className="font-medium text-gray-950 text-xs sm:text-sm truncate max-w-[90px] sm:max-w-[140px]">{order.customerName}</div>
+                                                <div className="text-[11px] text-gray-400 hidden sm:block truncate max-w-[140px]">{order.customerEmail}</div>
+                                            </td>
+                                            <td className="p-3 sm:p-4 text-xs text-gray-500 hidden md:table-cell">
+                                                {formatDate(order.createdAt)}
+                                            </td>
+                                            <td className="p-3 sm:p-4 font-semibold text-gray-900 whitespace-nowrap text-xs sm:text-sm">
+                                                ৳{order.totalAmount.toFixed(2)}
+                                            </td>
+                                            <td className="p-3 sm:p-4">
+                                                <select
+                                                    value={order.status}
+                                                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                                    className={`px-2 py-1 text-xs font-semibold rounded-lg border focus:outline-none transition-colors cursor-pointer ${getStatusBadge(
+                                                        order.status
+                                                    )}`}
+                                                >
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Processing">Processing</option>
+                                                    <option value="Delivered">Delivered</option>
+                                                    <option value="Cancelled">Cancelled</option>
+                                                </select>
+                                            </td>
+                                            <td className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
+                                                <button
+                                                    onClick={() => setSelectedOrder(order)}
+                                                    className="text-orange-600 hover:underline font-medium text-xs transition-colors whitespace-nowrap"
+                                                >
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
             )}
 
             {/* ORDER DETAILS MODAL */}
             {selectedOrder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+                    <div className="bg-white rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 w-full sm:max-w-lg shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
                             <div>
-                                <h2 className="text-xl font-bold text-gray-900">
+                                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                                     Order #{selectedOrder._id.slice(-6).toUpperCase()}
                                 </h2>
-                                <p className="text-xs text-gray-500">{selectedOrder.customerName} — {selectedOrder.customerEmail}</p>
+                                <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[220px] sm:max-w-none">{selectedOrder.customerName} — {selectedOrder.customerEmail}</p>
                             </div>
                             <button
                                 onClick={() => setSelectedOrder(null)}
-                                className="text-gray-400 hover:text-gray-700 text-2xl leading-none"
+                                className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-3"
                             >
                                 ×
                             </button>
@@ -222,11 +224,11 @@ export default function OrdersPage() {
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold text-gray-900">{item.product?.name || "Product"}</p>
-                                            <p className="text-[11px] text-gray-500">Qty: {item.quantity} × ${item.price.toFixed(2)}</p>
+                                            <p className="text-[11px] text-gray-500">Qty: {item.quantity} × ৳{item.price.toFixed(2)}</p>
                                         </div>
                                     </div>
-                                    <p className="text-xs font-bold text-gray-900">
-                                        ${(item.quantity * item.price).toFixed(2)}
+                                    <p className="text-xs font-bold text-gray-900 ml-2">
+                                        ৳{(item.quantity * item.price).toFixed(2)}
                                     </p>
                                 </div>
                             ))}
@@ -234,7 +236,7 @@ export default function OrdersPage() {
 
                         <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                             <span className="text-sm font-bold text-gray-700">Grand Total</span>
-                            <span className="text-lg font-extrabold text-orange-600">${selectedOrder.totalAmount.toFixed(2)}</span>
+                            <span className="text-lg font-extrabold text-orange-600">৳{selectedOrder.totalAmount.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
