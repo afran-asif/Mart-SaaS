@@ -1,0 +1,306 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "storefront": "Storefront Preview",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "dashboard": "Dashboard",
+    "login": "Log in",
+    "getStarted": "Create Store"
+  },
+  "hero": {
+    "badge": "Next-Gen Multi-Tenant E-Commerce Platform",
+    "heading1": "Launch Your Online Store.",
+    "heading2": "Scale With Multi-Tenant Power.",
+    "subtitle": "MARTsaas provides entrepreneurs and retailers with independent, lightning-fast subdomain storefronts, instant product catalogs, automated checkout, and full vendor analytics.",
+    "claimButton": "Claim Store",
+    "feature1": "Zero setup fee",
+    "feature2": "Instant subdomain activation",
+    "feature3": "SSLCommerz & COD ready"
+  },
+  "stats": {
+    "setupTime": "Store Setup Time",
+    "dataIsolation": "Tenant Data Isolation",
+    "setupFees": "Setup & Listing Fees",
+    "uptime": "Uptime & Reliability"
+  },
+  "features": {
+    "badge": "Built for High-Growth Commerce",
+    "title": "Everything You Need To Sell Online",
+    "subtitle": "No complex setup, zero coding required. MARTsaas equips you with professional multi-tenant storefronts, real-time inventory tools, and automated ordering.",
+    "learnMore": "Learn more",
+    "items": [
+      {
+        "title": "Custom Subdomain Storefronts",
+        "description": "Every vendor gets their own branded storefront under a dedicated subdomain (e.g. yourbrand.martsaas.com) with isolated store routing."
+      },
+      {
+        "title": "Full Inventory & Catalog Control",
+        "description": "Easily upload products with multiple high-resolution images, real-time stock counters, price configurations, and category sorting."
+      },
+      {
+        "title": "Integrated SSLCommerz & COD",
+        "description": "Accept bKash, Nagad, debit/credit cards, or Cash on Delivery. Configure your own store credentials or use the unified engine."
+      },
+      {
+        "title": "Real-Time Vendor Analytics",
+        "description": "Track sales volume, completed and pending orders, active customer checkouts, and total revenue directly inside your dashboard."
+      },
+      {
+        "title": "High-Speed Cart & Checkout",
+        "description": "Engineered with Redux Toolkit and Next.js SSR for instantaneous product adding, persistent carts, and frictionless customer checkout."
+      },
+      {
+        "title": "Multi-Tenant Data Isolation",
+        "description": "Enterprise-grade architectural separation guarantees each vendor's products, orders, customers, and revenues remain completely isolated."
+      }
+    ]
+  },
+  "howItWorks": {
+    "badge": "Quick 3-Step Setup",
+    "title": "From Zero to Live Store in Minutes",
+    "subtitle": "Start accepting orders from customers nationwide with a few simple steps.",
+    "getStarted": "Get Started Now",
+    "steps": [
+      {
+        "title": "Register Your Store",
+        "desc": "Sign up in 30 seconds, choose your store name, and claim your custom subdomain."
+      },
+      {
+        "title": "Upload Your Products",
+        "desc": "Add items with images, stock counts, and prices through your vendor dashboard."
+      },
+      {
+        "title": "Start Selling & Growing",
+        "desc": "Share your store link with customers, accept orders, and track your revenue live."
+      }
+    ]
+  },
+  "showcase": {
+    "badge": "Merchant Control Center",
+    "title": "An intuitive dashboard tailored for your daily hustle.",
+    "subtitle": "Effortlessly manage your catalog, track incoming customer orders, update store branding, and inspect live revenue data without ever touching code.",
+    "point1": "Instant product image uploads via Cloudinary",
+    "point2": "Real-time status updates: Pending, Processing, Delivered",
+    "point3": "Custom SSLCommerz store credentials integration",
+    "createAccount": "Create Vendor Account",
+    "loginDashboard": "Log In to Dashboard"
+  },
+  "pricing": {
+    "badge": "Transparent Pricing",
+    "title": "Simple, Vendor-First Plans",
+    "subtitle": "Start completely free. Upgrade whenever you are ready to scale with custom domains and advanced tooling.",
+    "starterLabel": "Starter Vendor",
+    "starterDesc": "Ideal for individuals and small shops launching their first online storefront.",
+    "starterFree": "/ forever free",
+    "starterFeature1": "1 Branded Subdomain (.martsaas.com)",
+    "starterFeature2": "Unlimited Product Uploads",
+    "starterFeature3": "Cash on Delivery & SSLCommerz Integration",
+    "starterFeature4": "Real-Time Vendor Dashboard",
+    "starterCta": "Get Started Free",
+    "popular": "Most Popular",
+    "proLabel": "Pro Merchant",
+    "proMonth": "/ month",
+    "proDesc": "For established businesses needing custom payment credentials and dedicated support.",
+    "proFeature1": "Everything in Starter",
+    "proFeature2": "Use Your Own SSLCommerz Merchant Credentials",
+    "proFeature3": "Advanced Sales & Inventory Analytics",
+    "proFeature4": "Priority 24/7 Technical Support",
+    "proCta": "Launch Pro Store"
+  },
+  "faq": {
+    "badge": "Got Questions?",
+    "title": "Frequently Asked Questions",
+    "items": [
+      {
+        "q": "What is MARTsaas?",
+        "a": "MARTsaas is a modern multi-tenant e-commerce platform that allows merchants and vendors to instantly launch their own independent online storefront with custom subdomains, live inventory management, and automated order processing."
+      },
+      {
+        "q": "How does the subdomain work?",
+        "a": "When you register your store, you pick a subdomain (e.g. 'af-gadgets'). Your store is immediately accessible at af-gadgets.martsaas.com. All customer traffic and orders are scoped strictly to your store."
+      },
+      {
+        "q": "What payment methods are supported?",
+        "a": "MARTsaas supports Cash on Delivery (COD) as well as automated online payments via SSLCommerz (supporting bKash, Nagad, Rocket, Visa, Mastercard, and internet banking). Vendors can also configure their own SSLCommerz credentials in store settings."
+      },
+      {
+        "q": "How do I manage my products and orders?",
+        "a": "Once registered, you get full access to the MARTsaas Vendor Dashboard. From there you can add, edit, or remove products, manage stock levels, view customer order details, and update shipping statuses."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Launch Your Online Storefront?",
+    "subtitle": "Join merchants growing with MARTsaas. Set up your inventory and start accepting customer orders today.",
+    "createStore": "Create Your Store Now",
+    "signIn": "Sign In to Dashboard"
+  },
+  "footer": {
+    "tagline": "Empowering retailers, entrepreneurs, and independent merchants with dedicated multi-tenant e-commerce storefronts and integrated payment workflows.",
+    "platform": "Platform",
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "storeShowcase": "Store Showcase",
+    "pricingPlans": "Pricing Plans",
+    "vendorPortal": "Vendor Portal",
+    "vendorLogin": "Vendor Login",
+    "registerStore": "Register Store",
+    "dashboardOverview": "Dashboard Overview",
+    "productManagement": "Product Management",
+    "orderTracking": "Order Tracking",
+    "manage": "Manage",
+    "storeSettings": "Store Settings",
+    "faq": "FAQ",
+    "signOut": "Sign Out / Switch Store",
+    "rights": "All rights reserved.",
+    "vendorAccess": "Vendor Access",
+    "createStorefront": "Create Storefront"
+  },
+  "login": {
+    "title": "Welcome Back!",
+    "subtitle": "Log in to manage your martsaas store",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "signIn": "Sign In",
+    "authenticating": "Authenticating...",
+    "noAccount": "Don't have a vendor store yet?",
+    "createStore": "Create Store",
+    "backHome": "← Back to Home",
+    "loginSuccess": "Login Successful! Redirecting..."
+  },
+  "register": {
+    "title": "Create Vendor Account 🚀",
+    "subtitle": "Build your own store powered by MART-SAAS",
+    "fullName": "Full Name",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "storeName": "Store Name",
+    "subdomain": "Desired Subdomain",
+    "registerButton": "Register Store",
+    "creating": "Creating Account...",
+    "hasAccount": "Already have a vendor account?",
+    "signIn": "Sign In",
+    "backHome": "← Back to Home",
+    "registerSuccess": "Registration Successful! Redirecting to dashboard..."
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "myProducts": "My Products",
+    "orders": "Orders",
+    "storeSettings": "Store Settings",
+    "signOut": "Sign Out",
+    "checkingAuth": "Checking authorization...",
+    "shop": "Shop",
+    "vendor": "Vendor",
+    "welcome": "Welcome Back",
+    "overviewSubtitle": "Here is what's happening with your store today.",
+    "totalSales": "Total Sales",
+    "activeProducts": "Active Products",
+    "totalOrders": "Total Orders",
+    "pending": "Pending",
+    "orderStatusBreakdown": "Order Status Breakdown",
+    "paymentStatus": "Payment Status",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "failed": "Failed",
+    "recentOrders": "Recent Orders",
+    "recentSubtitle": "Latest transactions in your store.",
+    "viewAll": "View All →",
+    "loadingOrders": "Loading recent transactions...",
+    "noOrders": "No orders recorded yet.",
+    "orderId": "Order ID",
+    "customer": "Customer",
+    "date": "Date",
+    "total": "Total",
+    "status": "Status",
+    "statusPending": "Pending",
+    "statusProcessing": "Processing",
+    "statusDelivered": "Delivered",
+    "statusCancelled": "Cancelled",
+    "productsPage": {
+      "title": "My Products",
+      "subtitle": "Manage and monitor your store items effortlessly.",
+      "addNew": "+ Add New Product",
+      "loading": "Loading items...",
+      "searchPlaceholder": "Search products by name or description...",
+      "filter": "Filter:",
+      "allCategories": "All Categories",
+      "sort": "Sort:",
+      "sortDefault": "Default",
+      "sortPriceLow": "Price: Low → High",
+      "sortPriceHigh": "Price: High → Low",
+      "sortNameAsc": "Name: A → Z",
+      "sortStockLow": "Stock: Low → High",
+      "noProductsFound": "No products found matching your criteria.",
+      "image": "Image",
+      "productName": "Product Name",
+      "category": "Category",
+      "description": "Description",
+      "price": "Price",
+      "stock": "Stock",
+      "actions": "Actions",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "entries": "entries",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "ordersPage": {
+      "title": "Orders",
+      "subtitle": "Track and manage store purchases.",
+      "searchPlaceholder": "Search by Order ID, Customer Name or Email...",
+      "statusLabel": "Status:",
+      "allStatuses": "All Statuses",
+      "loading": "Loading orders...",
+      "noOrdersFound": "No orders found matching your criteria.",
+      "actions": "Actions",
+      "view": "View",
+      "address": "Address:",
+      "itemsOrdered": "Items Ordered",
+      "grandTotal": "Grand Total"
+    },
+    "settingsPage": {
+      "title": "Store Settings",
+      "subtitle": "Manage your storefront identity and payment routing.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "loading": "Loading store settings...",
+      "storeNotFound": "Store not found",
+      "storeNotFoundDesc": "Unable to locate your store profile.",
+      "storeIdentity": "Store Identity",
+      "storeName": "Store Name",
+      "storeNamePlaceholder": "e.g. Apex Fashion House",
+      "storeNameDesc": "Shown across your storefront and order invoices.",
+      "logoUrl": "Logo Image URL",
+      "logoDesc": "Recommended: 200×200px, transparent PNG.",
+      "storeStatus": "Store Status",
+      "activeOpen": "Active & Open",
+      "activeOpenDesc": "Customers can browse & order",
+      "suspended": "Suspended",
+      "suspendedDesc": "Storefront paused temporarily",
+      "paymentRouting": "Payment Routing",
+      "paymentRoutingDesc": "Choose which SSLCommerz account collects your customer payments.",
+      "defaultGateway": "MART-SaaS Gateway",
+      "defaultGatewayDesc": "No setup needed. Payments settle through the platform account.",
+      "ownSSLCommerz": "Your Own SSLCommerz",
+      "ownSSLCommerzDesc": "Funds settle directly into your merchant account.",
+      "sslNote": "Requires an approved SSLCommerz merchant account. Your password is encrypted (AES-256) before it's saved — never stored or shown as plain text.",
+      "storeId": "Store ID",
+      "storePassword": "Store Password",
+      "storePasswordPlaceholder": "Leave blank to keep existing",
+      "saveBar": "Changes apply immediately after saving.",
+      "saveButton": "Save Changes",
+      "savingButton": "Saving...",
+      "livePreview": "Live Preview",
+      "autoUpdates": "Auto-updates",
+      "storefrontOnline": "Storefront Online",
+      "storefrontOffline": "Temporarily Offline",
+      "directRouting": "Direct payment routing",
+      "platformRouting": "Platform payment routing",
+      "visitStore": "Visit Store ↗"
+    }
+  }
+}

@@ -4,8 +4,10 @@
 import React, { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import { getAllOrders, updateOrderStatusApi, Order } from "@/services/orderService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function OrdersPage() {
+    const { t } = useTranslation();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -21,7 +23,7 @@ export default function OrdersPage() {
         try {
             const data = await getAllOrders();
             setOrders(data);
-        } catch (err: any) {
+        } catch {
             toast.error("Failed to load orders. Please refresh.");
         } finally {
             setLoading(false);
@@ -45,6 +47,21 @@ export default function OrdersPage() {
                 return "bg-red-50 text-red-700 border-red-200";
             default:
                 return "bg-gray-50 text-gray-700 border-gray-200";
+        }
+    };
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case "Pending":
+                return t("dashboard.statusPending");
+            case "Processing":
+                return t("dashboard.statusProcessing");
+            case "Delivered":
+                return t("dashboard.statusDelivered");
+            case "Cancelled":
+                return t("dashboard.statusCancelled");
+            default:
+                return status;
         }
     };
 
@@ -84,8 +101,8 @@ export default function OrdersPage() {
         <div className="space-y-5 sm:space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders</h1>
-                <p className="text-gray-500 mt-1 text-sm">Track and manage store purchases.</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("dashboard.ordersPage.title")}</h1>
+                <p className="text-gray-500 mt-1 text-sm">{t("dashboard.ordersPage.subtitle")}</p>
             </div>
 
             {/* Toolbar */}
@@ -93,7 +110,7 @@ export default function OrdersPage() {
                 <div className="w-full relative">
                     <input
                         type="text"
-                        placeholder="Search by Order ID, Customer Name or Email..."
+                        placeholder={t("dashboard.ordersPage.searchPlaceholder")}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
@@ -103,43 +120,43 @@ export default function OrdersPage() {
 
                 <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0">
-                        Status:
+                        {t("dashboard.ordersPage.statusLabel")}
                     </label>
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="flex-1 sm:flex-none px-3 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                     >
-                        <option value="All">All Statuses</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Processing">Processing</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Cancelled">Cancelled</option>
+                        <option value="All">{t("dashboard.ordersPage.allStatuses")}</option>
+                        <option value="Pending">{t("dashboard.statusPending")}</option>
+                        <option value="Processing">{t("dashboard.statusProcessing")}</option>
+                        <option value="Delivered">{t("dashboard.statusDelivered")}</option>
+                        <option value="Cancelled">{t("dashboard.statusCancelled")}</option>
                     </select>
                 </div>
             </div>
 
             {/* Loading */}
-            {loading && <p className="text-gray-600 font-medium p-4">Loading orders...</p>}
+            {loading && <p className="text-gray-600 font-medium p-4">{t("dashboard.ordersPage.loading")}</p>}
 
             {/* Orders Table */}
             {!loading && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     {filteredOrders.length === 0 ? (
                         <div className="p-10 text-center text-gray-500">
-                            No orders found matching your criteria.
+                            {t("dashboard.ordersPage.noOrdersFound")}
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[560px]">
                                 <thead>
                                     <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-xs sm:text-sm font-semibold">
-                                        <th className="p-3 sm:p-4 pl-4 sm:pl-6">Order ID</th>
-                                        <th className="p-3 sm:p-4">Customer</th>
-                                        <th className="p-3 sm:p-4 hidden md:table-cell">Date</th>
-                                        <th className="p-3 sm:p-4">Total</th>
-                                        <th className="p-3 sm:p-4">Status</th>
-                                        <th className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">Actions</th>
+                                        <th className="p-3 sm:p-4 pl-4 sm:pl-6">{t("dashboard.orderId")}</th>
+                                        <th className="p-3 sm:p-4">{t("dashboard.customer")}</th>
+                                        <th className="p-3 sm:p-4 hidden md:table-cell">{t("dashboard.date")}</th>
+                                        <th className="p-3 sm:p-4">{t("dashboard.total")}</th>
+                                        <th className="p-3 sm:p-4">{t("dashboard.status")}</th>
+                                        <th className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">{t("dashboard.ordersPage.actions")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 text-gray-700 text-xs sm:text-sm">
@@ -166,10 +183,10 @@ export default function OrdersPage() {
                                                         order.status
                                                     )}`}
                                                 >
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Processing">Processing</option>
-                                                    <option value="Delivered">Delivered</option>
-                                                    <option value="Cancelled">Cancelled</option>
+                                                    <option value="Pending">{t("dashboard.statusPending")}</option>
+                                                    <option value="Processing">{t("dashboard.statusProcessing")}</option>
+                                                    <option value="Delivered">{t("dashboard.statusDelivered")}</option>
+                                                    <option value="Cancelled">{t("dashboard.statusCancelled")}</option>
                                                 </select>
                                             </td>
                                             <td className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
@@ -177,7 +194,7 @@ export default function OrdersPage() {
                                                     onClick={() => setSelectedOrder(order)}
                                                     className="text-orange-600 hover:underline font-medium text-xs transition-colors whitespace-nowrap"
                                                 >
-                                                    View
+                                                    {t("dashboard.ordersPage.view")}
                                                 </button>
                                             </td>
                                         </tr>
@@ -209,11 +226,11 @@ export default function OrdersPage() {
                         </div>
 
                         <div className="border-t border-b border-gray-100 py-3 my-3 space-y-1 text-xs text-gray-600">
-                            <p><span className="font-semibold text-gray-800">Address:</span> {selectedOrder.shippingAddress}</p>
-                            <p><span className="font-semibold text-gray-800">Date:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                            <p><span className="font-semibold text-gray-800">{t("dashboard.ordersPage.address")}</span> {selectedOrder.shippingAddress}</p>
+                            <p><span className="font-semibold text-gray-800">{t("dashboard.date")}:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
                         </div>
 
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Items Ordered</h3>
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t("dashboard.ordersPage.itemsOrdered")}</h3>
                         
                         <div className="space-y-3 mb-6">
                             {selectedOrder.items.map((item, index) => (
@@ -235,7 +252,7 @@ export default function OrdersPage() {
                         </div>
 
                         <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                            <span className="text-sm font-bold text-gray-700">Grand Total</span>
+                            <span className="text-sm font-bold text-gray-700">{t("dashboard.ordersPage.grandTotal")}</span>
                             <span className="text-lg font-extrabold text-orange-600">৳{selectedOrder.totalAmount.toFixed(2)}</span>
                         </div>
                     </div>

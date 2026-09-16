@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/services/api";
 import toast from "react-hot-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface StoreData {
     id: string;
@@ -15,6 +16,7 @@ interface StoreData {
 }
 
 export default function SettingsPage() {
+    const { t } = useTranslation();
     const [store, setStore] = useState<StoreData | null>(null);
 
     const [storeName, setStoreName] = useState("");
@@ -29,7 +31,6 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    // ✅ কম্পোনেন্টের একদম উপরে নিয়ে আসা হলো — সব জায়গায় একই ভ্যালু ব্যবহার হবে
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
 
@@ -55,7 +56,6 @@ export default function SettingsPage() {
 
     const handleCopySubdomain = () => {
         if (!store) return;
-        // ✅ এখন storeUrl-এর মতোই একই env-aware URL কপি হবে
         navigator.clipboard.writeText(`${protocol}://${store.subdomain}.${baseDomain}`);
         setCopied(true);
         toast.success("Store URL copied.");
@@ -94,7 +94,7 @@ export default function SettingsPage() {
         return (
             <div className="min-h-[400px] flex flex-col items-center justify-center gap-3">
                 <div className="w-8 h-8 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin" />
-                <p className="text-sm text-gray-500">Loading store settings...</p>
+                <p className="text-sm text-gray-500">{t("dashboard.settingsPage.loading")}</p>
             </div>
         );
     }
@@ -102,13 +102,12 @@ export default function SettingsPage() {
     if (!store) {
         return (
             <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center max-w-md mx-auto">
-                <h3 className="text-base font-bold text-gray-900">Store not found</h3>
-                <p className="text-sm text-gray-500 mt-1">Unable to locate your store profile.</p>
+                <h3 className="text-base font-bold text-gray-900">{t("dashboard.settingsPage.storeNotFound")}</h3>
+                <p className="text-sm text-gray-500 mt-1">{t("dashboard.settingsPage.storeNotFoundDesc")}</p>
             </div>
         );
     }
 
-    // ✅ এখন শুধু store.subdomain জুড়ে দিলেই হয়, baseDomain/protocol উপরে define করা
     const storeUrl = `${protocol}://${store.subdomain}.${baseDomain}`;
     const displayDomain = `${store.subdomain}.${baseDomain}`;
 
@@ -117,9 +116,9 @@ export default function SettingsPage() {
             {/* Header */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Store Settings</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("dashboard.settingsPage.title")}</h1>
                     <p className="text-gray-500 mt-1 text-sm">
-                        Manage your storefront identity and payment routing.
+                        {t("dashboard.settingsPage.subtitle")}
                     </p>
                 </div>
 
@@ -132,38 +131,38 @@ export default function SettingsPage() {
                         onClick={handleCopySubdomain}
                         className="px-2.5 py-1.5 text-xs font-medium text-gray-500 hover:text-orange-600 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
                     >
-                        {copied ? "Copied" : "Copy"}
+                        {copied ? t("dashboard.settingsPage.copied") : t("dashboard.settingsPage.copy")}
                     </button>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-                {/* --- বাম কলাম: ফর্ম ফিল্ড --- */}
+                {/* --- Left Column: Form Fields --- */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Store Identity card */}
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <h2 className="text-sm font-bold text-gray-900">Store Identity</h2>
+                        <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.storeIdentity")}</h2>
 
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Store Name
+                                {t("dashboard.settingsPage.storeName")}
                             </label>
                             <input
                                 type="text"
                                 value={storeName}
                                 onChange={(e) => setStoreName(e.target.value)}
                                 required
-                                placeholder="e.g. Apex Fashion House"
+                                placeholder={t("dashboard.settingsPage.storeNamePlaceholder")}
                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-medium outline-none transition-all"
                             />
                             <p className="text-xs text-gray-400 mt-1">
-                                Shown across your storefront and order invoices.
+                                {t("dashboard.settingsPage.storeNameDesc")}
                             </p>
                         </div>
 
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Logo Image URL
+                                {t("dashboard.settingsPage.logoUrl")}
                             </label>
                             <input
                                 type="url"
@@ -175,12 +174,12 @@ export default function SettingsPage() {
                                 placeholder="https://res.cloudinary.com/..."
                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
                             />
-                            <p className="text-xs text-gray-400 mt-1">Recommended: 200×200px, transparent PNG.</p>
+                            <p className="text-xs text-gray-400 mt-1">{t("dashboard.settingsPage.logoDesc")}</p>
                         </div>
 
                         <div>
                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Store Status
+                                {t("dashboard.settingsPage.storeStatus")}
                             </label>
                             <div className="grid grid-cols-2 gap-3">
                                 <button
@@ -200,9 +199,9 @@ export default function SettingsPage() {
                                         {status === "active" && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-gray-900">Active & Open</p>
+                                        <p className="text-xs font-bold text-gray-900">{t("dashboard.settingsPage.activeOpen")}</p>
                                         <p className="text-[11px] text-gray-500 mt-0.5">
-                                            Customers can browse & order
+                                            {t("dashboard.settingsPage.activeOpenDesc")}
                                         </p>
                                     </div>
                                 </button>
@@ -226,9 +225,9 @@ export default function SettingsPage() {
                                         )}
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-gray-900">Suspended</p>
+                                        <p className="text-xs font-bold text-gray-900">{t("dashboard.settingsPage.suspended")}</p>
                                         <p className="text-[11px] text-gray-500 mt-0.5">
-                                            Storefront paused temporarily
+                                            {t("dashboard.settingsPage.suspendedDesc")}
                                         </p>
                                     </div>
                                 </button>
@@ -236,12 +235,12 @@ export default function SettingsPage() {
                         </div>
                     </div>
 
-                    {/* Payment routing card */}
+                    {/* Payment Routing card */}
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
                         <div>
-                            <h2 className="text-sm font-bold text-gray-900">Payment Routing</h2>
+                            <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.paymentRouting")}</h2>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Choose which SSLCommerz account collects your customer payments.
+                                {t("dashboard.settingsPage.paymentRoutingDesc")}
                             </p>
                         </div>
 
@@ -267,9 +266,9 @@ export default function SettingsPage() {
                                         {!useOwnSSLCommerz && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                                     </span>
                                 </div>
-                                <p className="text-sm font-bold text-gray-900">MART-SaaS Gateway</p>
+                                <p className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.defaultGateway")}</p>
                                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    No setup needed. Payments settle through the platform account.
+                                    {t("dashboard.settingsPage.defaultGatewayDesc")}
                                 </p>
                             </button>
 
@@ -294,9 +293,9 @@ export default function SettingsPage() {
                                         {useOwnSSLCommerz && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                                     </span>
                                 </div>
-                                <p className="text-sm font-bold text-gray-900">Your Own SSLCommerz</p>
+                                <p className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.ownSSLCommerz")}</p>
                                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    Funds settle directly into your merchant account.
+                                    {t("dashboard.settingsPage.ownSSLCommerzDesc")}
                                 </p>
                             </button>
                         </div>
@@ -311,16 +310,14 @@ export default function SettingsPage() {
                                     <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 mt-4">
                                         <span className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500" />
                                         <p className="leading-relaxed">
-                                            Requires an approved SSLCommerz merchant account. Your password is
-                                            encrypted (AES-256) before it's saved — never stored or shown as plain
-                                            text.
+                                            {t("dashboard.settingsPage.sslNote")}
                                         </p>
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                Store ID
+                                                {t("dashboard.settingsPage.storeId")}
                                             </label>
                                             <input
                                                 type="text"
@@ -334,7 +331,7 @@ export default function SettingsPage() {
 
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                Store Password
+                                                {t("dashboard.settingsPage.storePassword")}
                                             </label>
                                             <input
                                                 type="password"
@@ -342,7 +339,7 @@ export default function SettingsPage() {
                                                 onChange={(e) => setSslcommerzStorePassword(e.target.value)}
                                                 placeholder={
                                                     store.sslcommerzStoreId
-                                                        ? "Leave blank to keep existing"
+                                                        ? t("dashboard.settingsPage.storePasswordPlaceholder")
                                                         : "Enter Store Password"
                                                 }
                                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
@@ -356,7 +353,7 @@ export default function SettingsPage() {
 
                     {/* Save bar */}
                     <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between gap-4">
-                        <p className="text-xs text-gray-500">Changes apply immediately after saving.</p>
+                        <p className="text-xs text-gray-500">{t("dashboard.settingsPage.saveBar")}</p>
                         <button
                             type="submit"
                             disabled={saving}
@@ -365,20 +362,20 @@ export default function SettingsPage() {
                             {saving && (
                                 <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             )}
-                            {saving ? "Saving..." : "Save Changes"}
+                            {saving ? t("dashboard.settingsPage.savingButton") : t("dashboard.settingsPage.saveButton")}
                         </button>
                     </div>
                 </div>
 
-                {/* --- ডান কলাম: Live Store Preview (sticky) --- */}
+                {/* --- Right Column: Live Store Preview (sticky) --- */}
                 <div className="lg:col-span-1">
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm sticky top-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                Live Preview
+                                {t("dashboard.settingsPage.livePreview")}
                             </h3>
                             <span className="text-[10px] bg-orange-50 text-orange-600 font-semibold px-2 py-0.5 rounded-md">
-                                Auto-updates
+                                {t("dashboard.settingsPage.autoUpdates")}
                             </span>
                         </div>
 
@@ -414,7 +411,7 @@ export default function SettingsPage() {
                                         status === "active" ? "bg-green-500" : "bg-red-500"
                                     }`}
                                 />
-                                <span>{status === "active" ? "Storefront Online" : "Temporarily Offline"}</span>
+                                <span>{status === "active" ? t("dashboard.settingsPage.storefrontOnline") : t("dashboard.settingsPage.storefrontOffline")}</span>
                             </div>
 
                             <div className="pt-1">
@@ -425,7 +422,7 @@ export default function SettingsPage() {
                                             : "bg-orange-50 text-orange-700"
                                     }`}
                                 >
-                                    {useOwnSSLCommerz ? "Direct payment routing" : "Platform payment routing"}
+                                    {useOwnSSLCommerz ? t("dashboard.settingsPage.directRouting") : t("dashboard.settingsPage.platformRouting")}
                                 </span>
                             </div>
                         </div>
@@ -436,7 +433,7 @@ export default function SettingsPage() {
                             rel="noopener noreferrer"
                             className="block text-center py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors"
                         >
-                            Visit Store ↗
+                            {t("dashboard.settingsPage.visitStore")}
                         </a>
                     </div>
                 </div>

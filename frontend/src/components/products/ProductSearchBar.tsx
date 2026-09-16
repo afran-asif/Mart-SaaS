@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProductSearchBarProps {
     searchTerm: string;
@@ -20,13 +21,15 @@ export default function ProductSearchBar({
     onCategoryChange,
     onSortChange,
 }: ProductSearchBarProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="flex flex-col gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
             {/* Search Input */}
             <div className="w-full relative">
                 <input
                     type="text"
-                    placeholder="Search products by name or description..."
+                    placeholder={t("dashboard.productsPage.searchPlaceholder")}
                     value={searchTerm}
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
@@ -34,19 +37,19 @@ export default function ProductSearchBar({
                 <span className="absolute left-3 top-3 text-gray-400 text-sm">🔍</span>
             </div>
 
-            {/* Filters & Sorting — 2 columns on mobile, inline on larger */}
+            {/* Filters & Sorting */}
             <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3">
                 {/* Category Filter */}
                 <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0 hidden sm:block">
-                        Filter:
+                        {t("dashboard.productsPage.filter")}
                     </label>
                     <select
                         value={selectedCategory}
                         onChange={(e) => onCategoryChange(e.target.value)}
                         className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                     >
-                        <option value="All">All Categories</option>
+                        <option value="All">{t("dashboard.productsPage.allCategories")}</option>
                         <option value="Clothing">Clothing</option>
                         <option value="Gadgets">Gadgets</option>
                         <option value="Accessories">Accessories</option>
@@ -57,18 +60,18 @@ export default function ProductSearchBar({
                 {/* Sort Control */}
                 <div className="flex items-center gap-2">
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider shrink-0 hidden sm:block">
-                        Sort:
+                        {t("dashboard.productsPage.sort")}
                     </label>
                     <select
                         value={sortBy}
                         onChange={(e) => onSortChange(e.target.value)}
                         className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                     >
-                        <option value="default">Default</option>
-                        <option value="price-low">Price: Low → High</option>
-                        <option value="price-high">Price: High → Low</option>
-                        <option value="name-asc">Name: A → Z</option>
-                        <option value="stock-low">Stock: Low → High</option>
+                        <option value="default">{t("dashboard.productsPage.sortDefault")}</option>
+                        <option value="price-low">{t("dashboard.productsPage.sortPriceLow")}</option>
+                        <option value="price-high">{t("dashboard.productsPage.sortPriceHigh")}</option>
+                        <option value="name-asc">{t("dashboard.productsPage.sortNameAsc")}</option>
+                        <option value="stock-low">{t("dashboard.productsPage.sortStockLow")}</option>
                     </select>
                 </div>
             </div>

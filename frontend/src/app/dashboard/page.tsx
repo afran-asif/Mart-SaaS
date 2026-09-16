@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { api } from "@/services/api";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface RecentOrder {
     _id: string;
@@ -33,6 +34,7 @@ const statusColors: Record<string, string> = {
 
 export default function DashboardPage() {
     const { user } = useSelector((state: any) => state.auth);
+    const { t } = useTranslation();
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -43,7 +45,7 @@ export default function DashboardPage() {
             try {
                 const res = await api.get("/orders/analytics");
                 if (isMounted) setAnalytics(res.data.analytics);
-            } catch (error) {
+            } catch {
                 if (isMounted) toast.error("Failed to load analytics data.");
             } finally {
                 if (isMounted) setLoading(false);
@@ -71,6 +73,21 @@ export default function DashboardPage() {
         }
     };
 
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case "Pending":
+                return t("dashboard.statusPending");
+            case "Processing":
+                return t("dashboard.statusProcessing");
+            case "Delivered":
+                return t("dashboard.statusDelivered");
+            case "Cancelled":
+                return t("dashboard.statusCancelled");
+            default:
+                return status;
+        }
+    };
+
     const formatDate = (dateString?: string) => {
         if (!dateString) return "N/A";
         const d = new Date(dateString);
@@ -84,16 +101,16 @@ export default function DashboardPage() {
         <div className="space-y-6 sm:space-y-8">
             <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                    Welcome Back, {user?.name || "Vendor"}!
+                    {t("dashboard.welcome")}, {user?.name || t("dashboard.vendor")}!
                 </h1>
-                <p className="text-gray-500 mt-1 text-sm">Here is what's happening with your store today.</p>
+                <p className="text-gray-500 mt-1 text-sm">{t("dashboard.overviewSubtitle")}</p>
             </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-gray-500">Total Sales</p>
+                        <p className="text-sm font-medium text-gray-500">{t("dashboard.totalSales")}</p>
                         <p className="text-2xl sm:text-3xl font-bold text-green-700 mt-2">
                             ৳{loading ? "..." : analytics?.totalRevenue.toFixed(2)}
                         </p>
@@ -102,7 +119,7 @@ export default function DashboardPage() {
 
                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-gray-500">Active Products</p>
+                        <p className="text-sm font-medium text-gray-500">{t("dashboard.activeProducts")}</p>
                         <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
                             {loading ? "..." : analytics?.totalProducts}
                         </p>
@@ -111,11 +128,13 @@ export default function DashboardPage() {
 
                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-gray-500">Total Orders</p>
+                        <p className="text-sm font-medium text-gray-500">{t("dashboard.totalOrders")}</p>
                         <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
                             {loading ? "..." : totalOrders}
                         </p>
-                        <p className="text-xs text-amber-600 font-medium mt-1">{pendingOrders} Pending</p>
+                        <p className="text-xs text-amber-600 font-medium mt-1">
+                            {pendingOrders} {t("dashboard.pending")}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -124,7 +143,7 @@ export default function DashboardPage() {
             {!loading && analytics && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
-                        <h2 className="text-sm font-bold text-gray-900 mb-4">Order Status Breakdown</h2>
+                        <h2 className="text-sm font-bold text-gray-900 mb-4">{t("dashboard.orderStatusBreakdown")}</h2>
                         <div className="flex flex-col gap-3">
                             {["Pending", "Processing", "Delivered", "Cancelled"].map((status) => {
                                 const count = analytics.statusBreakdown[status] || 0;
@@ -132,7 +151,7 @@ export default function DashboardPage() {
                                 return (
                                     <div key={status}>
                                         <div className="flex justify-between text-xs mb-1 text-gray-600">
-                                            <span>{status}</span>
+                                            <span>{getStatusLabel(status)}</span>
                                             <span>{count}</span>
                                         </div>
                                         <div className="w-full bg-gray-100 rounded-full h-2">
@@ -148,22 +167,22 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
-                        <h2 className="text-sm font-bold text-gray-900 mb-4">Payment Status</h2>
+                        <h2 className="text-sm font-bold text-gray-900 mb-4">{t("dashboard.paymentStatus")}</h2>
                         <div className="flex gap-4 sm:gap-6 flex-wrap">
                             <div>
-                                <p className="text-xs text-gray-500">Paid</p>
+                                <p className="text-xs text-gray-500">{t("dashboard.paid")}</p>
                                 <p className="text-lg font-semibold text-green-700">
                                     {analytics.paymentBreakdown["Paid"] || 0}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">Unpaid</p>
+                                <p className="text-xs text-gray-500">{t("dashboard.unpaid")}</p>
                                 <p className="text-lg font-semibold text-yellow-600">
                                     {analytics.paymentBreakdown["Unpaid"] || 0}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">Failed</p>
+                                <p className="text-xs text-gray-500">{t("dashboard.failed")}</p>
                                 <p className="text-lg font-semibold text-red-600">
                                     {analytics.paymentBreakdown["Failed"] || 0}
                                 </p>
@@ -177,32 +196,32 @@ export default function DashboardPage() {
             <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-base sm:text-lg font-bold text-gray-900">Recent Orders</h2>
-                        <p className="text-xs text-gray-500">Latest transactions in your store.</p>
+                        <h2 className="text-base sm:text-lg font-bold text-gray-900">{t("dashboard.recentOrders")}</h2>
+                        <p className="text-xs text-gray-500">{t("dashboard.recentSubtitle")}</p>
                     </div>
                     <Link
                         href="/dashboard/orders"
                         className="text-xs font-semibold text-orange-600 hover:underline flex items-center gap-1 shrink-0"
                     >
-                        View All →
+                        {t("dashboard.viewAll")}
                     </Link>
                 </div>
 
                 {loading ? (
-                    <p className="text-sm text-gray-500 py-4">Loading recent transactions...</p>
+                    <p className="text-sm text-gray-500 py-4">{t("dashboard.loadingOrders")}</p>
                 ) : !analytics || analytics.recentOrders.length === 0 ? (
-                    <p className="text-sm text-gray-400 py-4 text-center">No orders recorded yet.</p>
+                    <p className="text-sm text-gray-400 py-4 text-center">{t("dashboard.noOrders")}</p>
                 ) : (
                     <div className="overflow-x-auto -mx-5 sm:-mx-6">
                         <div className="px-5 sm:px-6 min-w-full">
                             <table className="w-full text-left border-collapse min-w-[480px]">
                                 <thead>
                                     <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                                        <th className="py-3 px-2">Order ID</th>
-                                        <th className="py-3 px-2">Customer</th>
-                                        <th className="py-3 px-2 hidden sm:table-cell">Date</th>
-                                        <th className="py-3 px-2">Total</th>
-                                        <th className="py-3 px-2">Status</th>
+                                        <th className="py-3 px-2">{t("dashboard.orderId")}</th>
+                                        <th className="py-3 px-2">{t("dashboard.customer")}</th>
+                                        <th className="py-3 px-2 hidden sm:table-cell">{t("dashboard.date")}</th>
+                                        <th className="py-3 px-2">{t("dashboard.total")}</th>
+                                        <th className="py-3 px-2">{t("dashboard.status")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 text-sm">
@@ -222,7 +241,7 @@ export default function DashboardPage() {
                                             </td>
                                             <td className="py-3.5 px-2">
                                                 <span className={`px-2 py-1 text-[10px] sm:text-[11px] font-semibold rounded-lg border ${getStatusBadge(order.status)}`}>
-                                                    {order.status}
+                                                    {getStatusLabel(order.status)}
                                                 </span>
                                             </td>
                                         </tr>

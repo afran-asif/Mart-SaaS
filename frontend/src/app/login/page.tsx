@@ -5,10 +5,13 @@ import { loginVendor } from "@/services/authService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function LoginPage() {
     const router = useRouter();
     const dispatch = useDispatch();
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -30,7 +33,7 @@ export default function LoginPage() {
             if (data.token) {
                 localStorage.setItem("token", data.token);
             }
-                setMessage("Login Successfull! Redirecting...");
+                setMessage(t("login.loginSuccess"));
                 setTimeout(() => {
                     router.push("/dashboard");
                     }, 1500);
@@ -46,19 +49,24 @@ export default function LoginPage() {
     return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
     <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-lg">
+        {/* Language Switcher */}
+        <div className="flex justify-end">
+            <LanguageSwitcher variant="dark" />
+        </div>
+
         <div>
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            Welcome Back! 
+            {t("login.title")}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-            Log in to manage your martsaas store
+            {t("login.subtitle")}
         </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-4 rounded-md shadow-sm">
             <div>
-            <label className="text-sm font-medium text-gray-700">Email Address</label>
+            <label className="text-sm font-medium text-gray-700">{t("login.emailLabel")}</label>
             <input
                 name="email"
                 type="email"
@@ -71,7 +79,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-            <label className="text-sm font-medium text-gray-700">Password</label>
+            <label className="text-sm font-medium text-gray-700">{t("login.passwordLabel")}</label>
             <input
                 name="password"
                 type="password"
@@ -90,7 +98,7 @@ export default function LoginPage() {
             disabled={loading}
             className="group relative flex w-full justify-center rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:bg-orange-400"
             >
-            {loading ? "Authenticating..." : "Sign In"}
+            {loading ? t("login.authenticating") : t("login.signIn")}
             </button>
         </div>
 
@@ -103,13 +111,13 @@ export default function LoginPage() {
 
         <div className="text-center pt-2 border-t border-gray-100">
             <p className="text-xs text-gray-500">
-                Don't have a vendor store yet?{" "}
+                {t("login.noAccount")}{" "}
                 <Link href="/register" className="font-semibold text-orange-600 hover:text-orange-700">
-                    Create Store
+                    {t("login.createStore")}
                 </Link>
             </p>
             <Link href="/" className="mt-3 inline-block text-xs text-gray-400 hover:text-gray-600">
-                ← Back to Home
+                {t("login.backHome")}
             </Link>
         </div>
     </div>

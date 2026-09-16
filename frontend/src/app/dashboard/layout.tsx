@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/redux/authSlice";
+import { useTranslation } from "@/hooks/useTranslation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -13,6 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { user, store, isAuthenticated } = useSelector((state: any) => state.auth);
     const [authChecked, setAuthChecked] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -29,10 +32,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [pathname]);
 
     const menuItems = [
-        { name: "Overview", path: "/dashboard" },
-        { name: "My Products", path: "/dashboard/products" },
-        { name: "Orders", path: "/dashboard/orders" },
-        { name: "Store Settings", path: "/dashboard/settings" },
+        { nameKey: "dashboard.overview", path: "/dashboard" },
+        { nameKey: "dashboard.myProducts", path: "/dashboard/products" },
+        { nameKey: "dashboard.orders", path: "/dashboard/orders" },
+        { nameKey: "dashboard.storeSettings", path: "/dashboard/settings" },
     ];
 
     const handleSignOut = () => {
@@ -45,7 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="h-screen flex items-center justify-center bg-gray-50">
                 <div className="flex flex-col items-center gap-3 text-gray-400">
                     <div className="w-8 h-8 border-3 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
-                    <p className="text-xs font-medium">Checking authorization...</p>
+                    <p className="text-xs font-medium">{t("dashboard.checkingAuth")}</p>
                 </div>
             </div>
         );
@@ -77,7 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             ×
                         </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Shop: {store?.storeName || "My Store"}</p>
+                    <p className="text-xs text-gray-500 mt-1">{t("dashboard.shop")}: {store?.storeName || "My Store"}</p>
 
                     <nav className="mt-8 space-y-2">
                         {menuItems.map((item) => {
@@ -92,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                     }`}
                                 >
-                                    {item.name}
+                                    {t(item.nameKey)}
                                 </Link>
                             );
                         })}
@@ -100,15 +103,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 <div className="p-4 border-t border-gray-200 flex flex-col gap-2">
+                    {/* Language Switcher in sidebar */}
+                    <div className="px-2 pb-1">
+                        <LanguageSwitcher variant="dark" />
+                    </div>
                     <div className="px-2">
-                        <p className="text-sm font-semibold text-gray-800">{user?.name || "Vendor"}</p>
+                        <p className="text-sm font-semibold text-gray-800">{user?.name || t("dashboard.vendor")}</p>
                         <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                     </div>
                     <button
                         onClick={handleSignOut}
                         className="w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
-                        Sign Out
+                        {t("dashboard.signOut")}
                     </button>
                 </div>
             </aside>

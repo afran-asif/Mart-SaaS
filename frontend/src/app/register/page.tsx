@@ -5,10 +5,13 @@ import { registerVendor } from "@/services/authService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function RegisterPage() {
     const dispatch = useDispatch();
     const router = useRouter();
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -50,7 +53,7 @@ export default function RegisterPage() {
             if (data.success) {
                 // ✅ Redux store-এ user, store ও token সেভ করা হচ্ছে
                 dispatch(setCredentials({ user: data.user, store: data.store, token: data.token }));
-                setMessage("Registration Successful! Redirecting to dashboard...");
+                setMessage(t("register.registerSuccess"));
                 setTimeout(() => {
                     router.push("/dashboard");
                 }, 1500);
@@ -64,19 +67,24 @@ export default function RegisterPage() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
         <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-lg">
+            {/* Language Switcher */}
+            <div className="flex justify-end">
+                <LanguageSwitcher variant="dark" />
+            </div>
+
             <div>
             <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                Create Vendor Account 🚀
+                {t("register.title")}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-                Build your own store powered by MART-SAAS
+                {t("register.subtitle")}
             </p>
             </div>
 
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-md shadow-sm">
                 <div>
-                <label className="text-sm font-medium text-gray-700">Full Name</label>
+                <label className="text-sm font-medium text-gray-700">{t("register.fullName")}</label>
                 <input
                     name="name"
                     type="text"
@@ -89,7 +97,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                <label className="text-sm font-medium text-gray-700">Email Address</label>
+                <label className="text-sm font-medium text-gray-700">{t("register.emailLabel")}</label>
                 <input
                     name="email"
                     type="email"
@@ -102,7 +110,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                <label className="text-sm font-medium text-gray-700">Password</label>
+                <label className="text-sm font-medium text-gray-700">{t("register.passwordLabel")}</label>
                 <input
                     name="password"
                     type="password"
@@ -115,7 +123,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                <label className="text-sm font-medium text-gray-700">Store Name</label>
+                <label className="text-sm font-medium text-gray-700">{t("register.storeName")}</label>
                 <input
                     name="storeName"
                     type="text"
@@ -128,7 +136,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                <label className="text-sm font-medium text-gray-700">Desired Subdomain</label>
+                <label className="text-sm font-medium text-gray-700">{t("register.subdomain")}</label>
                 <div className="mt-1 flex rounded-lg shadow-sm">
                     <input
                     name="subdomain"
@@ -152,7 +160,7 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="group relative flex w-full justify-center rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:bg-orange-400"
                 >
-                {loading ? "Creating Account..." : "Register Store"}
+                {loading ? t("register.creating") : t("register.registerButton")}
                 </button>
             </div>
 
@@ -165,13 +173,13 @@ export default function RegisterPage() {
 
             <div className="text-center pt-2 border-t border-gray-100">
                 <p className="text-xs text-gray-500">
-                    Already have a vendor account?{" "}
+                    {t("register.hasAccount")}{" "}
                     <Link href="/login" className="font-semibold text-orange-600 hover:text-orange-700">
-                        Sign In
+                        {t("register.signIn")}
                     </Link>
                 </p>
                 <Link href="/" className="mt-3 inline-block text-xs text-gray-400 hover:text-gray-600">
-                    ← Back to Home
+                    {t("register.backHome")}
                 </Link>
             </div>
         </div>

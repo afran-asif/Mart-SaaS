@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function HomePage() {
   const router = useRouter();
@@ -12,6 +14,7 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [subdomainInput, setSubdomainInput] = useState("");
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -34,9 +37,8 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
         </svg>
       ),
-      title: "Custom Subdomain Storefronts",
-      description:
-        "Every vendor gets their own branded storefront under a dedicated subdomain (e.g. yourbrand.martsaas.com) with isolated store routing.",
+      title: t("features.items.0.title"),
+      description: t("features.items.0.description"),
     },
     {
       icon: (
@@ -44,9 +46,8 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
         </svg>
       ),
-      title: "Full Inventory & Catalog Control",
-      description:
-        "Easily upload products with multiple high-resolution images, real-time stock counters, price configurations, and category sorting.",
+      title: t("features.items.1.title"),
+      description: t("features.items.1.description"),
     },
     {
       icon: (
@@ -54,9 +55,8 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
         </svg>
       ),
-      title: "Integrated SSLCommerz & COD",
-      description:
-        "Accept bKash, Nagad, debit/credit cards, or Cash on Delivery. Configure your own store credentials or use the unified engine.",
+      title: t("features.items.2.title"),
+      description: t("features.items.2.description"),
     },
     {
       icon: (
@@ -64,9 +64,8 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
       ),
-      title: "Real-Time Vendor Analytics",
-      description:
-        "Track sales volume, completed and pending orders, active customer checkouts, and total revenue directly inside your dashboard.",
+      title: t("features.items.3.title"),
+      description: t("features.items.3.description"),
     },
     {
       icon: (
@@ -74,9 +73,8 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      title: "High-Speed Cart & Checkout",
-      description:
-        "Engineered with Redux Toolkit and Next.js SSR for instantaneous product adding, persistent carts, and frictionless customer checkout.",
+      title: t("features.items.4.title"),
+      description: t("features.items.4.description"),
     },
     {
       icon: (
@@ -84,46 +82,45 @@ export default function HomePage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
-      title: "Multi-Tenant Data Isolation",
-      description:
-        "Enterprise-grade architectural separation guarantees each vendor's products, orders, customers, and revenues remain completely isolated.",
+      title: t("features.items.5.title"),
+      description: t("features.items.5.description"),
     },
   ];
 
   const steps = [
     {
       num: "01",
-      title: "Register Your Store",
-      desc: "Sign up in 30 seconds, choose your store name, and claim your custom subdomain.",
+      title: t("howItWorks.steps.0.title"),
+      desc: t("howItWorks.steps.0.desc"),
     },
     {
       num: "02",
-      title: "Upload Your Products",
-      desc: "Add items with images, stock counts, and prices through your vendor dashboard.",
+      title: t("howItWorks.steps.1.title"),
+      desc: t("howItWorks.steps.1.desc"),
     },
     {
       num: "03",
-      title: "Start Selling & Growing",
-      desc: "Share your store link with customers, accept orders, and track your revenue live.",
+      title: t("howItWorks.steps.2.title"),
+      desc: t("howItWorks.steps.2.desc"),
     },
   ];
 
   const faqs = [
     {
-      q: "What is MARTsaas?",
-      a: "MARTsaas is a modern multi-tenant e-commerce platform that allows merchants and vendors to instantly launch their own independent online storefront with custom subdomains, live inventory management, and automated order processing.",
+      q: t("faq.items.0.q"),
+      a: t("faq.items.0.a"),
     },
     {
-      q: "How does the subdomain work?",
-      a: "When you register your store, you pick a subdomain (e.g. 'af-gadgets'). Your store is immediately accessible at af-gadgets.martsaas.com (or in local dev at af-gadgets.localhost:3000 / /store/af-gadgets). All customer traffic and orders are scoped strictly to your store.",
+      q: t("faq.items.1.q"),
+      a: t("faq.items.1.a"),
     },
     {
-      q: "What payment methods are supported?",
-      a: "MARTsaas supports Cash on Delivery (COD) as well as automated online payments via SSLCommerz (supporting bKash, Nagad, Rocket, Visa, Mastercard, and internet banking). Vendors can also configure their own SSLCommerz credentials in store settings.",
+      q: t("faq.items.2.q"),
+      a: t("faq.items.2.a"),
     },
     {
-      q: "How do I manage my products and orders?",
-      a: "Once registered, you get full access to the MARTsaas Vendor Dashboard. From there you can add, edit, or remove products, manage stock levels, view customer order details, and update shipping statuses.",
+      q: t("faq.items.3.q"),
+      a: t("faq.items.3.a"),
     },
   ];
 
@@ -150,24 +147,25 @@ export default function HomePage() {
           {/* Desktop Nav */}
           <nav className="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
             <a href="#features" className="hover:text-orange-600 transition-colors">
-              Features
+              {t("nav.features")}
             </a>
             <a href="#how-it-works" className="hover:text-orange-600 transition-colors">
-              How It Works
+              {t("nav.howItWorks")}
             </a>
             <a href="#showcase" className="hover:text-orange-600 transition-colors">
-              Storefront Preview
+              {t("nav.storefront")}
             </a>
             <a href="#pricing" className="hover:text-orange-600 transition-colors">
-              Pricing
+              {t("nav.pricing")}
             </a>
             <a href="#faq" className="hover:text-orange-600 transition-colors">
-              FAQ
+              {t("nav.faq")}
             </a>
           </nav>
 
           {/* Auth Action Buttons */}
           <div className="hidden items-center gap-3 md:flex">
+            <LanguageSwitcher variant="dark" />
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full">
@@ -177,7 +175,7 @@ export default function HomePage() {
                   href="/dashboard"
                   className="inline-flex items-center gap-1.5 rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-orange-600/20 hover:bg-orange-700 transition"
                 >
-                  <span>Go to Dashboard</span>
+                  <span>{t("nav.dashboard")}</span>
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
@@ -189,13 +187,13 @@ export default function HomePage() {
                   href="/login"
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-orange-600 transition"
                 >
-                  Log in
+                  {t("nav.login")}
                 </Link>
                 <Link
                   href="/register"
                   className="rounded-xl bg-orange-600 px-4 sm:px-5 py-2 text-sm font-semibold text-white shadow-md shadow-orange-600/20 hover:bg-orange-700 transition"
                 >
-                  Create Store
+                  {t("nav.getStarted")}
                 </Link>
               </>
             )}
@@ -228,46 +226,49 @@ export default function HomePage() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition"
               >
-                Features
+                {t("nav.features")}
               </a>
               <a
                 href="#how-it-works"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition"
               >
-                How It Works
+                {t("nav.howItWorks")}
               </a>
               <a
                 href="#showcase"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition"
               >
-                Storefront Preview
+                {t("nav.storefront")}
               </a>
               <a
                 href="#pricing"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition"
               >
-                Pricing
+                {t("nav.pricing")}
               </a>
               <a
                 href="#faq"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition"
               >
-                FAQ
+                {t("nav.faq")}
               </a>
             </nav>
 
             <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
+              <div className="flex justify-center pb-1">
+                <LanguageSwitcher variant="dark" />
+              </div>
               {mounted && isAuthenticated ? (
                 <Link
                   href="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center rounded-xl bg-orange-600 py-2.5 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
                 >
-                  Open Vendor Dashboard
+                  {t("nav.dashboard")}
                 </Link>
               ) : (
                 <>
@@ -276,14 +277,14 @@ export default function HomePage() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="w-full text-center rounded-xl border border-gray-300 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
                   >
-                    Vendor Sign In
+                    {t("nav.login")}
                   </Link>
                   <Link
                     href="/register"
                     onClick={() => setMobileMenuOpen(false)}
                     className="w-full text-center rounded-xl bg-orange-600 py-2.5 text-sm font-semibold text-white shadow hover:bg-orange-700 transition"
                   >
-                    Create Free Store
+                    {t("nav.getStarted")}
                   </Link>
                 </>
               )}
@@ -307,22 +308,21 @@ export default function HomePage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-orange-200/80 bg-orange-50/80 px-4 py-1.5 text-xs font-semibold text-orange-700 backdrop-blur-sm shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-orange-600 animate-pulse" />
-            Next-Gen Multi-Tenant E-Commerce Platform
+            {t("hero.badge")}
           </div>
 
           {/* Heading */}
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-gray-950 sm:text-6xl sm:leading-[1.15]">
-            Launch Your Online Store.
+            {t("hero.heading1")}
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500">
-              Scale With Multi-Tenant Power.
+              {t("hero.heading2")}
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-gray-600 leading-relaxed">
-            MARTsaas provides entrepreneurs and retailers with independent, lightning-fast
-            subdomain storefronts, instant product catalogs, automated checkout, and full vendor analytics.
+            {t("hero.subtitle")}
           </p>
 
           {/* Interactive Subdomain Claim Bar */}
@@ -347,7 +347,7 @@ export default function HomePage() {
               type="submit"
               className="w-full sm:w-auto shrink-0 rounded-xl bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-orange-600/30 hover:bg-orange-700 transition"
             >
-              Claim Store
+              {t("hero.claimButton")}
             </button>
           </form>
 
@@ -357,19 +357,19 @@ export default function HomePage() {
               <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
-              Zero setup fee
+              {t("hero.feature1")}
             </span>
             <span className="flex items-center gap-1">
               <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
-              Instant subdomain activation
+              {t("hero.feature2")}
             </span>
             <span className="flex items-center gap-1">
               <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
-              SSLCommerz & COD ready
+              {t("hero.feature3")}
             </span>
           </div>
 
@@ -386,7 +386,7 @@ export default function HomePage() {
               <div className="mt-3 text-sm font-bold text-gray-900">Sestone Fashion</div>
               <div className="text-xs text-gray-500">sestone.martsaas.com</div>
               <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
-                <span className="text-gray-400">Today's Sales</span>
+                <span className="text-gray-400">Today&apos;s Sales</span>
                 <span className="font-bold text-orange-600">৳48,500</span>
               </div>
             </div>
@@ -439,19 +439,19 @@ export default function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 rounded-3xl bg-white p-6 sm:p-8 shadow-sm ring-1 ring-gray-200/70">
           <div className="text-center p-3">
             <div className="text-2xl sm:text-3xl font-extrabold text-orange-600">&lt; 2 min</div>
-            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">Store Setup Time</div>
+            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">{t("stats.setupTime")}</div>
           </div>
           <div className="text-center p-3 border-l border-gray-100">
             <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">100%</div>
-            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">Tenant Data Isolation</div>
+            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">{t("stats.dataIsolation")}</div>
           </div>
           <div className="text-center p-3 border-t md:border-t-0 md:border-l border-gray-100">
             <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">৳0</div>
-            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">Setup & Listing Fees</div>
+            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">{t("stats.setupFees")}</div>
           </div>
           <div className="text-center p-3 border-t md:border-t-0 border-l border-gray-100">
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600">99.9%</div>
-            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">Uptime & Reliability</div>
+            <div className="mt-1 text-xs sm:text-sm font-medium text-gray-500">{t("stats.uptime")}</div>
           </div>
         </div>
       </section>
@@ -460,14 +460,13 @@ export default function HomePage() {
       <section id="features" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-gray-100">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
-            Built for High-Growth Commerce
+            {t("features.badge")}
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Everything You Need To Sell Online
+            {t("features.title")}
           </h2>
           <p className="mt-3 text-sm sm:text-base text-gray-600">
-            No complex setup, zero coding required. MARTsaas equips you with professional multi-tenant
-            storefronts, real-time inventory tools, and automated ordering.
+            {t("features.subtitle")}
           </p>
         </div>
 
@@ -485,7 +484,7 @@ export default function HomePage() {
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">{f.description}</p>
               </div>
               <div className="mt-5 pt-4 border-t border-gray-50 flex items-center text-xs font-semibold text-orange-600 group-hover:translate-x-1 transition-transform">
-                <span>Learn more</span>
+                <span>{t("features.learnMore")}</span>
                 <svg className="w-3.5 h-3.5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -500,13 +499,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-100/60 px-3 py-1 rounded-full">
-              Quick 3-Step Setup
+              {t("howItWorks.badge")}
             </span>
             <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              From Zero to Live Store in Minutes
+              {t("howItWorks.title")}
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600">
-              Start accepting orders from customers nationwide with a few simple steps.
+              {t("howItWorks.subtitle")}
             </p>
           </div>
 
@@ -525,7 +524,7 @@ export default function HomePage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-7 py-3 text-sm font-semibold text-white shadow-md shadow-orange-600/30 hover:bg-orange-700 transition"
             >
-              <span>Get Started Now</span>
+              <span>{t("howItWorks.getStarted")}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -546,14 +545,13 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
               <span className="inline-block text-xs font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
-                Merchant Control Center
+                {t("showcase.badge")}
               </span>
               <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-                An intuitive dashboard tailored for your daily hustle.
+                {t("showcase.title")}
               </h2>
               <p className="mt-4 text-sm sm:text-base text-gray-300 leading-relaxed">
-                Effortlessly manage your catalog, track incoming customer orders, update store branding,
-                and inspect live revenue data without ever touching code.
+                {t("showcase.subtitle")}
               </p>
 
               <div className="mt-8 space-y-3">
@@ -561,19 +559,19 @@ export default function HomePage() {
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-600/20 text-orange-400">
                     ✓
                   </div>
-                  <span className="text-sm text-gray-200">Instant product image uploads via Cloudinary</span>
+                  <span className="text-sm text-gray-200">{t("showcase.point1")}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-600/20 text-orange-400">
                     ✓
                   </div>
-                  <span className="text-sm text-gray-200">Real-time status updates: Pending, Processing, Delivered</span>
+                  <span className="text-sm text-gray-200">{t("showcase.point2")}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-600/20 text-orange-400">
                     ✓
                   </div>
-                  <span className="text-sm text-gray-200">Custom SSLCommerz store credentials integration</span>
+                  <span className="text-sm text-gray-200">{t("showcase.point3")}</span>
                 </div>
               </div>
 
@@ -582,13 +580,13 @@ export default function HomePage() {
                   href="/register"
                   className="rounded-xl bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-600/30 hover:bg-orange-500 transition"
                 >
-                  Create Vendor Account
+                  {t("showcase.createAccount")}
                 </Link>
                 <Link
                   href="/login"
                   className="rounded-xl bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition border border-white/10"
                 >
-                  Log In to Dashboard
+                  {t("showcase.loginDashboard")}
                 </Link>
               </div>
             </div>
@@ -646,13 +644,13 @@ export default function HomePage() {
       <section id="pricing" className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
-            Transparent Pricing
+            {t("pricing.badge")}
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Simple, Vendor-First Plans
+            {t("pricing.title")}
           </h2>
           <p className="mt-3 text-sm sm:text-base text-gray-600">
-            Start completely free. Upgrade whenever you are ready to scale with custom domains and advanced tooling.
+            {t("pricing.subtitle")}
           </p>
         </div>
 
@@ -660,27 +658,27 @@ export default function HomePage() {
           {/* Free Tier */}
           <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Starter Vendor</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.starterLabel")}</span>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold text-gray-900">৳0</span>
-                <span className="text-sm font-medium text-gray-500">/ forever free</span>
+                <span className="text-sm font-medium text-gray-500">{t("pricing.starterFree")}</span>
               </div>
               <p className="mt-3 text-xs text-gray-500">
-                Ideal for individuals and small shops launching their first online storefront.
+                {t("pricing.starterDesc")}
               </p>
 
               <ul className="mt-6 space-y-3 text-xs text-gray-600">
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> 1 Branded Subdomain (.martsaas.com)
+                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature1")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> Unlimited Product Uploads
+                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature2")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> Cash on Delivery & SSLCommerz Integration
+                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature3")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> Real-Time Vendor Dashboard
+                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature4")}
                 </li>
               </ul>
             </div>
@@ -689,38 +687,38 @@ export default function HomePage() {
               href="/register"
               className="mt-8 block w-full text-center rounded-xl border-2 border-orange-600 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50 transition"
             >
-              Get Started Free
+              {t("pricing.starterCta")}
             </Link>
           </div>
 
           {/* Pro Tier */}
           <div className="rounded-3xl bg-gradient-to-b from-orange-600 to-orange-700 p-8 text-white shadow-xl flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              Most Popular
+              {t("pricing.popular")}
             </div>
 
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-100">Pro Merchant</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-orange-100">{t("pricing.proLabel")}</span>
               <div className="mt-4 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold">৳999</span>
-                <span className="text-sm font-medium text-orange-100">/ month</span>
+                <span className="text-sm font-medium text-orange-100">{t("pricing.proMonth")}</span>
               </div>
               <p className="mt-3 text-xs text-orange-100">
-                For established businesses needing custom payment credentials and dedicated support.
+                {t("pricing.proDesc")}
               </p>
 
               <ul className="mt-6 space-y-3 text-xs text-orange-50">
                 <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> Everything in Starter
+                  <span className="font-bold">✓</span> {t("pricing.proFeature1")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> Use Your Own SSLCommerz Merchant Credentials
+                  <span className="font-bold">✓</span> {t("pricing.proFeature2")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> Advanced Sales & Inventory Analytics
+                  <span className="font-bold">✓</span> {t("pricing.proFeature3")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> Priority 24/7 Technical Support
+                  <span className="font-bold">✓</span> {t("pricing.proFeature4")}
                 </li>
               </ul>
             </div>
@@ -729,7 +727,7 @@ export default function HomePage() {
               href="/register"
               className="mt-8 block w-full text-center rounded-xl bg-white py-3 text-sm font-bold text-orange-600 shadow-md hover:bg-gray-100 transition"
             >
-              Launch Pro Store
+              {t("pricing.proCta")}
             </Link>
           </div>
         </div>
@@ -739,10 +737,10 @@ export default function HomePage() {
       <section id="faq" className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 border-t border-gray-100">
         <div className="text-center max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
-            Got Questions?
+            {t("faq.badge")}
           </span>
           <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Frequently Asked Questions
+            {t("faq.title")}
           </h2>
         </div>
 
@@ -778,23 +776,23 @@ export default function HomePage() {
 
           <div className="relative z-10">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Ready to Launch Your Online Storefront?
+              {t("cta.title")}
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-sm sm:text-base text-gray-300">
-              Join merchants growing with MARTsaas. Set up your inventory and start accepting customer orders today.
+              {t("cta.subtitle")}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/register"
                 className="rounded-xl bg-orange-600 px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-600/30 hover:bg-orange-500 transition"
               >
-                Create Your Store Now
+                {t("cta.createStore")}
               </Link>
               <Link
                 href="/login"
                 className="rounded-xl border border-gray-700 bg-gray-800/80 px-7 py-3 text-sm font-semibold text-gray-200 hover:bg-gray-800 transition"
               >
-                Sign In to Dashboard
+                {t("cta.signIn")}
               </Link>
             </div>
           </div>
@@ -816,8 +814,7 @@ export default function HomePage() {
                 </span>
               </Link>
               <p className="mt-3 max-w-sm text-xs text-gray-500 leading-relaxed">
-                Empowering retailers, entrepreneurs, and independent merchants with dedicated multi-tenant
-                e-commerce storefronts and integrated payment workflows.
+                {t("footer.tagline")}
               </p>
               <div className="mt-4 flex items-center gap-3 text-xs text-gray-400">
                 <span>Next.js 16</span>
@@ -830,26 +827,26 @@ export default function HomePage() {
 
             {/* Platform links */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">Platform</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">{t("footer.platform")}</h4>
               <ul className="mt-4 space-y-2.5 text-xs text-gray-600">
                 <li>
                   <a href="#features" className="hover:text-orange-600 transition">
-                    Features
+                    {t("footer.features")}
                   </a>
                 </li>
                 <li>
                   <a href="#how-it-works" className="hover:text-orange-600 transition">
-                    How It Works
+                    {t("footer.howItWorks")}
                   </a>
                 </li>
                 <li>
                   <a href="#showcase" className="hover:text-orange-600 transition">
-                    Store Showcase
+                    {t("footer.storeShowcase")}
                   </a>
                 </li>
                 <li>
                   <a href="#pricing" className="hover:text-orange-600 transition">
-                    Pricing Plans
+                    {t("footer.pricingPlans")}
                   </a>
                 </li>
               </ul>
@@ -857,31 +854,31 @@ export default function HomePage() {
 
             {/* Vendor Portal */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">Vendor Portal</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">{t("footer.vendorPortal")}</h4>
               <ul className="mt-4 space-y-2.5 text-xs text-gray-600">
                 <li>
                   <Link href="/login" className="hover:text-orange-600 transition">
-                    Vendor Login
+                    {t("footer.vendorLogin")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/register" className="hover:text-orange-600 transition">
-                    Register Store
+                    {t("footer.registerStore")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/dashboard" className="hover:text-orange-600 transition">
-                    Dashboard Overview
+                    {t("footer.dashboardOverview")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/dashboard/products" className="hover:text-orange-600 transition">
-                    Product Management
+                    {t("footer.productManagement")}
                   </Link>
                 </li>
                 <li>
                   <Link href="/dashboard/orders" className="hover:text-orange-600 transition">
-                    Order Tracking
+                    {t("footer.orderTracking")}
                   </Link>
                 </li>
               </ul>
@@ -889,21 +886,21 @@ export default function HomePage() {
 
             {/* Account & Settings */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">Manage</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">{t("footer.manage")}</h4>
               <ul className="mt-4 space-y-2.5 text-xs text-gray-600">
                 <li>
                   <Link href="/dashboard/settings" className="hover:text-orange-600 transition">
-                    Store Settings
+                    {t("footer.storeSettings")}
                   </Link>
                 </li>
                 <li>
                   <a href="#faq" className="hover:text-orange-600 transition">
-                    FAQ
+                    {t("footer.faq")}
                   </a>
                 </li>
                 <li>
                   <Link href="/login" className="hover:text-orange-600 transition">
-                    Sign Out / Switch Store
+                    {t("footer.signOut")}
                   </Link>
                 </li>
               </ul>
@@ -911,13 +908,13 @@ export default function HomePage() {
           </div>
 
           <div className="mt-12 border-t border-gray-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-            <p>© {new Date().getFullYear()} MARTsaas Core Engine. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} MARTsaas Core Engine. {t("footer.rights")}</p>
             <div className="flex items-center gap-6">
               <Link href="/login" className="hover:text-gray-600 transition">
-                Vendor Access
+                {t("footer.vendorAccess")}
               </Link>
               <Link href="/register" className="hover:text-gray-600 transition">
-                Create Storefront
+                {t("footer.createStorefront")}
               </Link>
             </div>
           </div>

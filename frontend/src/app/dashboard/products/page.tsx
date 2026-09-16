@@ -9,10 +9,12 @@ import ProductSearchBar from "@/components/products/ProductSearchBar";
 import ProductTable from "@/components/products/ProductTable";
 import AddProductModal from "@/components/products/AddProductModal";
 import EditProductModal from "@/components/products/EditProductModal";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ITEMS_PER_PAGE = 8;
 
 export default function ProductsPage() {
+    const { t } = useTranslation();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -101,14 +103,14 @@ export default function ProductsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Products</h1>
-                    <p className="text-gray-500 mt-1 text-sm">Manage and monitor your store items effortlessly.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("dashboard.productsPage.title")}</h1>
+                    <p className="text-gray-500 mt-1 text-sm">{t("dashboard.productsPage.subtitle")}</p>
                 </div>
                 <button
                     onClick={() => setIsAddModalOpen(true)}
                     className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-sm shrink-0"
                 >
-                    + Add New Product
+                    {t("dashboard.productsPage.addNew")}
                 </button>
             </div>
 
@@ -123,7 +125,7 @@ export default function ProductsPage() {
             />
 
             {/* Loading State */}
-            {loading && <p className="text-gray-600 font-medium p-4">Loading items...</p>}
+            {loading && <p className="text-gray-600 font-medium p-4">{t("dashboard.productsPage.loading")}</p>}
 
             {/* Products Table */}
             {!loading && (
