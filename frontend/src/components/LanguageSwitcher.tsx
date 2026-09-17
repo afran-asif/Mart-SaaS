@@ -4,6 +4,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setLanguage, type Language } from "@/redux/languageSlice";
 import { useState, useRef, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 const LANGUAGES: { code: Language; label: string; flag: string }[] = [
   { code: "en", label: "English", flag: "🇬🇧" },
@@ -17,7 +18,13 @@ interface LanguageSwitcherProps {
 
 export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherProps) {
   const dispatch = useDispatch();
-  const current = useSelector((state: any) => state.language?.current ?? "en") as Language;
+  const router = useRouter();
+  const pathname = usePathname() || "";
+  const reduxLang = useSelector((state: any) => state.language?.current ?? "en") as Language;
+  
+  // Prefer URL route prefix for current active language indicator
+  const current: Language = pathname === "/bn" || pathname.startsWith("/bn/") ? "bn" : (pathname === "/en" || pathname.startsWith("/en/") ? "en" : reduxLang);
+
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -36,7 +43,24 @@ export default function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherP
 
   const handleSelect = (code: Language) => {
     dispatch(setLanguage(code));
+    if (typeof window !== "undefined") {
+      document.cookie = `NEXT_LOCALE=${code}; path=/; max-age=31536000; SameSite=Lax`;
+    }
     setOpen(false);
+
+    // Compute localized URL
+    let newPath = pathname;
+    if (pathname.startsWith("/en")) {
+      newPath = pathname.replace(/^\/en/, `/${code}`);
+    } else if (pathname.startsWith("/bn")) {
+      newPath = pathname.replace(/^\/bn/, `/${code}`);
+    } else {
+      newPath = `/${code}${pathname === "/" ? "" : pathname}`;
+    }
+
+    if (newPath !== pathname) {
+      router.push(newPath);
+    }
   };
 
   const buttonClass =
