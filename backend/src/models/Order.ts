@@ -13,7 +13,7 @@ export interface IOrder extends Document {
     paymentMethod: "COD" | "SSLCommerz";
     transactionId?: string;
     items: Array<{
-        product: Types.ObjectId;
+        product: Types.ObjectId | { _id: Types.ObjectId; name: string };
         quantity: number;
         price: number;
     }>;

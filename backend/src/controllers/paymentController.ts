@@ -1,9 +1,10 @@
 import { Response, Request } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import Order from "../models/Order";
 import { Store } from "../models/Store";
 import { Product } from "../models/Product";
 import { decrypt } from "../utils/encryption";
+import { sendOrderConfirmationEmail } from "../utils/sendEmail";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
 
@@ -84,11 +85,30 @@ export const initiatePayment = async (req: Request, res: Response) => {
 
         if (paymentMethod === "COD") {
             await session.commitTransaction();
+
+            // ✅ Email পাঠানো — product name populate করে নিচ্ছি
+            Order.findById(order._id).populate("items.product", "name").then((populatedOrder) => {
+                sendOrderConfirmationEmail({
+                    customerEmail: order.customerEmail,
+                    customerName: order.customerName,
+                    orderId: order._id.toString(),
+                    storeName: store.storeName,
+                    totalAmount: order.totalAmount,
+                    shippingAddress: order.shippingAddress,
+                    paymentMethod: "COD",
+                    items: (populatedOrder?.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
+                        const prod = item.product;
+                        const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
+                        return { name, quantity: item.quantity, price: item.price };
+                    }),
+                });
+            });
+
             res.status(200).json({
                 success: true,
                 paymentMethod: "COD",
                 orderId: order._id,
-            })
+            });
             return;
         }
 
@@ -212,6 +232,24 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         order.paymentStatus = "Paid";
         order.transactionId = val_id;
         await order.save();
+
+        // ✅ Email পাঠানো — product name populate করে নিচ্ছি
+        Order.findById(order._id).populate("items.product", "name").then((populatedOrder) => {
+            sendOrderConfirmationEmail({
+                customerEmail: order.customerEmail,
+                customerName: order.customerName,
+                orderId: order._id.toString(),
+                storeName: store?.storeName || "Mart-SaaS",
+                totalAmount: order.totalAmount,
+                shippingAddress: order.shippingAddress,
+                paymentMethod: "SSLCommerz",
+                items: (populatedOrder?.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
+                    const prod = item.product;
+                    const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
+                    return { name, quantity: item.quantity, price: item.price };
+                }),
+            });
+        });
 
         res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
     } catch (error: any) {
