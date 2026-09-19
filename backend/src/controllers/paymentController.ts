@@ -14,7 +14,40 @@ const is_live = process.env.SSLCOMMERZ_IS_LIVE === "true";
 const FRONTEND_PROTOCOL = process.env.FRONTEND_PROTOCOL || "http";
 const FRONTEND_BASE_DOMAIN = process.env.FRONTEND_BASE_DOMAIN || "localhost:3000";
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+// ইমেইল পাঠানোর নিরাপদ ও idempotent হেলপার (একবারই পাঠাবে এবং IPN ও success উভয় স্থান থেকেই নিরাপদে কল করা যাবে)
+const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: Types.ObjectId | string) => {
+    try {
+        const order = await Order.findById(orderId).populate("items.product", "name");
+        if (!order || order.emailSent) {
+            return;
+        }
+
+        const store = await Store.findById(storeId);
+
+        await sendOrderConfirmationEmail({
+            customerEmail: order.customerEmail,
+            customerName: order.customerName,
+            orderId: order._id.toString(),
+            storeName: store?.storeName || "Mart-SaaS",
+            totalAmount: order.totalAmount,
+            shippingAddress: order.shippingAddress,
+            paymentMethod: order.paymentMethod || "SSLCommerz",
+            items: (order.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
+                const prod = item.product;
+                const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
+                return { name, quantity: item.quantity, price: item.price };
+            }),
+        });
+
+        order.emailSent = true;
+        await order.save();
+        console.log(`✅ [EMAIL SUCCESS] Order confirmation email dispatched and saved for order ${order._id}`);
+    } catch (error) {
+        console.error("❌ [EMAIL ERROR] Failed to send order confirmation email:", error);
+    }
+};
 
 //Payment শুরু করা — order তৈরি + SSLCommerz session initiate
 export const initiatePayment = async (req: Request, res: Response) => {
@@ -87,25 +120,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             await session.commitTransaction();
 
             // ✅ Email পাঠানো — await করছি যাতে deployment এ process freeze হওয়ার আগেই ইমেইল যায়
-            try {
-                const populatedOrder = await Order.findById(order._id).populate("items.product", "name");
-                await sendOrderConfirmationEmail({
-                    customerEmail: order.customerEmail,
-                    customerName: order.customerName,
-                    orderId: order._id.toString(),
-                    storeName: store.storeName,
-                    totalAmount: order.totalAmount,
-                    shippingAddress: order.shippingAddress,
-                    paymentMethod: "COD",
-                    items: (populatedOrder?.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
-                        const prod = item.product;
-                        const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
-                        return { name, quantity: item.quantity, price: item.price };
-                    }),
-                });
-            } catch (emailErr) {
-                console.error("❌ Failed to send COD confirmation email:", emailErr);
-            }
+            await sendOrderEmailSafely(order._id, storeId);
 
             res.status(200).json({
                 success: true,
@@ -189,6 +204,8 @@ export const paymentSuccess = async (req: Request, res: Response) => {
 
         // Step 2: Already Paid হলে আবার process করার দরকার নেই (IPN already করে থাকতে পারে)
         if (order.paymentStatus === "Paid") {
+            // যদি IPN আগে এসে Paid করে কিন্তু ইমেইল এখনো না গিয়ে থাকে, নিশ্চিতভাবে পাঠাও
+            await sendOrderEmailSafely(order._id, order.storeId);
             res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
             return;
         }
@@ -244,26 +261,8 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         order.transactionId = val_id;
         await order.save();
 
-        // ✅ Email পাঠানো — await করছি যাতে redirect এর আগেই cloud container এ ইমেইল পাঠানোর কাজ নিশ্চিত হয়
-        try {
-            const populatedOrder = await Order.findById(order._id).populate("items.product", "name");
-            await sendOrderConfirmationEmail({
-                customerEmail: order.customerEmail,
-                customerName: order.customerName,
-                orderId: order._id.toString(),
-                storeName: store?.storeName || "Mart-SaaS",
-                totalAmount: order.totalAmount,
-                shippingAddress: order.shippingAddress,
-                paymentMethod: "SSLCommerz",
-                items: (populatedOrder?.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
-                    const prod = item.product;
-                    const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
-                    return { name, quantity: item.quantity, price: item.price };
-                }),
-            });
-        } catch (emailErr) {
-            console.error("❌ Failed to send SSLCommerz order confirmation email:", emailErr);
-        }
+        // ✅ Email পাঠানো — idempotent helper দিয়ে
+        await sendOrderEmailSafely(order._id, order.storeId);
 
         res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
     } catch (error: any) {
@@ -344,14 +343,20 @@ export const paymentIPN = async (req: Request, res: Response) => {
             return;
         }
 
-        if (status === "VALID" && order.paymentStatus !== "Paid") {
+        const isValid = status === "VALID" || status === "VALIDATED";
+        if (isValid && order.paymentStatus !== "Paid") {
             order.paymentStatus = "Paid";
             order.transactionId = req.body.val_id || tran_id;
             await order.save();
         }
 
+        if (order.paymentStatus === "Paid") {
+            await sendOrderEmailSafely(order._id, order.storeId);
+        }
+
         res.status(200).json({ received: true });
     } catch (error: any) {
+        console.error("paymentIPN error:", error);
         res.status(500).json({ message: error.message });
     }
 };

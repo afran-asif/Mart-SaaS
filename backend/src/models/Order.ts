@@ -17,6 +17,7 @@ export interface IOrder extends Document {
         quantity: number;
         price: number;
     }>;
+    emailSent?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -63,6 +64,10 @@ const OrderSchema: Schema = new Schema(
         transactionId: {
             type: String,
             default: null,
+        },
+        emailSent: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }
