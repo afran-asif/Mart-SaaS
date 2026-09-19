@@ -86,9 +86,10 @@ export const initiatePayment = async (req: Request, res: Response) => {
         if (paymentMethod === "COD") {
             await session.commitTransaction();
 
-            // ✅ Email পাঠানো — product name populate করে নিচ্ছি
-            Order.findById(order._id).populate("items.product", "name").then((populatedOrder) => {
-                sendOrderConfirmationEmail({
+            // ✅ Email পাঠানো — await করছি যাতে deployment এ process freeze হওয়ার আগেই ইমেইল যায়
+            try {
+                const populatedOrder = await Order.findById(order._id).populate("items.product", "name");
+                await sendOrderConfirmationEmail({
                     customerEmail: order.customerEmail,
                     customerName: order.customerName,
                     orderId: order._id.toString(),
@@ -102,7 +103,9 @@ export const initiatePayment = async (req: Request, res: Response) => {
                         return { name, quantity: item.quantity, price: item.price };
                     }),
                 });
-            });
+            } catch (emailErr) {
+                console.error("❌ Failed to send COD confirmation email:", emailErr);
+            }
 
             res.status(200).json({
                 success: true,
@@ -210,8 +213,16 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         const sslcz = new SSLCommerzPayment(sslStoreId, sslStorePasswd, is_live);
         const validation = await sslcz.validate({ val_id });
 
-        if (!validation || validation.status !== "VALID") {
-            console.log("❌ SSLCommerz validation failed:", validation);
+        const isValid = validation && (validation.status === "VALID" || validation.status === "VALIDATED");
+
+        if (!isValid) {
+            console.error("❌ SSLCommerz validation failed:", {
+                status: validation?.status,
+                failedreason: validation?.failedreason,
+                val_id,
+                storeId: sslStoreId,
+                is_live,
+            });
             res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed`);
             return;
         }
@@ -233,9 +244,10 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         order.transactionId = val_id;
         await order.save();
 
-        // ✅ Email পাঠানো — product name populate করে নিচ্ছি
-        Order.findById(order._id).populate("items.product", "name").then((populatedOrder) => {
-            sendOrderConfirmationEmail({
+        // ✅ Email পাঠানো — await করছি যাতে redirect এর আগেই cloud container এ ইমেইল পাঠানোর কাজ নিশ্চিত হয়
+        try {
+            const populatedOrder = await Order.findById(order._id).populate("items.product", "name");
+            await sendOrderConfirmationEmail({
                 customerEmail: order.customerEmail,
                 customerName: order.customerName,
                 orderId: order._id.toString(),
@@ -249,7 +261,9 @@ export const paymentSuccess = async (req: Request, res: Response) => {
                     return { name, quantity: item.quantity, price: item.price };
                 }),
             });
-        });
+        } catch (emailErr) {
+            console.error("❌ Failed to send SSLCommerz order confirmation email:", emailErr);
+        }
 
         res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
     } catch (error: any) {

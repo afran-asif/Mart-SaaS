@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 interface OrderEmailData {
     customerEmail: string;
     customerName: string;
@@ -15,6 +13,14 @@ interface OrderEmailData {
 
 export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
     try {
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            console.error("❌ [EMAIL] RESEND_API_KEY is not configured in environment variables!");
+            return;
+        }
+
+        const resend = new Resend(apiKey);
+
         const itemRows = data.items
             .map(
                 (item) => `
@@ -169,14 +175,23 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
 </body>
 </html>`;
 
-        await resend.emails.send({
+        const response = await resend.emails.send({
             from: "Mart-SaaS <onboarding@resend.dev>",
             to: data.customerEmail,
             subject: `✅ অর্ডার কনফার্ম — ${data.storeName} (#${data.orderId.slice(-8).toUpperCase()})`,
             html,
         });
+
+        if (response.error) {
+            console.error("❌ [RESEND API ERROR]:", {
+                message: response.error.message,
+                name: response.error.name,
+                to: data.customerEmail,
+            });
+        } else {
+            console.log("✅ [RESEND SUCCESS] Email sent to", data.customerEmail, "ID:", response.data?.id);
+        }
     } catch (error) {
-        // ইমেইল পাঠাতে ব্যর্থ হলেও order flow যেন ভেঙে না যায় — শুধু log করছি
-        console.error("Failed to send order confirmation email:", error);
+        console.error("❌ [EMAIL EXCEPTION]:", error);
     }
 };
