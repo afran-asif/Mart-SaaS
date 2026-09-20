@@ -1,6 +1,6 @@
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
-
+import type { Metadata } from "next";
 
 interface Product {
     _id: string;
@@ -13,6 +13,33 @@ interface Product {
 interface Store {
     storeName: string;
     logo?: string;
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ subdomain: string }>;
+}): Promise<Metadata> {
+    const { subdomain } = await params;
+    const data = await getStoreData(subdomain);
+
+    if (!data) {
+        return {
+            title: "Store Not Found",
+        };
+    }
+
+    const { store } = data;
+
+    return {
+        title: `${store.storeName} — Shop Online`,
+        description: `${store.storeName}-এ কেনাকাটা করুন। সেরা দামে সেরা প্রোডাক্ট।`,
+        openGraph: {
+            title: store.storeName,
+            description: `${store.storeName}-এর অফিসিয়াল অনলাইন স্টোর`,
+            images: store.logo ? [store.logo] : [],
+        },
+    };
 }
 
 async function getStoreData(subdomain: string) {

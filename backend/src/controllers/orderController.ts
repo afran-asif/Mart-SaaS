@@ -71,7 +71,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
             const updatedProduct = await Product.findOneAndUpdate(
                 { _id: item.product, stock: { $gte: item.quantity } },
                 { $inc: { stock: -item.quantity } },
-                { new: true, session }
+                { returnDocument: "after", session }
             );
 
             if (!updatedProduct) {

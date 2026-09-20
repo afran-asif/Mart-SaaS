@@ -1,6 +1,8 @@
 import AddToCartButton from "@/components/storefront/AddToCartButton";
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import type { Metadata } from "next";
+
 interface Product {
     _id: string;
     name: string;
@@ -9,6 +11,29 @@ interface Product {
     category: string;
     images: string[];
     stock: number;
+}
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ subdomain: string; id: string }>;
+}): Promise<Metadata> {
+    const { subdomain, id } = await params;
+    const product = await getProduct(subdomain, id);
+
+    if (!product) {
+        return { title: "Product Not Found" };
+    }
+
+    return {
+        title: `${product.name} — ৳${product.price}`,
+        description: product.description?.slice(0, 150) || `${product.name} কিনুন সেরা দামে`,
+        openGraph: {
+            title: product.name,
+            description: product.description?.slice(0, 150),
+            images: product.images?.length ? [product.images[0]] : [],
+        },
+    };
 }
 
 async function getProduct(subdomain: string, id: string): Promise<Product | null> {
