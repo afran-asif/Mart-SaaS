@@ -49,7 +49,7 @@ export const upload = multer({
 export const uploadToCloudinary = async (localFilePath: string): Promise<string> => {
     try {
         const result = await cloudinary.uploader.upload(localFilePath, {
-            folder: "mart-saas-products", // ক্লাউডিনারিতে এই ফোল্ডারে ইমেজ সেভ হবে
+            folder: "vendoo-products", // ক্লাউডিনারিতে এই ফোল্ডারে ইমেজ সেভ হবে
         });
 
         // 🧹 ক্লাউডিনারিতে আপলোড সফল হলে লোকাল সার্ভারের ফাইলটি ডিলিট করে দেওয়া হচ্ছে

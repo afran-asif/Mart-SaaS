@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MART-SAAS Core Engine",
+  title: "Vendoo Core Engine",
   description: "Multi-tenant SaaS Platform",
 };
 

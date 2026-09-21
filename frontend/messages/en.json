@@ -13,7 +13,7 @@
     "badge": "Next-Gen Multi-Tenant E-Commerce Platform",
     "heading1": "Launch Your Online Store.",
     "heading2": "Scale With Multi-Tenant Power.",
-    "subtitle": "MARTsaas provides entrepreneurs and retailers with independent, lightning-fast subdomain storefronts, instant product catalogs, automated checkout, and full vendor analytics.",
+    "subtitle": "Vendoo provides entrepreneurs and retailers with independent, lightning-fast subdomain storefronts, instant product catalogs, automated checkout, and full vendor analytics.",
     "claimButton": "Claim Store",
     "feature1": "Zero setup fee",
     "feature2": "Instant subdomain activation",
@@ -28,12 +28,12 @@
   "features": {
     "badge": "Built for High-Growth Commerce",
     "title": "Everything You Need To Sell Online",
-    "subtitle": "No complex setup, zero coding required. MARTsaas equips you with professional multi-tenant storefronts, real-time inventory tools, and automated ordering.",
+    "subtitle": "No complex setup, zero coding required. Vendoo equips you with professional multi-tenant storefronts, real-time inventory tools, and automated ordering.",
     "learnMore": "Learn more",
     "items": [
       {
         "title": "Custom Subdomain Storefronts",
-        "description": "Every vendor gets their own branded storefront under a dedicated subdomain (e.g. yourbrand.martsaas.com) with isolated store routing."
+        "description": "Every vendor gets their own branded storefront under a dedicated subdomain (e.g. yourbrand.vendoo.shop) with isolated store routing."
       },
       {
         "title": "Full Inventory & Catalog Control",
@@ -94,7 +94,7 @@
     "starterLabel": "Starter Vendor",
     "starterDesc": "Ideal for individuals and small shops launching their first online storefront.",
     "starterFree": "/ forever free",
-    "starterFeature1": "1 Branded Subdomain (.martsaas.com)",
+    "starterFeature1": "1 Branded Subdomain (.vendoo.shop)",
     "starterFeature2": "Unlimited Product Uploads",
     "starterFeature3": "Cash on Delivery & SSLCommerz Integration",
     "starterFeature4": "Real-Time Vendor Dashboard",
@@ -114,26 +114,26 @@
     "title": "Frequently Asked Questions",
     "items": [
       {
-        "q": "What is MARTsaas?",
-        "a": "MARTsaas is a modern multi-tenant e-commerce platform that allows merchants and vendors to instantly launch their own independent online storefront with custom subdomains, live inventory management, and automated order processing."
+        "q": "What is Vendoo?",
+        "a": "Vendoo is a modern multi-tenant e-commerce platform that allows merchants and vendors to instantly launch their own independent online storefront with custom subdomains, live inventory management, and automated order processing."
       },
       {
         "q": "How does the subdomain work?",
-        "a": "When you register your store, you pick a subdomain (e.g. 'af-gadgets'). Your store is immediately accessible at af-gadgets.martsaas.com. All customer traffic and orders are scoped strictly to your store."
+        "a": "When you register your store, you pick a subdomain (e.g. 'af-gadgets'). Your store is immediately accessible at af-gadgets.vendoo.shop. All customer traffic and orders are scoped strictly to your store."
       },
       {
         "q": "What payment methods are supported?",
-        "a": "MARTsaas supports Cash on Delivery (COD) as well as automated online payments via SSLCommerz (supporting bKash, Nagad, Rocket, Visa, Mastercard, and internet banking). Vendors can also configure their own SSLCommerz credentials in store settings."
+        "a": "Vendoo supports Cash on Delivery (COD) as well as automated online payments via SSLCommerz (supporting bKash, Nagad, Rocket, Visa, Mastercard, and internet banking). Vendors can also configure their own SSLCommerz credentials in store settings."
       },
       {
         "q": "How do I manage my products and orders?",
-        "a": "Once registered, you get full access to the MARTsaas Vendor Dashboard. From there you can add, edit, or remove products, manage stock levels, view customer order details, and update shipping statuses."
+        "a": "Once registered, you get full access to the Vendoo Vendor Dashboard. From there you can add, edit, or remove products, manage stock levels, view customer order details, and update shipping statuses."
       }
     ]
   },
   "cta": {
     "title": "Ready to Launch Your Online Storefront?",
-    "subtitle": "Join merchants growing with MARTsaas. Set up your inventory and start accepting customer orders today.",
+    "subtitle": "Join merchants growing with Vendoo. Set up your inventory and start accepting customer orders today.",
     "createStore": "Create Your Store Now",
     "signIn": "Sign In to Dashboard"
   },
@@ -160,7 +160,7 @@
   },
   "login": {
     "title": "Welcome Back!",
-    "subtitle": "Log in to manage your martsaas store",
+    "subtitle": "Log in to manage your vendoo store",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "signIn": "Sign In",
@@ -172,7 +172,7 @@
   },
   "register": {
     "title": "Create Vendor Account 🚀",
-    "subtitle": "Build your own store powered by MART-SAAS",
+    "subtitle": "Build your own store powered by Vendoo",
     "fullName": "Full Name",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
@@ -283,7 +283,7 @@
       "suspendedDesc": "Storefront paused temporarily",
       "paymentRouting": "Payment Routing",
       "paymentRoutingDesc": "Choose which SSLCommerz account collects your customer payments.",
-      "defaultGateway": "MART-SaaS Gateway",
+      "defaultGateway": "Vendoo Gateway",
       "defaultGatewayDesc": "No setup needed. Payments settle through the platform account.",
       "ownSSLCommerz": "Your Own SSLCommerz",
       "ownSSLCommerzDesc": "Funds settle directly into your merchant account.",

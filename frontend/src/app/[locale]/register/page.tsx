@@ -147,7 +147,7 @@ export default function LocalizedRegisterPage() {
                                     onChange={handleChange}
                                 />
                                 <span className="inline-flex items-center rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
-                                    .martsaas.com
+                                    .vendoo.shop
                                 </span>
                             </div>
                         </div>

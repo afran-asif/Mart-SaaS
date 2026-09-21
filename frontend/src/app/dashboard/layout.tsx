@@ -71,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
                 <div className="p-6">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-orange-600">MARTsaas</h2>
+                        <h2 className="text-2xl font-bold text-orange-600">Vendoo</h2>
                         {/* Close button (mobile only) */}
                         <button
                             className="lg:hidden text-gray-400 hover:text-gray-700 text-2xl leading-none"
@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                    <h2 className="text-lg font-bold text-orange-600">MARTsaas</h2>
+                    <h2 className="text-lg font-bold text-orange-600">Vendoo</h2>
                     <div className="w-9" /> {/* Spacer to center the title */}
                 </div>
 

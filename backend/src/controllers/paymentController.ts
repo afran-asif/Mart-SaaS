@@ -30,7 +30,7 @@ const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: T
             customerEmail: order.customerEmail,
             customerName: order.customerName,
             orderId: order._id.toString(),
-            storeName: store?.storeName || "Mart-SaaS",
+            storeName: store?.storeName || "Vendoo",
             totalAmount: order.totalAmount,
             shippingAddress: order.shippingAddress,
             paymentMethod: order.paymentMethod || "SSLCommerz",

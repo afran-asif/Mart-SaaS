@@ -165,7 +165,7 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
         <td style="padding: 24px 40px 36px 40px; text-align: center;">
             <p style="margin: 0 0 6px 0; font-size: 14px; color: #374151; font-weight: 600;">কোনো সমস্যা হলে আমাদের সাথে যোগাযোগ করুন।</p>
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
-            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Mart-SaaS</strong></p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
         </td>
     </tr>
 

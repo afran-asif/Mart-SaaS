@@ -72,7 +72,7 @@ export default function LocalizedDashboardLayout({ children }: { children: React
                 <div className="p-6">
                     <div className="flex items-center justify-between">
                         <Link href={`/${language}`}>
-                            <h2 className="text-2xl font-bold text-orange-600">MARTsaas</h2>
+                            <h2 className="text-2xl font-bold text-orange-600">Vendoo</h2>
                         </Link>
                         {/* Close button (mobile only) */}
                         <button
@@ -136,7 +136,7 @@ export default function LocalizedDashboardLayout({ children }: { children: React
                         </svg>
                     </button>
                     <Link href={`/${language}`}>
-                        <h2 className="text-lg font-bold text-orange-600">MARTsaas</h2>
+                        <h2 className="text-lg font-bold text-orange-600">Vendoo</h2>
                     </Link>
                     <div className="w-9" />
                 </div>

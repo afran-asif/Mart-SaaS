@@ -37,7 +37,7 @@ app.use(
 );
 
 app.get("/",(req: Request, res: Response) => {
-    res.send("Mart-SaaS Backend Server is Running Perfectly!");
+    res.send("Vendoo Backend Server is Running Perfectly!");
 })
 
 app.use('/api/v1/auth', authRoutes);
