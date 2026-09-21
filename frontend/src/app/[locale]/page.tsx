@@ -132,11 +132,11 @@ export default function LocalizedHomePage() {
           {/* Logo */}
           <Link href={`/${language}`} className="flex items-center gap-2.5 group">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-600 text-white font-bold shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-              M
+              V
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-extrabold tracking-tight text-gray-900 leading-none">
-                MART<span className="text-orange-600">saas</span>
+                Vendoo
               </span>
               <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
                 Multi-Tenant Commerce

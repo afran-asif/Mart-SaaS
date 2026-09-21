@@ -1,7 +1,21 @@
 // app/store/[subdomain]/payment-failed/page.tsx
+import type { Metadata } from "next";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import { getStoreName } from "@/lib/getStoreName";
 
-// app/store/[subdomain]/payment-failed/page.tsx
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ subdomain: string }>;
+}): Promise<Metadata> {
+    const { subdomain } = await params;
+    const storeName = await getStoreName(subdomain);
+
+    return {
+        title: storeName ? `${storeName} - Payment Failed` : "Payment Failed",
+    };
+}
+
 export default async function PaymentFailedPage({
     searchParams,
 }: {

@@ -26,7 +26,7 @@ export async function generateMetadata({
     }
 
     return {
-        title: `${product.name} — ৳${product.price}`,
+        title: `${product.name} - ৳${product.price}`,
         description: product.description?.slice(0, 150) || `${product.name} কিনুন সেরা দামে`,
         openGraph: {
             title: product.name,

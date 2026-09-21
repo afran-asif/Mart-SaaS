@@ -32,7 +32,7 @@ export async function generateMetadata({
     const { store } = data;
 
     return {
-        title: `${store.storeName} — Shop Online`,
+        title: `${store.storeName} - Shop Online`,
         description: `${store.storeName}-এ কেনাকাটা করুন। সেরা দামে সেরা প্রোডাক্ট।`,
         openGraph: {
             title: store.storeName,
