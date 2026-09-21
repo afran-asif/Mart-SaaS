@@ -1,8 +1,27 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
 import { encrypt } from "../utils/encryption";
+
+export const getAllActiveStores = async (_req: Request, res: Response): Promise<void> => {
+    try {
+        const stores = await Store.find({ status: "active" }).select("subdomain storeName updatedAt");
+
+        res.status(200).json({
+            success: true,
+            count: stores.length,
+            stores: stores.map((store) => ({
+                id: store._id,
+                subdomain: store.subdomain,
+                storeName: store.storeName,
+                updatedAt: store.updatedAt,
+            })),
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
 
 export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {

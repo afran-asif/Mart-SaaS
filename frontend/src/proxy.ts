@@ -31,6 +31,11 @@ export function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
+    // Ignore SEO metadata files (served at root, not locale-prefixed)
+    if (pathname === "/sitemap.xml" || pathname === "/robots.txt") {
+        return NextResponse.next();
+    }
+
     // Check if pathname already starts with a supported locale (/en or /bn)
     const pathnameHasLocale = SUPPORTED_LOCALES.some(
         (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
@@ -52,6 +57,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        "/((?!api|_next/static|_next/image|favicon.ico).*)",
+        "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
     ],
 };
