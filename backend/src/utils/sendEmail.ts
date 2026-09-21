@@ -176,7 +176,7 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
 </html>`;
 
         const response = await resend.emails.send({
-            from: "Mart-SaaS <onboarding@resend.dev>",
+            from: "Vendoo <noreply@vendoo.shop>",
             to: data.customerEmail,
             subject: `✅ অর্ডার কনফার্ম — ${data.storeName} (#${data.orderId.slice(-8).toUpperCase()})`,
             html,
