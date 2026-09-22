@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import OrderConfirmedContent from "./order-confirmed-content";
-import { getStoreName } from "@/lib/getStoreName";
+import { getStoreName } from "@/lib/store";
 
 export async function generateMetadata({
     params,

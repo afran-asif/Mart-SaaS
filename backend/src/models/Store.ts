@@ -11,6 +11,9 @@ export interface IStore extends Document {
     sslcommerzStorePassword?: string;
     createdAt: Date;
     updatedAt: Date;
+    facebookPixelId?: string;
+    googleAnalyticsId?: string;
+    tiktokPixelId?: string;
 }
 
 const storeSchema = new Schema<IStore>(
@@ -58,8 +61,23 @@ const storeSchema = new Schema<IStore>(
             type: String,
             select: false
         },
+        facebookPixelId: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        googleAnalyticsId: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        tiktokPixelId: {
+            type: String,
+            default: null,
+            trim: true,
+        },
     },
-    { timestamps: true }
+{ timestamps: true }
 );
 
 

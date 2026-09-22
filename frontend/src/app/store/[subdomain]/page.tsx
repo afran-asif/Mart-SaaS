@@ -13,6 +13,9 @@ interface Product {
 interface Store {
     storeName: string;
     logo?: string;
+    facebookPixelId?: string;
+    googleAnalyticsId?: string;
+    tiktokPixelId?: string;
 }
 
 export async function generateMetadata({

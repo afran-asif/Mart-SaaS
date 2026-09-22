@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getStoreName } from "@/lib/getStoreName";
+import { getStoreName } from "@/lib/store";
 
 export async function generateMetadata({
     params,

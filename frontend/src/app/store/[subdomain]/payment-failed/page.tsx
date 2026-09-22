@@ -1,7 +1,7 @@
 // app/store/[subdomain]/payment-failed/page.tsx
 import type { Metadata } from "next";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
-import { getStoreName } from "@/lib/getStoreName";
+import { getStoreName } from "@/lib/store";
 
 export async function generateMetadata({
     params,

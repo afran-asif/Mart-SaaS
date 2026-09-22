@@ -13,6 +13,9 @@ interface StoreData {
     status: "active" | "suspended";
     useOwnSSLCommerz: boolean;
     sslcommerzStoreId?: string;
+    facebookPixelId?: string;
+    googleAnalyticsId?: string;
+    tiktokPixelId?: string;
 }
 
 export default function LocalizedSettingsPage() {
@@ -31,6 +34,10 @@ export default function LocalizedSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const [facebookPixelId, setFacebookPixelId] = useState("");
+    const [googleAnalyticsId, setGoogleAnalyticsId] = useState("");
+    const [tiktokPixelId, setTiktokPixelId] = useState("");
+
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
 
@@ -45,6 +52,9 @@ export default function LocalizedSettingsPage() {
                 setStatus(data.status || "active");
                 setUseOwnSSLCommerz(data.useOwnSSLCommerz || false);
                 setSslcommerzStoreId(data.sslcommerzStoreId || "");
+                setFacebookPixelId(data.facebookPixelId || "");
+                setGoogleAnalyticsId(data.googleAnalyticsId || "");
+                setTiktokPixelId(data.tiktokPixelId || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -72,6 +82,9 @@ export default function LocalizedSettingsPage() {
                 logo: logo.trim() ? logo.trim() : null,
                 status,
                 useOwnSSLCommerz,
+                facebookPixelId: facebookPixelId.trim(),
+                googleAnalyticsId: googleAnalyticsId.trim(),
+                tiktokPixelId: tiktokPixelId.trim(),
             };
 
             if (useOwnSSLCommerz) {
@@ -348,6 +361,64 @@ export default function LocalizedSettingsPage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Marketing & Tracking card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Marketing & Tracking</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Add your ad pixels to track visitors and measure ad performance.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Facebook Pixel ID
+                            </label>
+                            <input
+                                type="text"
+                                value={facebookPixelId}
+                                onChange={(e) => setFacebookPixelId(e.target.value)}
+                                placeholder="e.g. 123456789012345"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Found in Facebook Events Manager → Data Sources → your Pixel.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Google Analytics Measurement ID
+                            </label>
+                            <input
+                                type="text"
+                                value={googleAnalyticsId}
+                                onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+                                placeholder="e.g. G-XXXXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Found in Google Analytics → Admin → Data Streams.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                TikTok Pixel ID
+                            </label>
+                            <input
+                                type="text"
+                                value={tiktokPixelId}
+                                onChange={(e) => setTiktokPixelId(e.target.value)}
+                                placeholder="e.g. CXXXXXXXXXXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Found in TikTok Ads Manager → Assets → Events.
+                            </p>
                         </div>
                     </div>
 

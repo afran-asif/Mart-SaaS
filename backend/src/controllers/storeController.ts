@@ -31,7 +31,10 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             status, 
             useOwnSSLCommerz, 
             sslcommerzStoreId, 
-            sslcommerzStorePassword 
+            sslcommerzStorePassword,
+            facebookPixelId,
+            googleAnalyticsId,
+            tiktokPixelId,
         } = req.body;
         const vendorId = req.user._id;
 
@@ -72,6 +75,11 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         }
         // --- Hybrid SSLCommerz logic শেষ ---
 
+        // ✅ Pixel IDs — খালি স্ট্রিং দিলে মুছে ফেলা যাবে (null করে), না দিলে অপরিবর্তিত
+        if (facebookPixelId !== undefined) store.facebookPixelId = facebookPixelId || null;
+        if (googleAnalyticsId !== undefined) store.googleAnalyticsId = googleAnalyticsId || null;
+        if (tiktokPixelId !== undefined) store.tiktokPixelId = tiktokPixelId || null;
+
         await store.save();
 
         res.status(200).json({
@@ -85,6 +93,9 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 status: store.status,
                 useOwnSSLCommerz: store.useOwnSSLCommerz,
                 sslcommerzStoreId: store.sslcommerzStoreId,
+                facebookPixelId: store.facebookPixelId,
+                googleAnalyticsId: store.googleAnalyticsId,
+                tiktokPixelId: store.tiktokPixelId,
                 updatedAt: store.updatedAt,
             }
         });
@@ -111,6 +122,9 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 storeName: store.storeName,
                 subdomain: store.subdomain,
                 logo: store.logo,
+                facebookPixelId: store.facebookPixelId,     
+                googleAnalyticsId: store.googleAnalyticsId,  
+                tiktokPixelId: store.tiktokPixelId,  
             }
         });
     } catch (error) {
@@ -137,7 +151,10 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 logo: store.logo,
                 status: store.status,
                 useOwnSSLCommerz: store.useOwnSSLCommerz,
-                sslcommerzStoreId: store.sslcommerzStoreId,        
+                sslcommerzStoreId: store.sslcommerzStoreId,
+                facebookPixelId: store.facebookPixelId,
+                googleAnalyticsId: store.googleAnalyticsId,
+                tiktokPixelId: store.tiktokPixelId,
             },
         });
     } catch (error) {
