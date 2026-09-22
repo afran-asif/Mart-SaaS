@@ -1,5 +1,6 @@
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 interface Product {
@@ -121,7 +122,7 @@ export default async function StorePage({
                         {products.map((product) => {
                             const outOfStock = product.stock === 0;
                             return (
-                                <a
+                                <Link
                                     key={product._id}
                                     href={`/product/${product._id}`}
                                     className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#274B3B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F6F3EC] rounded-lg"
@@ -163,7 +164,7 @@ export default async function StorePage({
                                             </h3>
                                         </div>
                                     </div>
-                                </a>
+                                </Link>
                             );
                         })}
                     </div>

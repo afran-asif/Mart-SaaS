@@ -2,6 +2,7 @@
 
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/cartSlice";
+import { trackAddToCart } from "@/lib/tracking";
 import toast from "react-hot-toast";
 
 interface Product {
@@ -18,6 +19,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
 
     const handleAddToCart = () => {
         dispatch(addToCart({ product, quantity: 1 }));
+        trackAddToCart({ id: product._id, name: product.name, price: product.price }, 1);
         toast.success(`${product.name} কার্টে যোগ হয়েছে`);
     };
 

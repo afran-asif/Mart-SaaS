@@ -206,7 +206,7 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         if (order.paymentStatus === "Paid") {
             // যদি IPN আগে এসে Paid করে কিন্তু ইমেইল এখনো না গিয়ে থাকে, নিশ্চিতভাবে পাঠাও
             await sendOrderEmailSafely(order._id, order.storeId);
-            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
+            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}&total=${order.totalAmount}`);
             return;
         }
 
@@ -264,7 +264,7 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         // ✅ Email পাঠানো — idempotent helper দিয়ে
         await sendOrderEmailSafely(order._id, order.storeId);
 
-        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}`);
+        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}&total=${order.totalAmount}`);
     } catch (error: any) {
         console.error("paymentSuccess error:", error);
         res.redirect(`${FRONTEND_URL}/payment-failed`);

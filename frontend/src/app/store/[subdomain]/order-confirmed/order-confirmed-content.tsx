@@ -1,10 +1,49 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { trackPurchase, TrackCartItem } from "@/lib/tracking";
 
 export default function OrderConfirmedContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get("orderId");
+    const totalFromQuery = searchParams.get("total");
+    const hasTrackedRef = useRef(false);
+
+    useEffect(() => {
+        if (!orderId || hasTrackedRef.current) return;
+
+        // Prevent duplicate tracking on page refresh
+        const storageKey = `tracked_purchase_${orderId}`;
+        if (sessionStorage.getItem(storageKey)) return;
+
+        let totalAmount = totalFromQuery ? parseFloat(totalFromQuery) : 0;
+        let items: TrackCartItem[] = [];
+
+        try {
+            const savedOrder = sessionStorage.getItem("last_order");
+            if (savedOrder) {
+                const parsed = JSON.parse(savedOrder);
+                if (parsed.items && Array.isArray(parsed.items)) {
+                    items = parsed.items;
+                }
+                if (!totalAmount && parsed.totalAmount) {
+                    totalAmount = parsed.totalAmount;
+                }
+            }
+        } catch {}
+
+        trackPurchase({
+            orderId,
+            totalAmount,
+            items,
+        });
+
+        hasTrackedRef.current = true;
+        try {
+            sessionStorage.setItem(storageKey, "true");
+        } catch {}
+    }, [orderId, totalFromQuery]);
 
     return (
         <main className="max-w-2xl mx-auto px-6 py-20 text-center">

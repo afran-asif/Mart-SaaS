@@ -1,6 +1,7 @@
 import AddToCartButton from "@/components/storefront/AddToCartButton";
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import TrackViewContent from "@/components/storefront/TrackViewContent";
 import type { Metadata } from "next";
 
 interface Product {
@@ -85,6 +86,15 @@ export default async function ProductDetailPage({
         <div className="min-h-screen bg-[#F6F3EC]">
             {/* সিম্পল হেডার — ব্যাক লিংক সহ */}
             <StorefrontHeader variant="sub" />
+
+            {/* E-commerce ViewContent Tracking (Meta, TikTok, GA) */}
+            <TrackViewContent
+                product={{
+                    id: product._id,
+                    name: product.name,
+                    price: product.price,
+                }}
+            />
 
             <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">

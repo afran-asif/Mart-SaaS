@@ -3,6 +3,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { decreaseQuantity, removeFromCart, addToCart } from "@/redux/cartSlice";
+import { trackAddToCart } from "@/lib/tracking";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 
 export default function CartPage() {
@@ -11,6 +12,7 @@ export default function CartPage() {
 
     const handleIncrease = (item: (typeof items)[number]) => {
         dispatch(addToCart({ product: item, quantity: 1 }));
+        trackAddToCart({ id: item._id, name: item.name, price: item.price }, 1);
     };
 
     const handleDecrease = (id: string) => {

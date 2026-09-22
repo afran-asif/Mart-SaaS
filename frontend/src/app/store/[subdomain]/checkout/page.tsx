@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { clearCart } from "@/redux/cartSlice";
 import { api } from "@/services/api";
+import { trackInitiateCheckout } from "@/lib/tracking";
 import toast from "react-hot-toast";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 
@@ -17,6 +18,7 @@ export default function CheckoutPage() {
     const [storeId, setStoreId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const orderPlacedRef = useRef(false);   // ✅ নতুন flag
+    const initiatedRef = useRef(false);
     const [form, setForm] = useState({
         customerName: "",
         customerEmail: "",
@@ -24,6 +26,22 @@ export default function CheckoutPage() {
         shippingAddress: "",
     });
     const [ paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCommerz">("COD");
+
+    // E-commerce tracking: InitiateCheckout
+    useEffect(() => {
+        if (hydrated && items.length > 0 && !initiatedRef.current) {
+            initiatedRef.current = true;
+            trackInitiateCheckout(
+                items.map((item) => ({
+                    id: item._id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                })),
+                totalAmount
+            );
+        }
+    }, [hydrated, items, totalAmount]);
 
     // পেজ লোড হওয়ার সাথে সাথে বর্তমান store এর _id ফেচ করা
     useEffect(() => {
@@ -65,6 +83,13 @@ export default function CheckoutPage() {
                 price: item.price,
             }));
 
+            const trackingItems = items.map((item) => ({
+                id: item._id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+            }));
+
             const res = await api.post("/payment/initiate", {
                 ...form,
                 storeId,
@@ -74,14 +99,27 @@ export default function CheckoutPage() {
             });
             if (res.data.success) {
                 orderPlacedRef.current = true;   // redirect guard বন্ধ করা, cart clear হলেও যেন হোমে না পাঠায়
+
+                // Save order details in sessionStorage for Purchase tracking on order-confirmed
+                try {
+                    sessionStorage.setItem(
+                        "last_order",
+                        JSON.stringify({
+                            orderId: res.data.orderId,
+                            totalAmount,
+                            items: trackingItems,
+                        })
+                    );
+                } catch {}
+
                 dispatch(clearCart());
                 
                 if (res.data.paymentMethod === "COD") {
                     toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
-                    router.push(`/order-confirmed?orderId=${res.data.orderId}`);
+                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${totalAmount}`);
                 } else if (res.data.paymentUrl) {
                     // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
-                window.location.href = res.data.paymentUrl;
+                    window.location.href = res.data.paymentUrl;
                 }
             } else {
                 toast.error("পেমেন্ট শুরু করা যায়নি");
