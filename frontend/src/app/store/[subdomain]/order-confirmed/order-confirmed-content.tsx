@@ -46,32 +46,43 @@ export default function OrderConfirmedContent() {
     }, [orderId, totalFromQuery]);
 
     return (
-        <main className="max-w-2xl mx-auto px-6 py-20 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#274B3B] flex items-center justify-center mx-auto mb-6">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F6F3EC" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6L9 17l-5-5" />
-                </svg>
-            </div>
+        <main className="max-w-2xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+            <div className="bg-white rounded-3xl border border-[#181410]/10 border-t-2 border-t-[#C6A15B] px-6 py-10 sm:px-12 sm:py-12 text-center shadow-[0_24px_60px_-24px_rgba(24,20,16,0.3)]">
+                <div className="relative w-20 h-20 mx-auto mb-6">
+                    <span className="absolute inset-0 rounded-full bg-[#C6A15B]/20" />
+                    <span className="absolute inset-1.5 rounded-full border-2 border-[#C6A15B]/60" />
+                    <span className="absolute inset-3 rounded-full bg-[#0E3B2C] flex items-center justify-center">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFDF7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                    </span>
+                </div>
 
-            <h1 className="font-['Space_Grotesk'] text-3xl font-bold text-[#1B1E19] mb-2">
-                অর্ডার সফলভাবে সম্পন্ন হয়েছে!
-            </h1>
-            <p className="text-[#8B8F82] text-sm mb-1">
-                ধন্যবাদ আপনার অর্ডারের জন্য।
-            </p>
-
-            {orderId && (
-                <p className="font-['IBM_Plex_Mono'] text-xs text-[#8B8F82] mt-4 mb-8">
-                    অর্ডার আইডি: {orderId}
+                <p className="font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase text-[#C6A15B] mb-2">
+                    Thank you
                 </p>
-            )}
+                <h1 className="font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold text-[#181410] mb-2 tracking-tight">
+                    অর্ডার সফলভাবে সম্পন্ন হয়েছে!
+                </h1>
+                <p className="text-[#75705F] text-sm mb-1">
+                    ধন্যবাদ আপনার অর্ডারের জন্য।
+                </p>
 
-            <a
-                href="/"
-                className="inline-block bg-[#274B3B] text-[#F6F3EC] px-6 py-3 rounded-lg text-sm font-medium hover:bg-[#1F3D2F] transition-colors mt-4"
-            >
-                আরও কেনাকাটা করুন
-            </a>
+                {orderId && (
+                    <p className="inline-block font-['IBM_Plex_Mono'] text-xs text-[#0E3B2C] bg-[#0E3B2C]/5 border border-[#0E3B2C]/15 rounded-full px-4 py-1.5 mt-5 mb-2">
+                        অর্ডার আইডি: {orderId}
+                    </p>
+                )}
+
+                <div className="mt-6">
+                    <a
+                        href="/"
+                        className="inline-block bg-[#F4501A] text-white px-8 py-3.5 rounded-xl text-sm font-medium hover:bg-[#D63F0F] transition-all shadow-lg shadow-[#F4501A]/25"
+                    >
+                        আরও কেনাকাটা করুন
+                    </a>
+                </div>
+            </div>
         </main>
     );
 }

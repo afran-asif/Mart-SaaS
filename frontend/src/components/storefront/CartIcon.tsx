@@ -9,7 +9,7 @@ export default function CartIcon() {
     return (
         <a
             href="/cart"
-            className="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#1B1E19]/5 transition-colors"
+            className="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#F4EEE2] transition-colors"
             aria-label="কার্ট দেখুন"
         >
             <svg
@@ -17,7 +17,7 @@ export default function CartIcon() {
                 height="20"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#1B1E19"
+                stroke="#181410"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -28,7 +28,7 @@ export default function CartIcon() {
             </svg>
 
             {totalQuantity > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-[#E7A23D] text-[#1B1E19] text-[10px] font-['IBM_Plex_Mono'] font-medium w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-[#F4501A] text-white text-[10px] font-['IBM_Plex_Mono'] font-medium w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center shadow-sm">
                     {totalQuantity}
                 </span>
             )}

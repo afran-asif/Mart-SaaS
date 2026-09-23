@@ -90,12 +90,9 @@ const cartSlice = createSlice({
             const id = action.payload;
             const existingItem = state.items.find((item) => item._id === id);
 
-            if (existingItem) {
-                if (existingItem.quantity > 1) {
-                    existingItem.quantity -= 1;
-                } else {
-                    state.items = state.items.filter((item) => item._id !== id);
-                }
+            // Quantity 1-এর নিচে নামবে না — remove করতে হলে removeFromCart ব্যবহার করো
+            if (existingItem && existingItem.quantity > 1) {
+                existingItem.quantity -= 1;
             }
 
             const totals = calculateTotals(state.items);
@@ -159,6 +156,13 @@ const cartSlice = createSlice({
         clearBuyNow: (state) => {
             state.buyNowItem = null;
         },
+
+        updateBuyNowQuantity: (state, action: PayloadAction<number>) => {
+            if (state.buyNowItem) {
+                const maxStock = state.buyNowItem.stock ?? 999;
+                state.buyNowItem.quantity = Math.min(Math.max(action.payload, 1), maxStock);
+            }
+        },
     },
 });
 
@@ -170,6 +174,7 @@ export const {
     rehydrateCart,
     setBuyNow,
     clearBuyNow,
+    updateBuyNowQuantity,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

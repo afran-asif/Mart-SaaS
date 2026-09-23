@@ -36,22 +36,22 @@ export default function AddToCartButton({ product }: { product: Product }) {
             <button
                 onClick={handleBuyNow}
                 disabled={outOfStock}
-                className={`w-full py-3.5 rounded-lg font-medium text-sm transition-colors ${
-                    outOfStock
-                        ? "bg-[#8B8F82]/20 text-[#8B8F82] cursor-not-allowed"
-                        : "bg-[#274B3B] text-[#F6F3EC] hover:bg-[#1F3D2F]"
-                }`}
+            className={`w-full py-3.5 rounded-xl font-medium text-sm transition-all ${
+                outOfStock
+                    ? "bg-[#75705F]/15 text-[#75705F] cursor-not-allowed"
+                    : "bg-[#F4501A] text-white hover:bg-[#D63F0F] shadow-lg shadow-[#F4501A]/25 hover:shadow-xl hover:shadow-[#F4501A]/30"
+            }`}
             >
                 {outOfStock ? "স্টক নেই" : "এখনই কিনুন"}
             </button>
             <button
                 onClick={handleAddToCart}
                 disabled={outOfStock}
-                className={`w-full py-3.5 rounded-lg font-medium text-sm transition-colors border ${
-                    outOfStock
-                        ? "border-[#8B8F82]/20 text-[#8B8F82] cursor-not-allowed"
-                        : "border-[#274B3B] text-[#274B3B] hover:bg-[#274B3B]/5"
-                }`}
+            className={`w-full py-3.5 rounded-xl font-medium text-sm transition-all border-2 ${
+                outOfStock
+                    ? "border-[#75705F]/20 text-[#75705F] cursor-not-allowed"
+                    : "border-[#0E3B2C] text-[#0E3B2C] hover:bg-[#0E3B2C] hover:text-white"
+            }`}
             >
                 {outOfStock ? "স্টক নেই" : "কার্টে যোগ করুন"}
             </button>

@@ -19,9 +19,9 @@ export async function generateMetadata({
 
 export default function OrderConfirmedPage() {
     return (
-        <div className="min-h-screen bg-[#F6F3EC]">
+        <div className="min-h-screen bg-[#FFFDF7]">
             <StorefrontHeader variant="sub" />
-            <Suspense fallback={<div className="text-center py-20 text-[#8B8F82]">লোড হচ্ছে...</div>}>
+            <Suspense fallback={<div className="text-center py-20 text-[#75705F]">লোড হচ্ছে...</div>}>
                 <OrderConfirmedContent />
             </Suspense>
         </div>
