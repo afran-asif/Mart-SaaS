@@ -15,6 +15,7 @@ interface CartState {
     totalQuantity: number;
     totalAmount: number;
     hydrated: boolean;   // ✅ নতুন ফ্ল্যাগ
+    buyNowItem: CartItem | null;  // Buy Now এর জন্য আলাদা item
 }
 
 const initialState: CartState = {
@@ -22,6 +23,7 @@ const initialState: CartState = {
     totalQuantity: 0,
     totalAmount: 0,
     hydrated: false,   // ✅ শুরুতে false
+    buyNowItem: null,
 };
 
 // Helper — totalQuantity ও totalAmount হিসাব করা
@@ -136,6 +138,27 @@ const cartSlice = createSlice({
             }
             state.hydrated = true;
         },
+
+        setBuyNow: (state, action: PayloadAction<any>) => {
+            const product = action.payload;
+            const image =
+                product.images && product.images.length > 0
+                    ? product.images[0]
+                    : product.image || "/placeholder.png";
+            state.buyNowItem = {
+                _id: product._id,
+                name: product.name,
+                price: Number(product.price || 0),
+                image,
+                images: product.images,
+                quantity: 1,
+                stock: product.stock,
+            };
+        },
+
+        clearBuyNow: (state) => {
+            state.buyNowItem = null;
+        },
     },
 });
 
@@ -145,6 +168,8 @@ export const {
     removeFromCart,
     clearCart,
     rehydrateCart,
+    setBuyNow,
+    clearBuyNow,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

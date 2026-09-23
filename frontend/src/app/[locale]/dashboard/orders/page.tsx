@@ -221,9 +221,17 @@ export default function LocalizedOrdersPage() {
                             {selectedOrder.items.map((item, index) => (
                                 <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
-                                            📦
-                                        </div>
+                                        {item.product?.images?.[0] ? (
+                                            <img
+                                                src={item.product.images[0]}
+                                                alt={item.product?.name || "Product"}
+                                                className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
+                                                📦
+                                            </div>
+                                        )}
                                         <div>
                                             <p className="text-xs font-semibold text-gray-900">{item.product?.name || "Product"}</p>
                                             <p className="text-[11px] text-gray-500">Qty: {item.quantity} × ৳{item.price.toFixed(2)}</p>

@@ -4,7 +4,7 @@ import { useState, useEffect , useRef} from "react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
-import { clearCart } from "@/redux/cartSlice";
+import { clearCart, clearBuyNow } from "@/redux/cartSlice";
 import { api } from "@/services/api";
 import { trackInitiateCheckout } from "@/lib/tracking";
 import toast from "react-hot-toast";
@@ -13,7 +13,16 @@ import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 export default function CheckoutPage() {
     const router = useRouter();
     const dispatch = useDispatch();
-    const { items, totalAmount, hydrated } = useSelector((state: RootState) => state.cart);
+    const { items, totalAmount, hydrated, buyNowItem } = useSelector((state: RootState) => state.cart);
+
+    // Buy Now flow হলে শুধু সেই item, নইলে cart items
+    const isBuyNow = !!buyNowItem;
+    const checkoutItems = isBuyNow
+        ? [buyNowItem!]
+        : items;
+    const checkoutTotal = isBuyNow
+        ? buyNowItem!.price * buyNowItem!.quantity
+        : totalAmount;
 
     const [storeId, setStoreId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -29,19 +38,19 @@ export default function CheckoutPage() {
 
     // E-commerce tracking: InitiateCheckout
     useEffect(() => {
-        if (hydrated && items.length > 0 && !initiatedRef.current) {
+        if (hydrated && checkoutItems.length > 0 && !initiatedRef.current) {
             initiatedRef.current = true;
             trackInitiateCheckout(
-                items.map((item) => ({
+                checkoutItems.map((item) => ({
                     id: item._id,
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity,
                 })),
-                totalAmount
+                checkoutTotal
             );
         }
-    }, [hydrated, items, totalAmount]);
+    }, [hydrated, checkoutItems, checkoutTotal]);
 
     // পেজ লোড হওয়ার সাথে সাথে বর্তমান store এর _id ফেচ করা
     useEffect(() => {
@@ -56,12 +65,12 @@ export default function CheckoutPage() {
         fetchStoreId();
     }, []);
 
-    // কার্ট খালি থাকলে হোমপেজে ফেরত পাঠানো
+    // কার্ট বা buyNow খালি থাকলে হোমপেজে ফেরত পাঠানো
     useEffect(() => {
-        if (hydrated && items.length === 0&& !orderPlacedRef.current) {
+        if (hydrated && checkoutItems.length === 0 && !orderPlacedRef.current) {
             router.replace("/");
         }
-    }, [hydrated, items, router]);
+    }, [hydrated, checkoutItems, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,13 +86,13 @@ export default function CheckoutPage() {
 
         setLoading(true);
         try {
-            const orderItems = items.map((item) => ({
+            const orderItems = checkoutItems.map((item) => ({
                 product: item._id,
                 quantity: item.quantity,
                 price: item.price,
             }));
 
-            const trackingItems = items.map((item) => ({
+            const trackingItems = checkoutItems.map((item) => ({
                 id: item._id,
                 name: item.name,
                 price: item.price,
@@ -94,7 +103,7 @@ export default function CheckoutPage() {
                 ...form,
                 storeId,
                 items: orderItems,
-                totalAmount,
+                totalAmount: checkoutTotal,
                 paymentMethod,
             });
             if (res.data.success) {
@@ -106,17 +115,22 @@ export default function CheckoutPage() {
                         "last_order",
                         JSON.stringify({
                             orderId: res.data.orderId,
-                            totalAmount,
+                            totalAmount: checkoutTotal,
                             items: trackingItems,
                         })
                     );
                 } catch {}
 
-                dispatch(clearCart());
+                // Buy Now হলে buyNow clear করো, নইলে cart clear করো
+                if (isBuyNow) {
+                    dispatch(clearBuyNow());
+                } else {
+                    dispatch(clearCart());
+                }
                 
                 if (res.data.paymentMethod === "COD") {
                     toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
-                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${totalAmount}`);
+                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${checkoutTotal}`);
                 } else if (res.data.paymentUrl) {
                     // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
                     window.location.href = res.data.paymentUrl;
@@ -139,7 +153,7 @@ export default function CheckoutPage() {
         );
     }
 
-    if (items.length === 0) return null;
+    if (checkoutItems.length === 0) return null;
 
     return (
         <div className="min-h-screen bg-[#F6F3EC]">
@@ -216,13 +230,33 @@ export default function CheckoutPage() {
 
                     {/* অর্ডার সারাংশ */}
                     <div className="bg-white rounded-lg border border-[#1B1E19]/8 p-4 mt-2">
-                        <div className="flex justify-between text-sm text-[#1B1E19]/80 mb-2">
-                            <span>{items.length} টি প্রোডাক্ট</span>
-                            <span className="font-['IBM_Plex_Mono']">৳{totalAmount}</span>
+                        <h3 className="text-sm font-medium text-[#1B1E19] mb-3">অর্ডার সারাংশ</h3>
+
+                        {/* Item list with images */}
+                        <div className="flex flex-col gap-3 mb-3">
+                            {checkoutItems.map((item) => (
+                                <div key={item._id} className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-md overflow-hidden bg-[#EFECE3] flex-shrink-0">
+                                        <img
+                                            src={item.image || (item.images && item.images[0]) || "/placeholder.png"}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm text-[#1B1E19] truncate">{item.name}</p>
+                                        <p className="text-xs text-[#8B8F82]">× {item.quantity}</p>
+                                    </div>
+                                    <span className="font-['IBM_Plex_Mono'] text-sm text-[#274B3B] flex-shrink-0">
+                                        ৳{item.price * item.quantity}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
-                        <div className="flex justify-between font-medium text-[#1B1E19] pt-2 border-t border-[#1B1E19]/10">
+
+                        <div className="flex justify-between font-medium text-[#1B1E19] pt-3 border-t border-[#1B1E19]/10">
                             <span>মোট</span>
-                            <span className="font-['IBM_Plex_Mono']">৳{totalAmount}</span>
+                            <span className="font-['IBM_Plex_Mono']">৳{checkoutTotal}</span>
                         </div>
                     </div>
                     {/* Payment Method নির্বাচন */}
