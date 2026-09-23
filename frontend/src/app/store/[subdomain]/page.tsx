@@ -35,13 +35,32 @@ export async function generateMetadata({
 
     const { store } = data;
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vendoo.shop";
+    const siteHost = siteUrl.replace(/^https?:\/\//, "").split("/")[0];
+    const protocol = siteHost.includes("localhost") ? "http" : "https";
+    const storeUrl = `${protocol}://${subdomain}.${siteHost}`;
+    const title = `${store.storeName} - Shop Online`;
+    const description = `${store.storeName}-এ কেনাকাটা করুন। সেরা দামে সেরা প্রোডাক্ট।`;
+    const ogDescription = `${store.storeName}-এর অফিসিয়াল অনলাইন স্টোর`;
+    const ogImages = store.logo ? [store.logo] : [];
+
     return {
-        title: `${store.storeName} - Shop Online`,
-        description: `${store.storeName}-এ কেনাকাটা করুন। সেরা দামে সেরা প্রোডাক্ট।`,
+        metadataBase: new URL(siteUrl),
+        title,
+        description,
         openGraph: {
-            title: store.storeName,
-            description: `${store.storeName}-এর অফিসিয়াল অনলাইন স্টোর`,
-            images: store.logo ? [store.logo] : [],
+            type: "website",
+            url: storeUrl,
+            siteName: store.storeName,
+            title,
+            description: ogDescription,
+            images: ogImages,
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description: ogDescription,
+            images: ogImages,
         },
     };
 }
