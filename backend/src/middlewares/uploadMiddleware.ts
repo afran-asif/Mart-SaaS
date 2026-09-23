@@ -45,6 +45,18 @@ export const upload = multer({
     fileFilter: fileFilter,
     limits: { fileSize: 5 * 1024 * 1024 }, // সর্বোচ্চ ৫ মেগাবাইট
 });
+// 🗑️ Cloudinary URL theke public_id ber kore image delete (orphan jomte dibe na)
+// Fail korle error throw kore na — delete ta best-effort cleanup
+export const deleteFromCloudinary = async (imageUrl: string | null | undefined): Promise<void> => {
+    try {
+        if (!imageUrl || !imageUrl.includes("res.cloudinary.com")) return;
+        const match = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/);
+        if (!match) return;
+        await cloudinary.uploader.destroy(match[1]);
+    } catch (error) {
+        console.error("Cloudinary delete failed:", (error as Error).message);
+    }
+};
 // 🚀 Cloudinary-তে ফাইল আপলোড করার হেল্পার ফাংশন
 export const uploadToCloudinary = async (localFilePath: string): Promise<string> => {
     try {

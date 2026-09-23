@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { api } from "@/services/api";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -33,6 +33,8 @@ export default function LocalizedSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [uploadingLogo, setUploadingLogo] = useState(false);
+    const logoInputRef = useRef<HTMLInputElement>(null);
 
     const [facebookPixelId, setFacebookPixelId] = useState("");
     const [googleAnalyticsId, setGoogleAnalyticsId] = useState("");
@@ -64,12 +66,43 @@ export default function LocalizedSettingsPage() {
         fetchStore();
     }, []);
 
-    const handleCopySubdomain = () => {
-        if (!store) return;
+    const handleCopySubdomain = () => {        if (!store) return;
         navigator.clipboard.writeText(`${protocol}://${store.subdomain}.${baseDomain}`);
         setCopied(true);
         toast.success("Store URL copied.");
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    // Logo file upload — Cloudinary te direct upload
+    const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be under 5MB.");
+            return;
+        }
+
+        setUploadingLogo(true);
+        try {
+            const formData = new FormData();
+            formData.append("logo", file);
+            const res = await api.post("/store/logo", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            setLogo(res.data.logo || "");
+            setLogoError(false);
+            toast.success("Logo uploaded successfully.");
+        } catch (error: any) {
+            toast.error(error.message || "Logo upload failed.");
+        } finally {
+            setUploadingLogo(false);
+            if (logoInputRef.current) logoInputRef.current.value = "";
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -177,6 +210,50 @@ export default function LocalizedSettingsPage() {
                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                                 {t("dashboard.settingsPage.logoUrl")}
                             </label>
+                            <div className="flex items-center gap-3">
+                                <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                                    {logo.trim() && !logoError ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={logo}
+                                            alt="Store logo"
+                                            className="w-full h-full object-contain"
+                                            onError={() => setLogoError(true)}
+                                        />
+                                    ) : (
+                                        <span className="text-xl font-bold text-gray-300">🏪</span>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => logoInputRef.current?.click()}
+                                        disabled={uploadingLogo}
+                                        className="px-4 py-2 rounded-xl bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {uploadingLogo ? "Uploading..." : logo.trim() ? "Change logo" : "Upload logo"}
+                                    </button>
+                                    {logo.trim() && !uploadingLogo && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setLogo("");
+                                                setLogoError(false);
+                                            }}
+                                            className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600 transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <input
+                                    ref={logoInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleLogoFileChange}
+                                />
+                            </div>
                             <input
                                 type="url"
                                 value={logo}
@@ -185,7 +262,7 @@ export default function LocalizedSettingsPage() {
                                     setLogoError(false);
                                 }}
                                 placeholder="https://res.cloudinary.com/..."
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                                className="mt-2 w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-xs font-mono text-gray-500 outline-none transition-all"
                             />
                             <p className="text-xs text-gray-400 mt-1">{t("dashboard.settingsPage.logoDesc")}</p>
                         </div>
