@@ -1,6 +1,7 @@
 import AddToCartButton from "@/components/storefront/AddToCartButton";
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import ProductGallery from "@/components/storefront/ProductGallery";
 import TrackViewContent from "@/components/storefront/TrackViewContent";
 import type { Metadata } from "next";
 
@@ -99,41 +100,8 @@ export default async function ProductDetailPage({
 
             <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
-                    {/* বাম পাশ — ছবি */}
-                    <div>
-                        <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-[#F4EEE2] border border-[#181410]/10 shadow-[0_24px_50px_-24px_rgba(24,20,16,0.3)]">
-                            <img
-                                src={product.images[0] || "/placeholder.png"}
-                                alt={product.name}
-                                className={`w-full h-full object-cover ${outOfStock ? "grayscale opacity-60" : ""}`}
-                            />
-                            {outOfStock ? (
-                                <div className="absolute top-4 left-4 bg-[#181410] text-[#FFFDF7] font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.14em] px-3 py-1.5 rounded-full">
-                                    স্টক নেই
-                                </div>
-                            ) : (
-                                <div className="absolute top-4 left-4 bg-[#FFFDF7]/95 backdrop-blur text-[#0E3B2C] font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.14em] px-3 py-1.5 rounded-full border border-[#C6A15B]/50">
-                                    Premium pick
-                                </div>
-                            )}
-                        </div>
-
-                        {/* একাধিক ছবি থাকলে থাম্বনেইল */}
-                        {product.images.length > 1 && (
-                            <div className="flex gap-3 mt-4">
-                                {product.images.map((img, i) => (
-                                    <div
-                                        key={i}
-                                        className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-[#F4EEE2] border-2 transition-colors ${
-                                            i === 0 ? "border-[#C6A15B]" : "border-transparent hover:border-[#C6A15B]/60"
-                                        }`}
-                                    >
-                                        <img src={img} alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    {/* বাম পাশ — ছবি (click + swipe gallery) */}
+                    <ProductGallery images={product.images} name={product.name} outOfStock={outOfStock} />
 
                     {/* ডান পাশ — তথ্য */}
                     <div className="flex flex-col">
