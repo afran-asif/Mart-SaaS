@@ -243,12 +243,30 @@ export const getVendorAnalytics = async (req: AuthenticatedRequest, res: Respons
             },
         ]);
 
-        // ৩. Payment status অনুযায়ী breakdown
+        // ৩. Payment breakdown — COD / Online Paid / Failed
         const paymentBreakdown = await Order.aggregate([
             { $match: { storeId: storeObjectId } },
             {
                 $group: {
-                    _id: "$paymentStatus",
+                    _id: {
+                        $cond: [
+                            { $eq: ["$paymentStatus", "Failed"] },
+                            "Failed",
+                            {
+                                $cond: [
+                                    { $eq: ["$paymentMethod", "COD"] },
+                                    "COD",
+                                    {
+                                        $cond: [
+                                            { $eq: ["$paymentStatus", "Paid"] },
+                                            "Online Paid",
+                                            "Pending Online"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
                     count: { $sum: 1 },
                 },
             },

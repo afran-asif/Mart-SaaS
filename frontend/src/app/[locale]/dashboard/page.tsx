@@ -170,19 +170,19 @@ export default function LocalizedDashboardPage() {
                         <h2 className="text-sm font-bold text-gray-900 mb-4">{t("dashboard.paymentStatus")}</h2>
                         <div className="flex gap-4 sm:gap-6 flex-wrap">
                             <div>
-                                <p className="text-xs text-gray-500">{t("dashboard.paid")}</p>
+                                <p className="text-xs text-gray-500">Online Paid</p>
                                 <p className="text-lg font-semibold text-green-700">
-                                    {analytics.paymentBreakdown["Paid"] || 0}
+                                    {analytics.paymentBreakdown["Online Paid"] || 0}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">{t("dashboard.unpaid")}</p>
-                                <p className="text-lg font-semibold text-yellow-600">
-                                    {analytics.paymentBreakdown["Unpaid"] || 0}
+                                <p className="text-xs text-gray-500">COD</p>
+                                <p className="text-lg font-semibold text-blue-600">
+                                    {analytics.paymentBreakdown["COD"] || 0}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">{t("dashboard.failed")}</p>
+                                <p className="text-xs text-gray-500">Payment Failed</p>
                                 <p className="text-lg font-semibold text-red-600">
                                     {analytics.paymentBreakdown["Failed"] || 0}
                                 </p>

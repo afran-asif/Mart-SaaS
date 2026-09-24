@@ -1,7 +1,7 @@
 // src/app/[locale]/dashboard/orders/page.tsx
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { Fragment, useEffect, useState, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 import { getAllOrders, updateOrderStatusApi, Order } from "@/services/orderService";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -20,8 +20,8 @@ export default function LocalizedOrdersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
 
-    // Modal view for order details
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    // Expanded row — জরুরি আর view button/modal না, row click করলেই detail
+    const [expandedId, setExpandedId] = useState<string | null>(null);
 
     // Fetch orders (server-side paginated + filtered)
     const fetchOrders = useCallback(async (targetPage: number, search: string, status: string) => {
@@ -182,12 +182,25 @@ export default function LocalizedOrdersPage() {
                                         <th className="p-3 sm:p-4 hidden md:table-cell">{t("dashboard.date")}</th>
                                         <th className="p-3 sm:p-4">{t("dashboard.total")}</th>
                                         <th className="p-3 sm:p-4">{t("dashboard.status")}</th>
-                                        <th className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">{t("dashboard.ordersPage.actions")}</th>
+                                        <th className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
+                                            <span className="inline-flex items-center gap-1">
+                                                <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
+                                                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                                                </svg>
+                                                Detail
+                                            </span>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 text-gray-700 text-xs sm:text-sm">
                                     {orders.map((order) => (
-                                        <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
+                                        <Fragment key={order._id}>
+                                        <tr
+                                            onClick={() => setExpandedId(expandedId === order._id ? null : order._id)}
+                                            className={`cursor-pointer transition-colors ${
+                                                expandedId === order._id ? "bg-orange-50/40" : "hover:bg-gray-50/50"
+                                            }`}
+                                        >
                                             <td className="p-3 sm:p-4 pl-4 sm:pl-6 font-mono text-xs font-semibold text-gray-900">
                                                 #{order._id.slice(-6).toUpperCase()}
                                             </td>
@@ -201,7 +214,7 @@ export default function LocalizedOrdersPage() {
                                             <td className="p-3 sm:p-4 font-semibold text-gray-900 whitespace-nowrap text-xs sm:text-sm">
                                                 ৳{order.totalAmount.toFixed(2)}
                                             </td>
-                                            <td className="p-3 sm:p-4">
+                                            <td className="p-3 sm:p-4" onClick={(e) => e.stopPropagation()}>
                                                 <select
                                                     value={order.status}
                                                     onChange={(e) => handleStatusChange(order._id, e.target.value)}
@@ -216,14 +229,25 @@ export default function LocalizedOrdersPage() {
                                                 </select>
                                             </td>
                                             <td className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
-                                                <button
-                                                    onClick={() => setSelectedOrder(order)}
-                                                    className="text-orange-600 hover:underline font-medium text-xs transition-colors whitespace-nowrap"
+                                                <span
+                                                    className={`inline-flex items-center transition-transform duration-200 ${
+                                                        expandedId === order._id ? "rotate-180" : ""
+                                                    }`}
                                                 >
-                                                    {t("dashboard.ordersPage.view")}
-                                                </button>
+                                                    <svg viewBox="0 0 20 20" className="w-4 h-4 fill-current text-gray-400" aria-hidden="true">
+                                                        <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                                                    </svg>
+                                                </span>
                                             </td>
                                         </tr>
+                                        {expandedId === order._id && (
+                                            <tr className="bg-orange-50/30">
+                                                <td colSpan={6} className="p-4 sm:p-5 pl-4 sm:pl-6 pr-4 sm:pr-6">
+                                                    <OrderDetailRow order={order} t={t} />
+                                                </td>
+                                            </tr>
+                                        )}
+                                        </Fragment>
                                     ))}
                                 </tbody>
                             </table>
@@ -274,67 +298,77 @@ export default function LocalizedOrdersPage() {
                     )}
                 </div>
             )}
+        </div>
+    );
+}
 
-            {/* ORDER DETAILS MODAL */}
-            {selectedOrder && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
-                    <div className="bg-white rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 w-full sm:max-w-lg shadow-xl border border-gray-100 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-4">
-                            <div>
-                                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                                    Order #{selectedOrder._id.slice(-6).toUpperCase()}
-                                </h2>
-                                <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[220px] sm:max-w-none">{selectedOrder.customerName} — {selectedOrder.customerEmail}</p>
-                            </div>
-                            <button
-                                onClick={() => setSelectedOrder(null)}
-                                className="text-gray-400 hover:text-gray-700 text-2xl leading-none ml-3"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <div className="border-t border-b border-gray-100 py-3 my-3 space-y-1 text-xs text-gray-600">
-                            <p><span className="font-semibold text-gray-800">{t("dashboard.ordersPage.address")}</span> {selectedOrder.shippingAddress}</p>
-                            <p><span className="font-semibold text-gray-800">{t("dashboard.date")}:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-                        </div>
-
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{t("dashboard.ordersPage.itemsOrdered")}</h3>
-                        
-                        <div className="space-y-3 mb-6">
-                            {selectedOrder.items.map((item, index) => (
-                                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        {item.product?.images?.[0] ? (
-                                            <img
-                                                src={item.product.images[0]}
-                                                alt={item.product?.name || "Product"}
-                                                className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
-                                            />
-                                        ) : (
-                                            <div className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
-                                                📦
-                                            </div>
-                                        )}
-                                        <div>
-                                            <p className="text-xs font-semibold text-gray-900">{item.product?.name || "Product"}</p>
-                                            <p className="text-[11px] text-gray-500">Qty: {item.quantity} × ৳{item.price.toFixed(2)}</p>
-                                        </div>
+// Row expand করলে নিচে inline detail panel
+function OrderDetailRow({ order, t }: { order: Order; t: (key: string) => string }) {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Items */}
+            <div className="lg:col-span-2">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    {t("dashboard.ordersPage.itemsOrdered")}
+                </h3>
+                <div className="space-y-2.5">
+                    {order.items.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-100">
+                            <div className="flex items-center gap-3">
+                                {item.product?.images?.[0] ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                        src={item.product.images[0]}
+                                        alt={item.product?.name || "Product"}
+                                        className="w-10 h-10 rounded-lg object-cover border border-gray-200 shrink-0"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700 shrink-0">
+                                        📦
                                     </div>
-                                    <p className="text-xs font-bold text-gray-900 ml-2">
-                                        ৳{(item.quantity * item.price).toFixed(2)}
-                                    </p>
+                                )}
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-900">{item.product?.name || "Product"}</p>
+                                    <p className="text-[11px] text-gray-500">Qty: {item.quantity} × ৳{item.price.toFixed(2)}</p>
                                 </div>
-                            ))}
+                            </div>
+                            <p className="text-xs font-bold text-gray-900 ml-2">
+                                ৳{(item.quantity * item.price).toFixed(2)}
+                            </p>
                         </div>
-
-                        <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                            <span className="text-sm font-bold text-gray-700">{t("dashboard.ordersPage.grandTotal")}</span>
-                            <span className="text-lg font-extrabold text-orange-600">৳{selectedOrder.totalAmount.toFixed(2)}</span>
-                        </div>
-                    </div>
+                    ))}
                 </div>
-            )}
+                <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-100">
+                    <span className="text-sm font-bold text-gray-700">{t("dashboard.ordersPage.grandTotal")}</span>
+                    <span className="text-base font-extrabold text-orange-600">৳{order.totalAmount.toFixed(2)}</span>
+                </div>
+            </div>
+
+            {/* Meta */}
+            <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-2.5 text-xs text-gray-600 self-start">
+                <p>
+                    <span className="font-semibold text-gray-800 mr-1">{t("dashboard.customer")}:</span>
+                    {order.customerName}
+                </p>
+                <p className="break-all">
+                    <span className="font-semibold text-gray-800 mr-1">Email:</span>
+                    {order.customerEmail}
+                </p>
+                {order.phone && (
+                    <p>
+                        <span className="font-semibold text-gray-800 mr-1">Phone:</span>
+                        {order.phone}
+                    </p>
+                )}
+                <p>
+                    <span className="font-semibold text-gray-800 mr-1">{t("dashboard.ordersPage.address")}:</span>
+                    {order.shippingAddress}
+                </p>
+                <p>
+                    <span className="font-semibold text-gray-800 mr-1">{t("dashboard.date")}:</span>
+                    {new Date(order.createdAt).toLocaleString()}
+                </p>
+            </div>
         </div>
     );
 }
