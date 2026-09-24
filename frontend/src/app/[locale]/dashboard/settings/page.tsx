@@ -254,16 +254,6 @@ export default function LocalizedSettingsPage() {
                                     onChange={handleLogoFileChange}
                                 />
                             </div>
-                            <input
-                                type="url"
-                                value={logo}
-                                onChange={(e) => {
-                                    setLogo(e.target.value);
-                                    setLogoError(false);
-                                }}
-                                placeholder="https://res.cloudinary.com/..."
-                                className="mt-2 w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-xs font-mono text-gray-500 outline-none transition-all"
-                            />
                             <p className="text-xs text-gray-400 mt-1">{t("dashboard.settingsPage.logoDesc")}</p>
                         </div>
 

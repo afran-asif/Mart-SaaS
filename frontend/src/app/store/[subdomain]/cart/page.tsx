@@ -1,15 +1,35 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Link from "next/link";
 import { RootState } from "@/redux/store";
-import { decreaseQuantity, removeFromCart, addToCart, toggleSelectItem, setSelectAll } from "@/redux/cartSlice";
+import { decreaseQuantity, removeFromCart, addToCart, toggleSelectItem, setSelectAll, syncCartPrices } from "@/redux/cartSlice";
 import { trackAddToCart } from "@/lib/tracking";
+import { api } from "@/services/api";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 
 export default function CartPage() {
     const dispatch = useDispatch();
     const { items, totalQuantity, selectedIds } = useSelector((state: RootState) => state.cart);
+
+    // বিক্রেতা দাম/স্টক বদলালে কার্টে sync — server থেকে fresh data
+    useEffect(() => {
+        const syncCart = async () => {
+            if (items.length === 0) return;
+            try {
+                const response = await api.get("/tenant/products");
+                const products: { _id: string; price?: number; stock?: number; name?: string }[] =
+                    response.data?.products || [];
+                if (products.length > 0) {
+                    dispatch(syncCartPrices(products));
+                }
+            } catch {
+                // sync fail হলে পুরোনো price-ই থাকবে — নীরবে ফেল
+            }
+        };
+        syncCart();
+    }, [dispatch]);
 
     // Checkout-এর জন্য শুধু selected item
     const selectedItems = selectedIds === null ? items : items.filter((item) => selectedIds.includes(item._id));

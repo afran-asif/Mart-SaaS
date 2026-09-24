@@ -191,6 +191,47 @@ const cartSlice = createSlice({
         setSelectAll: (state, action: PayloadAction<boolean>) => {
             state.selectedIds = action.payload ? null : [];
         },
+
+        // Server থেকে fresh price/stock sync (বিক্রেতা দাম বদলালে কার্টে update হয়)
+        syncCartPrices: (state, action: PayloadAction<{ _id: string; price?: number; stock?: number; name?: string }[]>) => {
+            const freshProducts = action.payload;
+            if (!freshProducts || freshProducts.length === 0) return;
+
+            const freshMap = new Map(freshProducts.map((p) => [p._id, p]));
+
+            // কাটা (ডিলিট হওয়া) প্রোডাক্ট বাদ
+            state.items = state.items.filter((item) => freshMap.has(item._id));
+
+            if (state.buyNowItem && freshMap.has(state.buyNowItem._id)) {
+                const fresh = freshMap.get(state.buyNowItem._id)!;
+                if (typeof fresh.price === "number") state.buyNowItem.price = fresh.price;
+                if (typeof fresh.stock === "number") state.buyNowItem.stock = fresh.stock;
+                if (typeof fresh.name === "string") state.buyNowItem.name = fresh.name;
+                if (
+                    typeof fresh.stock === "number" &&
+                    fresh.stock > 0 &&
+                    state.buyNowItem.quantity > fresh.stock
+                ) {
+                    state.buyNowItem.quantity = fresh.stock;
+                }
+            }
+
+            for (const item of state.items) {
+                const fresh = freshMap.get(item._id);
+                if (!fresh) continue;
+                if (typeof fresh.price === "number") item.price = fresh.price;
+                if (typeof fresh.stock === "number") item.stock = fresh.stock;
+                if (typeof fresh.name === "string") item.name = fresh.name;
+                if (typeof fresh.stock === "number" && fresh.stock > 0 && item.quantity > fresh.stock) {
+                    item.quantity = fresh.stock;
+                }
+            }
+
+            const totals = calculateTotals(state.items);
+            state.totalQuantity = totals.totalQuantity;
+            state.totalAmount = totals.totalAmount;
+            saveCartToStorage(state.items);
+        },
     },
 });
 
@@ -205,6 +246,7 @@ export const {
     updateBuyNowQuantity,
     toggleSelectItem,
     setSelectAll,
+    syncCartPrices,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
