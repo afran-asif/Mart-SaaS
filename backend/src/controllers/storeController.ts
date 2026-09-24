@@ -36,6 +36,9 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             facebookPixelId,
             googleAnalyticsId,
             tiktokPixelId,
+            facebookUrl,
+            instagramUrl,
+            whatsappNumber,
         } = req.body;
         const vendorId = req.user._id;
 
@@ -81,6 +84,11 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (googleAnalyticsId !== undefined) store.googleAnalyticsId = googleAnalyticsId || null;
         if (tiktokPixelId !== undefined) store.tiktokPixelId = tiktokPixelId || null;
 
+        // ✅ Social links — খালি স্ট্রিং দিলে মুছে ফেলা যাবে (null করে)
+        if (facebookUrl !== undefined) store.facebookUrl = facebookUrl || null;
+        if (instagramUrl !== undefined) store.instagramUrl = instagramUrl || null;
+        if (whatsappNumber !== undefined) store.whatsappNumber = whatsappNumber || null;
+
         // Logo বদলালে/মুছলে পুরনো Cloudinary ইমেজ auto-delete (orphan জমবে না)
         let oldLogoToDelete: string | null = null;
         if (logo !== undefined) {
@@ -111,6 +119,9 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 facebookPixelId: store.facebookPixelId,
                 googleAnalyticsId: store.googleAnalyticsId,
                 tiktokPixelId: store.tiktokPixelId,
+                facebookUrl: store.facebookUrl,
+                instagramUrl: store.instagramUrl,
+                whatsappNumber: store.whatsappNumber,
                 updatedAt: store.updatedAt,
             }
         });
@@ -185,6 +196,9 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 facebookPixelId: store.facebookPixelId,     
                 googleAnalyticsId: store.googleAnalyticsId,  
                 tiktokPixelId: store.tiktokPixelId,  
+                facebookUrl: store.facebookUrl,
+                instagramUrl: store.instagramUrl,
+                whatsappNumber: store.whatsappNumber,
             }
         });
     } catch (error) {
@@ -215,6 +229,9 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 facebookPixelId: store.facebookPixelId,
                 googleAnalyticsId: store.googleAnalyticsId,
                 tiktokPixelId: store.tiktokPixelId,
+                facebookUrl: store.facebookUrl,
+                instagramUrl: store.instagramUrl,
+                whatsappNumber: store.whatsappNumber,
             },
         });
     } catch (error) {

@@ -1,5 +1,6 @@
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import StoreSocialLinks from "@/components/storefront/StoreSocialLinks";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -17,6 +18,9 @@ interface Store {
     facebookPixelId?: string;
     googleAnalyticsId?: string;
     tiktokPixelId?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    whatsappNumber?: string;
 }
 
 export async function generateMetadata({
@@ -200,8 +204,17 @@ export default async function StorePage({
 
             {/* Footer strip */}
             <footer className="border-t border-[#C6A15B]/30 mt-4">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-                    <p className="font-['Fraunces',serif] text-lg text-[#181410]">{store.storeName}</p>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col items-center sm:items-start gap-2">
+                        <p className="font-['Fraunces',serif] text-lg text-[#181410]">{store.storeName}</p>
+                        <div className="flex items-center justify-center sm:justify-start">
+                            <StoreSocialLinks
+                                facebookUrl={store.facebookUrl}
+                                instagramUrl={store.instagramUrl}
+                                whatsappNumber={store.whatsappNumber}
+                            />
+                        </div>
+                    </div>
                     <p className="font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase text-[#75705F]">
                         Powered by Vendoo
                     </p>

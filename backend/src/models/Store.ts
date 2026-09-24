@@ -14,6 +14,9 @@ export interface IStore extends Document {
     facebookPixelId?: string;
     googleAnalyticsId?: string;
     tiktokPixelId?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    whatsappNumber?: string;
 }
 
 const storeSchema = new Schema<IStore>(
@@ -72,6 +75,21 @@ const storeSchema = new Schema<IStore>(
             trim: true,
         },
         tiktokPixelId: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        facebookUrl: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        instagramUrl: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        whatsappNumber: {
             type: String,
             default: null,
             trim: true,

@@ -16,6 +16,9 @@ interface StoreData {
     facebookPixelId?: string;
     googleAnalyticsId?: string;
     tiktokPixelId?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    whatsappNumber?: string;
 }
 
 export default function LocalizedSettingsPage() {
@@ -39,6 +42,9 @@ export default function LocalizedSettingsPage() {
     const [facebookPixelId, setFacebookPixelId] = useState("");
     const [googleAnalyticsId, setGoogleAnalyticsId] = useState("");
     const [tiktokPixelId, setTiktokPixelId] = useState("");
+    const [facebookUrl, setFacebookUrl] = useState("");
+    const [instagramUrl, setInstagramUrl] = useState("");
+    const [whatsappNumber, setWhatsappNumber] = useState("");
 
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
@@ -57,6 +63,9 @@ export default function LocalizedSettingsPage() {
                 setFacebookPixelId(data.facebookPixelId || "");
                 setGoogleAnalyticsId(data.googleAnalyticsId || "");
                 setTiktokPixelId(data.tiktokPixelId || "");
+                setFacebookUrl(data.facebookUrl || "");
+                setInstagramUrl(data.instagramUrl || "");
+                setWhatsappNumber(data.whatsappNumber || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -118,6 +127,9 @@ export default function LocalizedSettingsPage() {
                 facebookPixelId: facebookPixelId.trim(),
                 googleAnalyticsId: googleAnalyticsId.trim(),
                 tiktokPixelId: tiktokPixelId.trim(),
+                facebookUrl: facebookUrl.trim(),
+                instagramUrl: instagramUrl.trim(),
+                whatsappNumber: whatsappNumber.trim(),
             };
 
             if (useOwnSSLCommerz) {
@@ -485,6 +497,64 @@ export default function LocalizedSettingsPage() {
                             />
                             <p className="text-xs text-gray-400 mt-1">
                                 Found in TikTok Ads Manager → Assets → Events.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Social Media Links card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Social Media</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Add your social links — only the ones you fill in will show on your storefront.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-blue-700">
+                                Facebook Page URL
+                            </label>
+                            <input
+                                type="url"
+                                value={facebookUrl}
+                                onChange={(e) => setFacebookUrl(e.target.value)}
+                                placeholder="https://facebook.com/yourpage"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                আপনার Facebook পেজের পুরো লিংক দিন।
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-pink-700">
+                                Instagram URL
+                            </label>
+                            <input
+                                type="url"
+                                value={instagramUrl}
+                                onChange={(e) => setInstagramUrl(e.target.value)}
+                                placeholder="https://instagram.com/yourpage"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                আপনার Instagram প্রোফাইলের পুরো লিংক দিন।
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-green-700">
+                                WhatsApp Number
+                            </label>
+                            <input
+                                type="tel"
+                                value={whatsappNumber}
+                                onChange={(e) => setWhatsappNumber(e.target.value)}
+                                placeholder="e.g. 8801XXXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX
                             </p>
                         </div>
                     </div>

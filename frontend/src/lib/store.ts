@@ -4,6 +4,9 @@ interface StoreInfo {
     facebookPixelId?: string | null;
     googleAnalyticsId?: string | null;
     tiktokPixelId?: string | null;
+    facebookUrl?: string | null;
+    instagramUrl?: string | null;
+    whatsappNumber?: string | null;
 }
 
 export async function getStoreInfo(subdomain: string): Promise<StoreInfo | null> {
