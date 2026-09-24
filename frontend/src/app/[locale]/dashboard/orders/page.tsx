@@ -1,15 +1,20 @@
 // src/app/[locale]/dashboard/orders/page.tsx
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 import { getAllOrders, updateOrderStatusApi, Order } from "@/services/orderService";
 import { useTranslation } from "@/hooks/useTranslation";
+
+const PAGE_SIZE = 10;
 
 export default function LocalizedOrdersPage() {
     const { t } = useTranslation();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const [page, setPage] = useState(1);
+    const [pages, setPages] = useState(1);
 
     // Filters
     const [searchTerm, setSearchTerm] = useState("");
@@ -18,21 +23,69 @@ export default function LocalizedOrdersPage() {
     // Modal view for order details
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-    // Fetch orders
-    const fetchOrders = async () => {
+    // Fetch orders (server-side paginated + filtered)
+    const fetchOrders = useCallback(async (targetPage: number, search: string, status: string) => {
         try {
-            const data = await getAllOrders();
-            setOrders(data);
+            setLoading(true);
+            const data = await getAllOrders({
+                page: targetPage,
+                limit: PAGE_SIZE,
+                search: search.trim() || undefined,
+                status: status === "All" ? undefined : status,
+            });
+            setOrders(data.orders);
+            setTotalOrders(data.totalOrders);
+            setPage(data.page);
+            setPages(data.pages || 1);
         } catch {
             toast.error("Failed to load orders. Please refresh.");
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
-        fetchOrders();
-    }, []);
+        fetchOrders(1, "", "All");
+    }, [fetchOrders]);
+
+    // Search — debounce (500ms), status change হলে সাথে সাথেই refetch
+    const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+    const statusRef = useRef(statusFilter);
+    statusRef.current = statusFilter;
+
+    useEffect(() => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+            fetchOrders(1, searchTerm, statusRef.current);
+        }, 500);
+        return () => {
+            if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        };
+    }, [searchTerm, fetchOrders]);
+
+    useEffect(() => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        fetchOrders(1, searchTerm, statusFilter);
+    }, [statusFilter, fetchOrders]);
+
+    const goToPage = (targetPage: number) => {
+        if (targetPage < 1 || targetPage > pages || targetPage === page) return;
+        fetchOrders(targetPage, searchTerm, statusFilter);
+    };
+
+    // Page number window — সবগুলো page button না দেখিয়ে current এর আশেপাশে
+    const pageNumbers = (() => {
+        const total = pages;
+        if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+        const nums: (number | "...")[] = [1];
+        const start = Math.max(2, page - 1);
+        const end = Math.min(total - 1, page + 1);
+        if (start > 2) nums.push("...");
+        for (let i = start; i <= end; i++) nums.push(i);
+        if (end < total - 1) nums.push("...");
+        nums.push(total);
+        return nums;
+    })();
 
     // Status Badge Styling Helper
     const getStatusBadge = (status: string) => {
@@ -69,18 +122,6 @@ export default function LocalizedOrdersPage() {
             toast.error(error.message || "Failed to update status.", { id: toastId });
         }
     };
-
-    // Search and Status Filtering
-    const filteredOrders = useMemo(() => {
-        return orders.filter((order) => {
-            const matchesSearch =
-                order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesStatus = statusFilter === "All" || order.status === statusFilter;
-            return matchesSearch && matchesStatus;
-        });
-    }, [orders, searchTerm, statusFilter]);
 
     return (
         <div className="space-y-5 sm:space-y-6">
@@ -127,7 +168,7 @@ export default function LocalizedOrdersPage() {
             {/* Orders Table */}
             {!loading && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {filteredOrders.length === 0 ? (
+                    {orders.length === 0 ? (
                         <div className="p-10 text-center text-gray-500">
                             {t("dashboard.ordersPage.noOrdersFound")}
                         </div>
@@ -145,7 +186,7 @@ export default function LocalizedOrdersPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 text-gray-700 text-xs sm:text-sm">
-                                    {filteredOrders.map((order) => (
+                                    {orders.map((order) => (
                                         <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="p-3 sm:p-4 pl-4 sm:pl-6 font-mono text-xs font-semibold text-gray-900">
                                                 #{order._id.slice(-6).toUpperCase()}
@@ -186,6 +227,49 @@ export default function LocalizedOrdersPage() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+                    {orders.length > 0 && pages > 1 && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6 py-4 border-t border-gray-100">
+                            <p className="text-xs text-gray-500">
+                                Page {page} of {pages} · {totalOrders} orders
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={() => goToPage(page - 1)}
+                                    disabled={page <= 1}
+                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-orange-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    ← Prev
+                                </button>
+                                {pageNumbers.map((p, idx) =>
+                                    p === "..." ? (
+                                        <span key={`e-${idx}`} className="px-1.5 text-xs text-gray-400">
+                                            …
+                                        </span>
+                                    ) : (
+                                        <button
+                                            key={p}
+                                            onClick={() => goToPage(p)}
+                                            disabled={p === page}
+                                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
+                                                p === page
+                                                    ? "bg-orange-600 border-orange-600 text-white"
+                                                    : "border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-orange-300"
+                                            }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    )
+                                )}
+                                <button
+                                    onClick={() => goToPage(page + 1)}
+                                    disabled={page >= pages}
+                                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-orange-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    Next →
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

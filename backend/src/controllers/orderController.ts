@@ -17,7 +17,7 @@ const validTransitions: Record<string, string[]> = {
     Delivered: [],   // terminal — কোথাও যেতে পারবে না
     Cancelled: [],   // terminal — কোথাও যেতে পারবে না
 };
-//Fetch only this vendor's orders
+//Fetch only this vendor's orders (with pagination + filters)
 export const getVendorOrders = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const storeId = await getVendorStoreId(req.user._id.toString());
@@ -27,11 +27,53 @@ export const getVendorOrders = async (req: AuthenticatedRequest, res: Response) 
             return;
         }
 
-        const orders = await Order.find({ storeId })
-            .populate("items.product", "name price images")
-            .sort({ createdAt: -1 });
+        // Pagination params
+        const page = Math.max(parseInt(req.query.page as string, 10) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit as string, 10) || 10, 1), 50);
 
-        res.status(200).json({ success: true, orders });
+        // Filters (status + search) — server-side
+        const status = (req.query.status as string) || undefined;
+        const search = (req.query.search as string) || undefined;
+
+        const filter: any = { storeId };
+
+        if (status && status !== "All") {
+            filter.status = status;
+        }
+
+        if (search && search.trim()) {
+            const regex = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+            const ors: any[] = [
+                { customerName: regex },
+                { customerEmail: regex },
+                { phone: regex },
+            ];
+            // পুরো ObjectId দিলে যেন `#abc123` ধরাও যায়
+            if (/^[0-9a-fA-F]{24}$/.test(search.trim())) {
+                ors.push({ _id: search.trim() });
+            }
+            filter.$or = ors;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [orders, totalOrders] = await Promise.all([
+            Order.find(filter)
+                .populate("items.product", "name price images")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            Order.countDocuments(filter),
+        ]);
+
+        res.status(200).json({
+            success: true,
+            orders,
+            totalOrders,
+            page,
+            limit,
+            pages: Math.ceil(totalOrders / limit),
+        });
     } catch (error: any) {
         res.status(500).json({ message: error.message || "Failed to fetch orders" });
     }

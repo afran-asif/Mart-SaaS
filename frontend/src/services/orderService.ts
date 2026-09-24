@@ -38,10 +38,38 @@ export interface CreateOrderPayload {
     }[];
 }
 
-// 📥 Fetch all orders for this vendor (token required)
-export const getAllOrders = async (): Promise<Order[]> => {
-    const response = await api.get("/orders");
-    return response.data.orders || response.data;
+export interface OrdersQuery {
+    page?: number;
+    limit?: number;
+    status?: string;
+    search?: string;
+}
+
+export interface PaginatedOrders {
+    orders: Order[];
+    totalOrders: number;
+    page: number;
+    limit: number;
+    pages: number;
+}
+
+// 📥 Fetch this vendor's orders (paginated, token required)
+export const getAllOrders = async (query: OrdersQuery = {}): Promise<PaginatedOrders> => {
+    const response = await api.get("/orders", {
+        params: {
+            page: query.page || 1,
+            limit: query.limit || 10,
+            status: query.status || undefined,
+            search: query.search || undefined,
+        },
+    });
+    return {
+        orders: response.data.orders || [],
+        totalOrders: response.data.totalOrders || 0,
+        page: response.data.page || 1,
+        limit: response.data.limit || 10,
+        pages: response.data.pages || 1,
+    };
 };
 
 // ➕ Create a new order
