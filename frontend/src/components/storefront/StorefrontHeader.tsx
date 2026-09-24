@@ -1,4 +1,5 @@
 import CartIcon from "./CartIcon";
+import Link from "next/link";
 
 interface StorefrontHeaderProps {
     variant: "home" | "sub";
@@ -39,12 +40,12 @@ export default function StorefrontHeader({ variant, storeName, storeLogo }: Stor
                         </div>
                     </div>
                 ) : (
-                    <a
+                    <Link
                         href="/"
                         className="inline-flex items-center gap-1.5 text-sm text-[#0E3B2C] font-medium hover:text-[#F4501A] transition-colors underline-offset-4 hover:underline"
                     >
                         ← দোকানে ফিরে যান
-                    </a>
+                    </Link>
                 )}
 
                 <CartIcon />

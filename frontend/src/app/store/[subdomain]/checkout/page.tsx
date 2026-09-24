@@ -13,16 +13,15 @@ import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 export default function CheckoutPage() {
     const router = useRouter();
     const dispatch = useDispatch();
-    const { items, totalAmount, hydrated, buyNowItem } = useSelector((state: RootState) => state.cart);
+    const { items, hydrated, buyNowItem, selectedIds } = useSelector((state: RootState) => state.cart);
 
-    // Buy Now flow হলে শুধু সেই item, নইলে cart items
+    // Buy Now flow হলে শুধু সেই item, নইলে cart-এর selected item
     const isBuyNow = !!buyNowItem;
+    const cartFlowItems = selectedIds === null ? items : items.filter((item) => selectedIds.includes(item._id));
     const checkoutItems = isBuyNow
         ? [buyNowItem!]
-        : items;
-    const checkoutTotal = isBuyNow
-        ? buyNowItem!.price * buyNowItem!.quantity
-        : totalAmount;
+        : cartFlowItems;
+    const checkoutTotal = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const [storeId, setStoreId] = useState<string | null>(null);    const [loading, setLoading] = useState(false);
     const orderPlacedRef = useRef(false);   // ✅ নতুন flag

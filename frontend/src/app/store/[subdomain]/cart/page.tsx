@@ -1,14 +1,21 @@
 "use client";
 
 import { useSelector, useDispatch } from "react-redux";
+import Link from "next/link";
 import { RootState } from "@/redux/store";
-import { decreaseQuantity, removeFromCart, addToCart } from "@/redux/cartSlice";
+import { decreaseQuantity, removeFromCart, addToCart, toggleSelectItem, setSelectAll } from "@/redux/cartSlice";
 import { trackAddToCart } from "@/lib/tracking";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 
 export default function CartPage() {
     const dispatch = useDispatch();
-    const { items, totalAmount, totalQuantity } = useSelector((state: RootState) => state.cart);
+    const { items, totalQuantity, selectedIds } = useSelector((state: RootState) => state.cart);
+
+    // Checkout-এর জন্য শুধু selected item
+    const selectedItems = selectedIds === null ? items : items.filter((item) => selectedIds.includes(item._id));
+    const selectedTotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const selectedCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
+    const allSelected = items.length > 0 && selectedItems.length === items.length;
 
     const handleIncrease = (item: (typeof items)[number]) => {
         dispatch(addToCart({ product: item, quantity: 1 }));
@@ -58,7 +65,23 @@ export default function CartPage() {
                         </a>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <>
+                        {/* Select all bar */}
+                        <label className="flex items-center gap-3 bg-white rounded-2xl border border-[#181410]/10 px-4 py-3 mb-4 cursor-pointer hover:border-[#C6A15B]/60 transition-colors">
+                            <input
+                                type="checkbox"
+                                checked={allSelected}
+                                onChange={() => dispatch(setSelectAll(!allSelected))}
+                                className="w-5 h-5 rounded accent-[#F4501A] cursor-pointer shrink-0"
+                            />
+                            <span className="text-sm font-medium text-[#181410]">
+                                সব সিলেক্ট করুন
+                            </span>
+                            <span className="font-['IBM_Plex_Mono'] text-xs text-[#75705F] ml-auto">
+                                {selectedItems.length}/{items.length} selected
+                            </span>
+                        </label>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                         {/* বাম পাশ — আইটেম লিস্ট */}
                         <div className="lg:col-span-2 flex flex-col gap-4">
                             {items.map((item) => (
@@ -66,6 +89,13 @@ export default function CartPage() {
                                     key={item._id}
                                     className="flex gap-4 bg-white rounded-2xl border border-[#181410]/10 p-4 shadow-[0_10px_30px_-18px_rgba(24,20,16,0.3)] hover:shadow-[0_16px_36px_-18px_rgba(24,20,16,0.35)] transition-shadow"
                                 >
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds === null || selectedIds.includes(item._id)}
+                                        onChange={() => dispatch(toggleSelectItem(item._id))}
+                                        aria-label={`${item.name} সিলেক্ট করুন`}
+                                        className="w-5 h-5 rounded accent-[#F4501A] cursor-pointer shrink-0 self-center"
+                                    />
                                     <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-[#F4EEE2] flex-shrink-0">
                                         <img
                                             src={item.image || "/placeholder.png"}
@@ -132,8 +162,8 @@ export default function CartPage() {
                                 </h2>
 
                                 <div className="flex justify-between text-sm text-[#181410]/80 mb-2">
-                                    <span>সাবটোটাল</span>
-                                    <span className="font-['IBM_Plex_Mono']">৳{totalAmount}</span>
+                                    <span>সাবটোটাল ({selectedCount} {selectedCount === 1 ? "item" : "items"})</span>
+                                    <span className="font-['IBM_Plex_Mono']">৳{selectedTotal}</span>
                                 </div>
                                 <div className="flex justify-between text-xs text-[#75705F] mb-4">
                                     <span>ডেলিভারি চার্জ</span>
@@ -142,18 +172,25 @@ export default function CartPage() {
 
                                 <div className="border-t border-[#181410]/10 pt-4 flex justify-between font-medium text-[#181410] mb-6">
                                     <span>মোট</span>
-                                    <span className="font-['Fraunces',serif] text-xl">৳{totalAmount}</span>
+                                    <span className="font-['Fraunces',serif] text-xl">৳{selectedTotal}</span>
                                 </div>
 
-                                <a
-                                    href="/checkout"
-                                    className="block w-full text-center bg-[#F4501A] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#D63F0F] transition-all shadow-lg shadow-[#F4501A]/25"
-                                >
-                                    চেকআউটে যান →
-                                </a>
+                                {selectedItems.length > 0 ? (
+                                    <Link
+                                        href="/checkout"
+                                        className="block w-full text-center bg-[#F4501A] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#D63F0F] transition-all shadow-lg shadow-[#F4501A]/25"
+                                    >
+                                        চেকআউটে যান →
+                                    </Link>
+                                ) : (
+                                    <span className="block w-full text-center bg-[#75705F]/15 text-[#75705F] py-3.5 rounded-xl text-sm font-medium cursor-not-allowed">
+                                        আইটেম সিলেক্ট করুন
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
+                    </>
                 )}
             </main>
         </div>

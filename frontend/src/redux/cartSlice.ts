@@ -16,6 +16,7 @@ interface CartState {
     totalAmount: number;
     hydrated: boolean;   // ✅ নতুন ফ্ল্যাগ
     buyNowItem: CartItem | null;  // Buy Now এর জন্য আলাদা item
+    selectedIds: string[] | null;  // null মানে সব সিলেক্টেড (checkout-এর জন্য)
 }
 
 const initialState: CartState = {
@@ -24,6 +25,7 @@ const initialState: CartState = {
     totalAmount: 0,
     hydrated: false,   // ✅ শুরুতে false
     buyNowItem: null,
+    selectedIds: null,
 };
 
 // Helper — totalQuantity ও totalAmount হিসাব করা
@@ -84,6 +86,11 @@ const cartSlice = createSlice({
             state.totalQuantity = totals.totalQuantity;
             state.totalAmount = totals.totalAmount;
             saveCartToStorage(state.items);
+
+            // নতুন item default selected
+            if (state.selectedIds !== null && !state.selectedIds.includes(product._id)) {
+                state.selectedIds.push(product._id);
+            }
         },
 
         decreaseQuantity: (state, action: PayloadAction<string>) => {
@@ -103,6 +110,9 @@ const cartSlice = createSlice({
 
         removeFromCart: (state, action: PayloadAction<string>) => {
             state.items = state.items.filter((item) => item._id !== action.payload);
+            if (state.selectedIds !== null) {
+                state.selectedIds = state.selectedIds.filter((id) => id !== action.payload);
+            }
             const totals = calculateTotals(state.items);
             state.totalQuantity = totals.totalQuantity;
             state.totalAmount = totals.totalAmount;
@@ -113,6 +123,7 @@ const cartSlice = createSlice({
             state.items = [];
             state.totalQuantity = 0;
             state.totalAmount = 0;
+            state.selectedIds = null;
             if (typeof window !== "undefined") {
                 localStorage.removeItem(getCartStorageKey());
             }
@@ -134,6 +145,7 @@ const cartSlice = createSlice({
                 }
             }
             state.hydrated = true;
+            state.selectedIds = null;
         },
 
         setBuyNow: (state, action: PayloadAction<any>) => {
@@ -163,6 +175,22 @@ const cartSlice = createSlice({
                 state.buyNowItem.quantity = Math.min(Math.max(action.payload, 1), maxStock);
             }
         },
+
+        // Cart item select/deselect (checkout-এর জন্য)
+        toggleSelectItem: (state, action: PayloadAction<string>) => {
+            const id = action.payload;
+            if (state.selectedIds === null) {
+                state.selectedIds = state.items.filter((item) => item._id !== id).map((item) => item._id);
+            } else if (state.selectedIds.includes(id)) {
+                state.selectedIds = state.selectedIds.filter((selectedId) => selectedId !== id);
+            } else {
+                state.selectedIds.push(id);
+            }
+        },
+
+        setSelectAll: (state, action: PayloadAction<boolean>) => {
+            state.selectedIds = action.payload ? null : [];
+        },
     },
 });
 
@@ -175,6 +203,8 @@ export const {
     setBuyNow,
     clearBuyNow,
     updateBuyNowQuantity,
+    toggleSelectItem,
+    setSelectAll,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

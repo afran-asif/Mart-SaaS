@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
@@ -7,7 +8,7 @@ export default function CartIcon() {
     const totalQuantity = useSelector((state: RootState) => state.cart.totalQuantity);
 
     return (
-        <a
+        <Link
             href="/cart"
             className="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#F4EEE2] transition-colors"
             aria-label="কার্ট দেখুন"
@@ -32,6 +33,6 @@ export default function CartIcon() {
                     {totalQuantity}
                 </span>
             )}
-        </a>
+        </Link>
     );
 }
