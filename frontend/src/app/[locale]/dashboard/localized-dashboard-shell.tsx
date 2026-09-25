@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "@/redux/authSlice";
+import { logout, updateStoreInfo } from "@/redux/authSlice";
+import { api } from "@/services/api";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -25,6 +26,33 @@ export default function LocalizedDashboardShell({ children }: { children: React.
             setAuthChecked(true);
         }
     }, [isAuthenticated, router, language]);
+
+    // Sidebar-এ সবসময় fresh store name (settings এ পরিবর্তন হলে immediate update)
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        let cancelled = false;
+        const syncStore = async () => {
+            try {
+                const res = await api.get("/store/config");
+                if (!cancelled && res.data?.store) {
+                    dispatch(
+                        updateStoreInfo({
+                            id: res.data.store.id,
+                            storeName: res.data.store.storeName,
+                            subdomain: res.data.store.subdomain,
+                            logo: res.data.store.logo,
+                        })
+                    );
+                }
+            } catch {
+                // silent — token না থাকলে dashboard এ ঢুকতেই পারবে না
+            }
+        };
+        syncStore();
+        return () => {
+            cancelled = true;
+        };
+    }, [isAuthenticated, dispatch]);
 
     // Close sidebar on route change (mobile)
     useEffect(() => {

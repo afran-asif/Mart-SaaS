@@ -66,8 +66,21 @@ const authSlice = createSlice({
                 localStorage.removeItem("store");
             }
         },
+        updateStoreInfo: (
+            state,
+            action: PayloadAction<{ id?: string; storeName?: string; subdomain?: string; logo?: string | null }>
+        ) => {
+            if (state.store) {
+                state.store = { ...state.store, ...action.payload };
+            } else {
+                state.store = action.payload as AuthState["store"];
+            }
+            if (typeof window !== "undefined") {
+                localStorage.setItem("store", JSON.stringify(state.store));
+            }
+        },
     },
 });
 
-export const { setCredentials, rehydrate, logout } = authSlice.actions;
+export const { setCredentials, rehydrate, logout, updateStoreInfo } = authSlice.actions;
 export default authSlice.reducer;

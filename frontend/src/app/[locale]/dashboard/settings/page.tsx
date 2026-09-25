@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { api } from "@/services/api";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { updateStoreInfo } from "@/redux/authSlice";
 
 interface StoreData {
     id: string;
@@ -23,6 +25,7 @@ interface StoreData {
 
 export default function LocalizedSettingsPage() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
     const [store, setStore] = useState<StoreData | null>(null);
 
     const [storeName, setStoreName] = useState("");
@@ -139,6 +142,14 @@ export default function LocalizedSettingsPage() {
 
             const res = await api.put("/store/config", payload);
             setStore(res.data.store);
+            dispatch(
+                updateStoreInfo({
+                    id: res.data.store.id,
+                    storeName: res.data.store.storeName,
+                    subdomain: res.data.store.subdomain,
+                    logo: res.data.store.logo,
+                })
+            );
             setSslcommerzStorePassword("");
             toast.success("Settings updated successfully.");
         } catch (error: any) {
