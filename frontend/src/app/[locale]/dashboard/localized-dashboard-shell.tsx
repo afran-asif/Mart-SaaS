@@ -62,6 +62,7 @@ export default function LocalizedDashboardShell({ children }: { children: React.
     const menuItems = [
         { nameKey: "dashboard.overview", path: `/${language}/dashboard` },
         { nameKey: "dashboard.myProducts", path: `/${language}/dashboard/products` },
+        { nameKey: "dashboard.categories", path: `/${language}/dashboard/categories` },
         { nameKey: "dashboard.orders", path: `/${language}/dashboard/orders` },
         { nameKey: "dashboard.storeSettings", path: `/${language}/dashboard/settings` },
     ];

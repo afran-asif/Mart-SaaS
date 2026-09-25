@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { updateProductApi } from "@/services/productService";
 import { Product } from "@/types/product";
+import { useCategories } from "@/hooks/useCategories";
 import ImageUploader from "./ImageUploader";
 
 interface EditProductModalProps {
@@ -22,6 +23,7 @@ export default function EditProductModal({
     onClose,
     onSuccess,
 }: EditProductModalProps) {
+    const { categories } = useCategories();
     const [editLoading, setEditLoading] = useState(false);
     const [editForm, setEditForm] = useState({
         name: "",
@@ -227,10 +229,13 @@ export default function EditProductModal({
                             onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900"
                         >
-                            <option value="Clothing">Clothing</option>
-                            <option value="Gadgets">Gadgets</option>
-                            <option value="Accessories">Accessories</option>
+                            {editForm.category && editForm.category !== "General" && !categories.some((c) => c.name === editForm.category) && (
+                                <option value={editForm.category}>{editForm.category}</option>
+                            )}
                             <option value="General">General</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat.name}>{cat.name}</option>
+                            ))}
                         </select>
                     </div>
 

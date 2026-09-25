@@ -3,6 +3,7 @@
 
 import React from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useCategories } from "@/hooks/useCategories";
 
 interface ProductSearchBarProps {
     searchTerm: string;
@@ -22,6 +23,7 @@ export default function ProductSearchBar({
     onSortChange,
 }: ProductSearchBarProps) {
     const { t } = useTranslation();
+    const { categories } = useCategories();
 
     return (
         <div className="flex flex-col gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
@@ -50,10 +52,10 @@ export default function ProductSearchBar({
                         className="w-full px-3 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                     >
                         <option value="All">{t("dashboard.productsPage.allCategories")}</option>
-                        <option value="Clothing">Clothing</option>
-                        <option value="Gadgets">Gadgets</option>
-                        <option value="Accessories">Accessories</option>
                         <option value="General">General</option>
+                        {categories.map((cat) => (
+                            <option key={cat._id} value={cat.name}>{cat.name}</option>
+                        ))}
                     </select>
                 </div>
 

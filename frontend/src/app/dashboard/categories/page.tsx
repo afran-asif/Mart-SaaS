@@ -1,0 +1,1 @@
+export { default } from "../../[locale]/dashboard/categories/page";

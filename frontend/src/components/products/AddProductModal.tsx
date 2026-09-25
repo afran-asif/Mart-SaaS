@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { createProduct } from "@/services/productService";
+import { useCategories } from "@/hooks/useCategories";
 import ImageUploader from "./ImageUploader";
 
 interface AddProductModalProps {
@@ -23,6 +24,7 @@ const INITIAL_FORM = {
 const MAX_IMAGES = 5;
 
 export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProductModalProps) {
+    const { categories } = useCategories();
     const [formLoading, setFormLoading] = useState(false);
     const [form, setForm] = useState(INITIAL_FORM);
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -183,10 +185,10 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
                             onChange={(e) => setForm({ ...form, category: e.target.value })}
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
                         >
-                            <option value="Clothing">Clothing</option>
-                            <option value="Gadgets">Gadgets</option>
-                            <option value="Accessories">Accessories</option>
                             <option value="General">General</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat.name}>{cat.name}</option>
+                            ))}
                         </select>
                     </div>
 

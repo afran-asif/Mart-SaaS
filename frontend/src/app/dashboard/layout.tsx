@@ -34,6 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const menuItems = [
         { nameKey: "dashboard.overview", path: "/dashboard" },
         { nameKey: "dashboard.myProducts", path: "/dashboard/products" },
+        { nameKey: "dashboard.categories", path: "/dashboard/categories" },
         { nameKey: "dashboard.orders", path: "/dashboard/orders" },
         { nameKey: "dashboard.storeSettings", path: "/dashboard/settings" },
     ];

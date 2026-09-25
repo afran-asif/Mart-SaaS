@@ -229,6 +229,7 @@
     "overview": "Overview",
     "myProducts": "My Products",
     "orders": "Orders",
+    "categories": "Categories",
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
     "checkingAuth": "Checking authorization...",
@@ -341,6 +342,30 @@
       "directRouting": "Direct payment routing",
       "platformRouting": "Platform payment routing",
       "visitStore": "Visit Store ↗"
+    },
+    "categoriesPage": {
+      "title": "Categories",
+      "subtitle": "Organize your products into categories for easy browsing.",
+      "addButton": "Add Category",
+      "addPlaceholder": "e.g. Electronics",
+      "creating": "Adding...",
+      "loading": "Loading categories...",
+      "listEmpty": "No categories yet. Add your first category above.",
+      "categoryName": "Category Name",
+      "productCount": "Products",
+      "created": "Created",
+      "actions": "Actions",
+      "edit": "Rename",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "createdSuccess": "Category created successfully!",
+      "saved": "Category renamed successfully!",
+      "deleted": "Category deleted successfully!",
+      "deletedWithMoved": "{count} products moved to General",
+      "deleteConfirm": "Delete this category?",
+      "deleteConfirmWithProducts": "Delete this category? {count} products will move to General."
     }
   }
 }
