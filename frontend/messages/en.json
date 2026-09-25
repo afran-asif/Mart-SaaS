@@ -230,6 +230,7 @@
     "myProducts": "My Products",
     "orders": "Orders",
     "categories": "Categories",
+    "customers": "Customers",
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
     "checkingAuth": "Checking authorization...",
@@ -368,6 +369,19 @@
       "deletedWithMoved": "{count} products moved to General",
       "deleteConfirm": "Delete this category?",
       "deleteConfirmWithProducts": "Delete this category? {count} products will move to General."
+    },
+    "customersPage": {
+      "title": "Customers",
+      "subtitle": "Everyone who has placed an order in your store.",
+      "searchPlaceholder": "Search by name, email or phone...",
+      "totalCustomers": "customers",
+      "loading": "Loading customers...",
+      "noCustomers": "No customers found.",
+      "customer": "Customer",
+      "contact": "Contact",
+      "orders": "Orders",
+      "totalSpent": "Total Spent",
+      "lastOrder": "Last Order"
     }
   }
 }

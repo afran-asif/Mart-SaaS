@@ -64,6 +64,7 @@ export default function LocalizedDashboardShell({ children }: { children: React.
         { nameKey: "dashboard.myProducts", path: `/${language}/dashboard/products` },
         { nameKey: "dashboard.categories", path: `/${language}/dashboard/categories` },
         { nameKey: "dashboard.orders", path: `/${language}/dashboard/orders` },
+        { nameKey: "dashboard.customers", path: `/${language}/dashboard/customers` },
         { nameKey: "dashboard.storeSettings", path: `/${language}/dashboard/settings` },
     ];
 

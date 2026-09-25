@@ -197,6 +197,71 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
     }
 };
 
+export const getVendorCustomers = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const storeId = await getVendorStoreId(req.user._id.toString());
+        if (!storeId) {
+            res.status(404).json({ message: "Store not found for this vendor." });
+            return;
+        }
+        const storeObjectId = new mongoose.Types.ObjectId(storeId);
+        const page = Math.max(parseInt(req.query.page as string, 10) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit as string, 10) || 10, 1), 50);
+        const search = (req.query.search as string)?.trim() || "";
+
+        const matchStage: any = { storeId: storeObjectId };
+        const pipeline: any[] = [{ $match: matchStage }];
+
+        // sort first so $first picks latest values
+        pipeline.push({ $sort: { createdAt: -1 } });
+
+        pipeline.push({
+            $group: {
+                _id: "$customerEmail",
+                customerName: { $first: "$customerName" },
+                customerEmail: { $first: "$customerEmail" },
+                phone: { $first: "$phone" },
+                shippingAddress: { $first: "$shippingAddress" },
+                totalOrders: { $sum: 1 },
+                totalSpent: { $sum: "$totalAmount" },
+                lastOrderAt: { $max: "$createdAt" },
+            },
+        });
+
+        if (search) {
+            const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+            pipeline.push({
+                $match: {
+                    $or: [{ customerName: regex }, { customerEmail: regex }, { phone: regex }],
+                },
+            });
+        }
+
+        // total count before pagination
+        const countPipeline = [...pipeline, { $count: "total" }];
+        const countRes = await Order.aggregate(countPipeline);
+        const totalCustomers = countRes[0]?.total || 0;
+        const pages = Math.ceil(totalCustomers / limit) || 1;
+
+        pipeline.push({ $sort: { lastOrderAt: -1 } });
+        pipeline.push({ $skip: (page - 1) * limit });
+        pipeline.push({ $limit: limit });
+
+        const customers = await Order.aggregate(pipeline);
+
+        res.status(200).json({
+            success: true,
+            customers,
+            totalCustomers,
+            page,
+            limit,
+            pages,
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed to fetch customers" });
+    }
+};
+
 // orderController.ts এর নিচে যোগ করো
 
 export const getVendorAnalytics = async (req: AuthenticatedRequest, res: Response) => {

@@ -230,6 +230,7 @@
     "myProducts": "আমার পণ্য",
     "orders": "অর্ডারসমূহ",
     "categories": "ক্যাটাগরি",
+    "customers": "কাস্টমার",
     "storeSettings": "স্টোর সেটিংস",
     "signOut": "সাইন আউট",
     "checkingAuth": "অনুমোদন যাচাই হচ্ছে...",
@@ -368,6 +369,19 @@
       "deletedWithMoved": "{count} টি পণ্য General-এ স্থানান্তর হয়েছে",
       "deleteConfirm": "এই ক্যাটাগরিটি মুছে ফেলবেন?",
       "deleteConfirmWithProducts": "এই ক্যাটাগরিটি মুছে ফেলবেন? {count} টি পণ্য General-এ স্থানান্তর হবে।"
+    },
+    "customersPage": {
+      "title": "কাস্টমার",
+      "subtitle": "আপনার স্টোরে যারা অর্ডার করেছেন।",
+      "searchPlaceholder": "নাম, ইমেইল বা ফোন দিয়ে খুঁজুন...",
+      "totalCustomers": "জন কাস্টমার",
+      "loading": "কাস্টমার লোড হচ্ছে...",
+      "noCustomers": "কোনো কাস্টমার পাওয়া যায়নি।",
+      "customer": "কাস্টমার",
+      "contact": "যোগাযোগ",
+      "orders": "অর্ডার",
+      "totalSpent": "মোট খরচ",
+      "lastOrder": "শেষ অর্ডার"
     }
   }
 }
