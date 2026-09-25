@@ -7,6 +7,8 @@ export interface IOrder extends Document {
     customerEmail: string;
     phone?: string;
     shippingAddress: string;
+    shippingDistrict?: string;
+    deliveryCharge?: number;
     totalAmount: number;
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
     paymentStatus: "Unpaid" | "Paid" | "Failed" | "Cancelled";
@@ -40,6 +42,8 @@ const OrderSchema: Schema = new Schema(
         customerEmail: { type: String, required: true, trim: true, lowercase: true },
         phone: { type: String, trim: true },
         shippingAddress: { type: String, required: true },
+        shippingDistrict: { type: String, trim: true },
+        deliveryCharge: { type: Number, default: 0, min: 0 },
         totalAmount: { type: Number, required: true, min: 0 },
         status: {
             type: String,

@@ -302,6 +302,7 @@
       "actions": "অ্যাকশন",
       "view": "বিস্তারিত",
       "address": "ঠিকানা:",
+      "deliveryCharge": "ডেলিভারি চার্জ",
       "itemsOrdered": "অর্ডারকৃত পণ্যসমূহ",
       "grandTotal": "সর্বমোট"
     },

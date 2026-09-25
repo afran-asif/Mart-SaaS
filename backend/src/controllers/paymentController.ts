@@ -6,6 +6,7 @@ import { Product } from "../models/Product";
 import { decrypt } from "../utils/encryption";
 import { sendOrderConfirmationEmail } from "../utils/sendEmail";
 import { Coupon } from "../models/Coupon";
+import { getDeliveryCharge, BANGLADESH_DISTRICTS } from "../utils/deliveryCharges";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
 const calcCouponDiscount = (coupon: any, subtotal: number): number => {
@@ -39,6 +40,7 @@ const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: T
             storeName: store?.storeName || "Vendoo",
             totalAmount: order.totalAmount,
             shippingAddress: order.shippingAddress,
+            shippingDistrict: order.shippingDistrict,
             paymentMethod: order.paymentMethod || "SSLCommerz",
             items: (order.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
                 const prod = item.product;
@@ -65,6 +67,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             customerName,
             customerEmail,
             shippingAddress,
+            district,
             phone,
             totalAmount,
             items,
@@ -73,11 +76,20 @@ export const initiatePayment = async (req: Request, res: Response) => {
             couponCode,
         } = req.body;
 
-        if (!customerName || !customerEmail || !shippingAddress || !totalAmount || !items?.length || !storeId) {
+        if (!customerName || !customerEmail || !shippingAddress || !district || !totalAmount || !items?.length || !storeId) {
             await session.abortTransaction();
-            res.status(400).json({ message: "Please provide all required order fields including storeId." });
+            res.status(400).json({ message: "Please provide all required order fields including storeId and district." });
             return;
         }
+
+        if (!BANGLADESH_DISTRICTS.includes(district as string)) {
+            await session.abortTransaction();
+            res.status(400).json({ message: "Invalid delivery district." });
+            return;
+        }
+
+        // item গুলোর সাবটোটাল হিসাব
+        const originalTotal = (items as any[]).reduce((s: number, it: any) => s + Number(it.price) * Number(it.quantity), 0);
 
         // coupon validation if provided
         let discountAmount = 0;
@@ -89,15 +101,21 @@ export const initiatePayment = async (req: Request, res: Response) => {
             if (!coupon.isActive) { await session.abortTransaction(); res.status(400).json({ message: "Coupon is inactive." }); return; }
             if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) { await session.abortTransaction(); res.status(400).json({ message: "Coupon has expired." }); return; }
             if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) { await session.abortTransaction(); res.status(400).json({ message: "Coupon usage limit reached." }); return; }
-            const originalTotal = (items as any[]).reduce((s: number, it: any) => s + Number(it.price) * Number(it.quantity), 0);
             if (originalTotal < coupon.minOrderAmount) { await session.abortTransaction(); res.status(400).json({ message: `Minimum order ৳${coupon.minOrderAmount} required for this coupon.` }); return; }
             discountAmount = calcCouponDiscount(coupon, originalTotal);
-            const expectedTotal = originalTotal - discountAmount;
-            if (Math.abs(Number(totalAmount) - expectedTotal) > 1) { await session.abortTransaction(); res.status(400).json({ message: "Order total does not match coupon discount. Please re-apply coupon." }); return; }
             appliedCouponCode = cleanCode;
             // increment usedCount
             coupon.usedCount += 1;
             await coupon.save({ session });
+        }
+
+        // ডেলিভারি চার্জ সার্ভার-সাইডেই হিসাব (ক্লায়েন্ট ম্যানিপুলেট করতে পারবে না)
+        const deliveryCharge = getDeliveryCharge(district as string);
+        const expectedTotal = originalTotal - discountAmount + deliveryCharge;
+        if (Math.abs(Number(totalAmount) - expectedTotal) > 1) {
+            await session.abortTransaction();
+            res.status(400).json({ message: "Order total does not match. Please refresh and try again." });
+            return;
         }
 
         const store = await Store.findById(storeId).select("+sslcommerzStorePassword").session(session);
@@ -131,6 +149,8 @@ export const initiatePayment = async (req: Request, res: Response) => {
                     customerName,
                     customerEmail,
                     shippingAddress,
+                    shippingDistrict: district,
+                    deliveryCharge,
                     phone,
                     totalAmount,
                     items,
@@ -188,7 +208,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             cus_phone: phone || "01700000000",
             ship_name: customerName,
             ship_add1: shippingAddress,
-            ship_city: "Dhaka",
+            ship_city: district,
             ship_postcode: "1000",
             ship_country: "Bangladesh",
         };

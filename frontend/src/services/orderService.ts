@@ -18,6 +18,8 @@ export interface Order {
     customerEmail: string;
     phone?: string;
     shippingAddress: string;
+    shippingDistrict?: string;
+    deliveryCharge?: number;
     totalAmount: number;
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
     items: OrderItem[];

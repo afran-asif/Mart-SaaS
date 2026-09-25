@@ -362,8 +362,14 @@ function OrderDetailRow({ order, t }: { order: Order; t: (key: string) => string
                 )}
                 <p>
                     <span className="font-semibold text-gray-800 mr-1">{t("dashboard.ordersPage.address")}:</span>
-                    {order.shippingAddress}
+                    {order.shippingDistrict ? `${order.shippingAddress}, ${order.shippingDistrict}` : order.shippingAddress}
                 </p>
+                {order.deliveryCharge ? (
+                    <p>
+                        <span className="font-semibold text-gray-800 mr-1">{t("dashboard.ordersPage.deliveryCharge")}:</span>
+                        ৳{order.deliveryCharge}
+                    </p>
+                ) : null}
                 <p>
                     <span className="font-semibold text-gray-800 mr-1">{t("dashboard.date")}:</span>
                     {new Date(order.createdAt).toLocaleString()}

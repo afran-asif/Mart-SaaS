@@ -10,6 +10,7 @@ import { trackInitiateCheckout, trackAddToCart } from "@/lib/tracking";
 import toast from "react-hot-toast";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
+import { BANGLADESH_DISTRICTS, getDeliveryCharge } from "@/lib/delivery";
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
         customerEmail: "",
         phone: "",
         shippingAddress: "",
+        district: "",
     });
     const [ paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCommerz">("COD");
     const [couponCode, setCouponCode] = useState("");
@@ -80,11 +82,13 @@ export default function CheckoutPage() {
         }
     }, [hydrated, checkoutItems, router]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const discountedTotal = Math.max(checkoutTotal - couponDiscount, 0);
+    const deliveryCharge = form.district ? getDeliveryCharge(form.district) : 0;
+    const grandTotal = discountedTotal + deliveryCharge;
 
     const handleApplyCoupon = async () => {
         if (!couponCode.trim()) return;
@@ -152,14 +156,16 @@ export default function CheckoutPage() {
                 quantity: item.quantity,
             }));
 
-            const res = await api.post("/payment/initiate", {
+const res = await api.post("/payment/initiate", {
                 ...form,
                 storeId,
                 items: orderItems,
-                totalAmount: discountedTotal,
+                totalAmount: grandTotal,
                 paymentMethod,
                 couponCode: couponApplied || undefined,
             });
+
+            const finalTotal = grandTotal;
             if (res.data.success) {
                 orderPlacedRef.current = true;   // redirect guard বন্ধ করা, cart clear হলেও যেন হোমে না পাঠায়
 
@@ -169,7 +175,7 @@ export default function CheckoutPage() {
                         "last_order",
                         JSON.stringify({
                             orderId: res.data.orderId,
-                            totalAmount: discountedTotal,
+                            totalAmount: finalTotal,
                             items: trackingItems,
                         })
                     );
@@ -184,7 +190,7 @@ export default function CheckoutPage() {
                 
                     if (res.data.paymentMethod === "COD") {
                     toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
-                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${discountedTotal}`);
+                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${finalTotal}`);
                 } else if (res.data.paymentUrl) {
                     // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
                     window.location.href = res.data.paymentUrl;
@@ -275,6 +281,28 @@ export default function CheckoutPage() {
                             className="w-full px-4 py-2.5 rounded-xl border border-[#181410]/15 bg-white focus:outline-none focus:ring-2 focus:ring-[#F4501A] text-sm"
                             placeholder="01XXXXXXXXX"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#181410] mb-1.5">
+                            জেলা
+                        </label>
+                        <select
+                            name="district"
+                            required
+                            value={form.district}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2.5 rounded-xl border border-[#181410]/15 bg-white focus:outline-none focus:ring-2 focus:ring-[#F4501A] text-sm"
+                        >
+                            <option value="" disabled>
+                                আপনার জেলা নির্বাচন করুন
+                            </option>
+                            {BANGLADESH_DISTRICTS.map((d) => (
+                                <option key={d} value={d}>
+                                    {d}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div>
@@ -375,9 +403,15 @@ export default function CheckoutPage() {
                                     <span className="font-['IBM_Plex_Mono']">-৳{couponDiscount}</span>
                                 </div>
                             )}
+                            {form.district && (
+                                <div className="flex justify-between text-[#75705F]">
+                                    <span>Delivery charge ({form.district})</span>
+                                    <span className="font-['IBM_Plex_Mono']">+৳{deliveryCharge}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between font-bold text-[#181410] text-base pt-1 border-t border-[#181410]/10">
                                 <span>মোট</span>
-                                <span className="font-['IBM_Plex_Mono']">৳{discountedTotal}</span>
+                                <span className="font-['IBM_Plex_Mono']">৳{grandTotal}</span>
                             </div>
                         </div>
                     </div>

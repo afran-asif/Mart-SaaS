@@ -302,6 +302,7 @@
       "actions": "Actions",
       "view": "View",
       "address": "Address:",
+      "deliveryCharge": "Delivery Charge",
       "itemsOrdered": "Items Ordered",
       "grandTotal": "Grand Total"
     },
