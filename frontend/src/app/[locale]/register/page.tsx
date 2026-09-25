@@ -50,7 +50,8 @@ export default function LocalizedRegisterPage() {
                 router.push(`/${language}/verify-email?email=${encodeURIComponent(formData.email)}`);
             }
         } catch (error: any) {
-            setMessage(error.response?.data?.message || "Something went wrong!");
+            const msg = error.response?.data?.message || error.message || "Something went wrong!";
+            setMessage(msg);
         } finally {
             setLoading(false);
         }
@@ -157,7 +158,7 @@ export default function LocalizedRegisterPage() {
                     </div>
 
                     {message && (
-                        <p className="mt-2 text-center text-sm font-medium text-gray-700">
+                        <p className="mt-2 text-center text-sm font-medium text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
                             {message}
                         </p>
                     )}
