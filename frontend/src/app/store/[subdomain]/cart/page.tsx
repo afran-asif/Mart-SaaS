@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Link from "next/link";
 import { RootState } from "@/redux/store";
@@ -8,10 +8,19 @@ import { decreaseQuantity, removeFromCart, addToCart, toggleSelectItem, setSelec
 import { trackAddToCart } from "@/lib/tracking";
 import { api } from "@/services/api";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 
 export default function CartPage() {
     const dispatch = useDispatch();
     const { items, totalQuantity, selectedIds } = useSelector((state: RootState) => state.cart);
+    const [theme, setTheme] = useState("classic");
+    const [brand, setBrand] = useState("#F4501A");
+    useEffect(() => {
+        api.get("/tenant/store").then((res) => {
+            setTheme(res.data.store?.theme || "classic");
+            setBrand(res.data.store?.brandColor || "#F4501A");
+        }).catch(() => {});
+    }, []);
 
     // বিক্রেতা দাম/স্টক বদলালে কার্টে sync — server থেকে fresh data
     useEffect(() => {
@@ -50,19 +59,22 @@ export default function CartPage() {
         dispatch(removeFromCart(id));
     };
 
+    const bg = themeBgMap[theme] || themeBgMap.classic;
+    const isDark = isDarkTheme(theme);
+    const isLuxe = isLuxeTheme(theme);
     return (
-        <div className="min-h-screen bg-[#FFFDF7]">
+        <div className={`min-h-screen ${bg}`}>
             {/* হেডার */}
-            <StorefrontHeader variant="sub" />
+            <StorefrontHeader variant="sub" brandColor={brand} />
 
             <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-                <p className="font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase text-[#C6A15B] mb-2">
+                <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>
                     Shopping bag
                 </p>
-                <h1 className="font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold text-[#181410] mb-1 tracking-tight">
+                <h1 className={`font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold mb-1 tracking-tight ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
                     আপনার কার্ট
                 </h1>
-                <p className="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase text-[#75705F] mb-6 sm:mb-8">
+                <p className={`font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase mb-6 sm:mb-8 ${isDark ? "text-white/50" : "text-[#75705F]"}`}>
                     {totalQuantity} {totalQuantity === 1 ? "item" : "items"}
                 </p>
 

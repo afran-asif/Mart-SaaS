@@ -21,6 +21,11 @@ interface StoreData {
     facebookUrl?: string;
     instagramUrl?: string;
     whatsappNumber?: string;
+    brandColor?: string | null;
+    heroTitle?: string | null;
+    heroSubtitle?: string | null;
+    heroImage?: string | null;
+    theme?: string | null;
 }
 
 export default function LocalizedSettingsPage() {
@@ -55,6 +60,7 @@ export default function LocalizedSettingsPage() {
     const [heroImageError, setHeroImageError] = useState(false);
     const [uploadingHero, setUploadingHero] = useState(false);
     const heroInputRef = useRef<HTMLInputElement>(null);
+    const [theme, setTheme] = useState("classic");
 
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
@@ -80,6 +86,7 @@ export default function LocalizedSettingsPage() {
                 setHeroTitle(data.heroTitle || "");
                 setHeroSubtitle(data.heroSubtitle || "");
                 setHeroImage(data.heroImage || "");
+                setTheme(data.theme || "classic");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -177,6 +184,7 @@ export default function LocalizedSettingsPage() {
                 heroTitle: heroTitle.trim() || null,
                 heroSubtitle: heroSubtitle.trim() || null,
                 heroImage: heroImage.trim() || null,
+                theme,
             };
 
             if (useOwnSSLCommerz) {
@@ -602,6 +610,38 @@ export default function LocalizedSettingsPage() {
                                 <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroFileChange} />
                             </div>
                             <p className="text-xs text-gray-400 mt-1">Recommended 1200×400, will be overlayed with brand color.</p>
+                        </div>
+                    </div>
+
+                    {/* Theme Selector */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Store Theme</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">Choose a design for your storefront. 5 themes available.</p>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {[
+                                { id: "classic", name: "Classic", desc: "Warm & rounded", bg: "bg-[#FFFDF7] border-[#C6A15B]/40" },
+                                { id: "minimal", name: "Minimal", desc: "Clean & sharp", bg: "bg-white border-gray-200" },
+                                { id: "bold", name: "Bold", desc: "Dark & strong", bg: "bg-[#0a0a0a] border-white/20" },
+                                { id: "elegant", name: "Elegant", desc: "Soft & refined", bg: "bg-[#fdfbf7] border-[#e8e0d0]" },
+                                { id: "vibrant", name: "Vibrant", desc: "Colorful & fun", bg: "bg-gradient-to-br from-orange-50 to-pink-50 border-orange-200" },
+                                { id: "retro", name: "Retro", desc: "Vintage 70s", bg: "bg-[#fff8dc] border-[#d2b48c]" },
+                                { id: "luxe", name: "Luxe", desc: "Gold & black", bg: "bg-[#111] border-[#d4af37]/30" },
+                                { id: "pastel", name: "Pastel", desc: "Soft pink/purple", bg: "bg-pink-50 border-pink-200" },
+                                { id: "urban", name: "Urban", desc: "Street gray", bg: "bg-gray-100 border-gray-300" },
+                            ].map((th) => (
+                                <button
+                                    key={th.id}
+                                    type="button"
+                                    onClick={() => setTheme(th.id)}
+                                    className={`p-3 rounded-xl border-2 text-left transition-all ${theme === th.id ? "border-orange-500 ring-2 ring-orange-500/20" : "border-gray-200 hover:border-gray-300"} ${th.bg}`}
+                                >
+                                    <div className={`w-full h-14 rounded-lg mb-2 border ${theme === th.id ? "border-orange-300" : "border-black/5"} ${th.id === "bold" ? "bg-[#1a1a1a]" : th.id === "minimal" ? "bg-gray-50" : th.id === "elegant" ? "bg-[#f5efe6]" : th.id === "vibrant" ? "bg-gradient-to-br from-orange-200 to-pink-200" : "bg-[#F4EEE2]"}`} />
+                                    <p className={`text-xs font-bold ${th.id === "luxe" ? "text-[#d4af37]" : th.id === "bold" ? "text-white" : "text-gray-900"}`}>{th.name}</p>
+                                    <p className={`text-[11px] ${th.id === "luxe" ? "text-[#d4af37]/60" : th.id === "bold" ? "text-white/60" : "text-gray-500"}`}>{th.desc}</p>
+                                </button>
+                            ))}
                         </div>
                     </div>
 

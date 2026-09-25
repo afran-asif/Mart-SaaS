@@ -3,6 +3,7 @@ import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import ProductGallery from "@/components/storefront/ProductGallery";
 import TrackViewContent from "@/components/storefront/TrackViewContent";
+import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 import type { Metadata } from "next";
 
 interface Product {
@@ -52,13 +53,26 @@ async function getProduct(subdomain: string, id: string): Promise<Product | null
     return data.product as Product;
 }
 
+async function getStoreTheme(subdomain: string): Promise<{ theme?: string | null; brandColor?: string | null }> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+    try {
+        const res = await fetch(`${baseUrl}/tenant/store`, {
+            headers: { "X-Tenant-Subdomain": subdomain },
+            cache: "no-store",
+        });
+        if (!res.ok) return {};
+        const data = await res.json();
+        return { theme: data.store?.theme, brandColor: data.store?.brandColor };
+    } catch { return {}; }
+}
+
 export default async function ProductDetailPage({
     params,
 }: {
     params: Promise<{ subdomain: string; id: string }>;
 }) {
     const { subdomain, id } = await params;
-    const product = await getProduct(subdomain, id);
+    const [product, storeInfo] = await Promise.all([getProduct(subdomain, id), getStoreTheme(subdomain)]);
 
     if (!product) {
         return (
@@ -83,9 +97,13 @@ export default async function ProductDetailPage({
 
     const outOfStock = product.stock === 0;
     const lowStock = !outOfStock && product.stock <= 5;
+    const theme = storeInfo.theme || "classic";
+    const isDark = isDarkTheme(theme);
+    const isLuxe = isLuxeTheme(theme);
+    const bg = themeBgMap[theme] || themeBgMap.classic;
 
     return (
-        <div className="min-h-screen bg-[#FFFDF7]">
+        <div className={`min-h-screen ${bg}`}>
             {/* সিম্পল হেডার — ব্যাক লিংক সহ */}
             <StorefrontHeader variant="sub" />
 
@@ -105,15 +123,15 @@ export default async function ProductDetailPage({
 
                     {/* ডান পাশ — তথ্য */}
                     <div className="flex flex-col">
-                        <p className="font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase text-[#C6A15B] mb-3">
+                        <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-3 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>
                             {product.category}
                         </p>
-                        <h1 className="font-['Fraunces',serif] text-3xl sm:text-[2.75rem] font-semibold text-[#181410] mb-4 leading-[1.1] tracking-tight">
+                        <h1 className={`font-['Fraunces',serif] text-3xl sm:text-[2.75rem] font-semibold mb-4 leading-[1.1] tracking-tight ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
                             {product.name}
                         </h1>
 
                         <div className="flex items-baseline gap-3 mb-6">
-                            <p className="font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold text-[#0E3B2C]">
+                            <p className={`font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#0E3B2C]"}`}>
                                 ৳{product.price}
                             </p>
                             <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-wider text-[#75705F]">
@@ -123,7 +141,7 @@ export default async function ProductDetailPage({
 
                         <span className="h-px w-16 bg-[#C6A15B] mb-6" />
 
-                        <p className="text-[#181410]/75 leading-relaxed mb-8 whitespace-pre-line text-[15px]">
+                        <p className={`leading-relaxed mb-8 whitespace-pre-line text-[15px] ${isDark ? "text-white/70" : "text-[#181410]/75"}`}>
                             {product.description}
                         </p>
 

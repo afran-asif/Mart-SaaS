@@ -43,6 +43,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             heroTitle,
             heroSubtitle,
             heroImage,
+            theme,
         } = req.body;
         const vendorId = req.user._id;
 
@@ -101,6 +102,11 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (heroTitle !== undefined) store.heroTitle = (heroTitle as string).trim() || null;
         if (heroSubtitle !== undefined) store.heroSubtitle = (heroSubtitle as string).trim() || null;
         if (heroImage !== undefined) store.heroImage = (heroImage as string).trim() || null;
+        if (theme !== undefined) {
+            const allowed = ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"];
+            const v = (theme as string).trim().toLowerCase();
+            if (allowed.includes(v)) store.theme = v;
+        }
 
         // Logo বদলালে/মুছলে পুরনো Cloudinary ইমেজ auto-delete (orphan জমবে না)
         let oldLogoToDelete: string | null = null;
@@ -139,6 +145,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
+                theme: store.theme,
                 updatedAt: store.updatedAt,
             }
         });
@@ -256,6 +263,7 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
+                theme: store.theme,
             }
         });
     } catch (error) {
@@ -293,6 +301,7 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
+                theme: store.theme,
             },
         });
     } catch (error) {

@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import { getStoreName } from "@/lib/store";
+import { themeBgMap } from "@/lib/storeTheme";
 
 export async function generateMetadata({
     params,
@@ -16,17 +17,32 @@ export async function generateMetadata({
     };
 }
 
+async function getStoreTheme(subdomain: string) {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+    try {
+        const res = await fetch(`${baseUrl}/tenant/store`, { headers: { "X-Tenant-Subdomain": subdomain }, cache: "no-store" });
+        if (!res.ok) return { theme: "classic", brandColor: null };
+        const data = await res.json();
+        return { theme: data.store?.theme || "classic", brandColor: data.store?.brandColor || null };
+    } catch { return { theme: "classic", brandColor: null }; }
+}
+
 export default async function PaymentFailedPage({
+    params,
     searchParams,
 }: {
+    params: Promise<{ subdomain: string }>;
     searchParams: Promise<{ reason?: string }>;
 }) {
+    const { subdomain } = await params;
     const { reason } = await searchParams;
     const isCancelled = reason === "cancelled";
+    const storeInfo = await getStoreTheme(subdomain);
+    const bg = themeBgMap[storeInfo.theme as string] || themeBgMap.classic;
 
     return (
-        <div className="min-h-screen bg-[#FFFDF7]">
-            <StorefrontHeader variant="sub" />
+        <div className={`min-h-screen ${bg}`}>
+            <StorefrontHeader variant="sub" brandColor={storeInfo.brandColor || undefined} />
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
                 <div className="bg-white rounded-3xl border border-[#181410]/10 px-6 py-10 sm:px-12 text-center shadow-[0_24px_60px_-24px_rgba(24,20,16,0.3)]">

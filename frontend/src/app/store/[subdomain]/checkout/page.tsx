@@ -9,6 +9,7 @@ import { api } from "@/services/api";
 import { trackInitiateCheckout, trackAddToCart } from "@/lib/tracking";
 import toast from "react-hot-toast";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -24,6 +25,8 @@ export default function CheckoutPage() {
     const checkoutTotal = checkoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const [storeId, setStoreId] = useState<string | null>(null);    const [loading, setLoading] = useState(false);
+    const [theme, setTheme] = useState("classic");
+    const [brand, setBrand] = useState("#F4501A");
     const orderPlacedRef = useRef(false);   // ✅ নতুন flag
     const initiatedRef = useRef(false);
     const [form, setForm] = useState({
@@ -61,6 +64,8 @@ export default function CheckoutPage() {
             try {
                 const res = await api.get("/tenant/store");
                 setStoreId(res.data.store.id);
+                setTheme(res.data.store.theme || "classic");
+                setBrand(res.data.store.brandColor || "#F4501A");
             } catch {
                 toast.error("স্টোরের তথ্য লোড করা যায়নি");
             }
@@ -204,18 +209,22 @@ export default function CheckoutPage() {
 
     if (checkoutItems.length === 0) return null;
 
+    const bg = themeBgMap[theme] || themeBgMap.classic;
+    const isDark = isDarkTheme(theme);
+    const isLuxe = isLuxeTheme(theme);
+
     return (
-        <div className="min-h-screen bg-[#FFFDF7]">
-            <StorefrontHeader variant="sub" />
+        <div className={`min-h-screen ${bg}`}>
+            <StorefrontHeader variant="sub" brandColor={brand} />
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-                <p className="font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase text-[#C6A15B] mb-2">
+                <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>
                     Almost done
                 </p>
-                <h1 className="font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold text-[#181410] mb-1 tracking-tight">
+                <h1 className={`font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold mb-1 tracking-tight ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
                     চেকআউট
                 </h1>
-                <p className="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase text-[#75705F] mb-8">
+                <p className={`font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase mb-8 ${isDark ? "text-white/50" : "text-[#75705F]"}`}>
                     ডেলিভারি তথ্য পূরণ করুন
                 </p>
 

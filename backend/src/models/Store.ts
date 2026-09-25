@@ -21,6 +21,7 @@ export interface IStore extends Document {
     heroTitle?: string | null;
     heroSubtitle?: string | null;
     heroImage?: string | null;
+    theme?: string;
 }
 
 const storeSchema = new Schema<IStore>(
@@ -116,6 +117,11 @@ const storeSchema = new Schema<IStore>(
         heroImage: {
             type: String,
             default: null,
+        },
+        theme: {
+            type: String,
+            enum: ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"],
+            default: "classic",
         },
     },
     { timestamps: true }
