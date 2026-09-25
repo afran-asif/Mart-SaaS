@@ -12,6 +12,8 @@ export interface IOrder extends Document {
     paymentStatus: "Unpaid" | "Paid" | "Failed" | "Cancelled";
     paymentMethod: "COD" | "SSLCommerz";
     transactionId?: string;
+    couponCode?: string | null;
+    discountAmount?: number;
     items: Array<{
         product: Types.ObjectId | { _id: Types.ObjectId; name: string };
         quantity: number;
@@ -65,6 +67,8 @@ const OrderSchema: Schema = new Schema(
             type: String,
             default: null,
         },
+        couponCode: { type: String, default: null, trim: true, uppercase: true },
+        discountAmount: { type: Number, default: 0, min: 0 },
         emailSent: {
             type: Boolean,
             default: false,

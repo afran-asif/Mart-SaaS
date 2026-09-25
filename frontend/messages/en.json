@@ -231,6 +231,7 @@
     "orders": "Orders",
     "categories": "Categories",
     "customers": "Customers",
+    "coupons": "Coupons",
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
     "checkingAuth": "Checking authorization...",
@@ -382,6 +383,17 @@
       "orders": "Orders",
       "totalSpent": "Total Spent",
       "lastOrder": "Last Order"
+    },
+    "couponsPage": {
+      "title": "Coupons",
+      "subtitle": "Create and manage discount codes for your store.",
+      "addButton": "Add Coupon",
+      "loading": "Loading coupons...",
+      "empty": "No coupons yet. Create your first discount code.",
+      "created": "Coupon created!",
+      "updated": "Coupon updated!",
+      "deleted": "Coupon deleted!",
+      "deleteConfirm": "Delete this coupon?"
     }
   }
 }

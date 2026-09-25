@@ -33,6 +33,11 @@ export default function CheckoutPage() {
         shippingAddress: "",
     });
     const [ paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCommerz">("COD");
+    const [couponCode, setCouponCode] = useState("");
+    const [couponDiscount, setCouponDiscount] = useState(0);
+    const [couponApplied, setCouponApplied] = useState<string | null>(null);
+    const [couponError, setCouponError] = useState("");
+    const [couponLoading, setCouponLoading] = useState(false);
 
     // E-commerce tracking: InitiateCheckout
     useEffect(() => {
@@ -72,6 +77,33 @@ export default function CheckoutPage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const discountedTotal = Math.max(checkoutTotal - couponDiscount, 0);
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode.trim()) return;
+        setCouponLoading(true);
+        setCouponError("");
+        try {
+            const res = await api.get("/coupons/validate", { params: { code: couponCode.trim(), subtotal: checkoutTotal } });
+            setCouponDiscount(res.data.discount || 0);
+            setCouponApplied(couponCode.trim().toUpperCase());
+            toast.success(`Coupon applied! ৳${res.data.discount} off`);
+        } catch (err: any) {
+            setCouponDiscount(0);
+            setCouponApplied(null);
+            setCouponError(err.message || "Invalid coupon");
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setCouponCode("");
+        setCouponDiscount(0);
+        setCouponApplied(null);
+        setCouponError("");
     };
 
     // Checkout থেকে quantity বাড়ানো/কমানো (1-এর নিচে নামবে না)
@@ -119,8 +151,9 @@ export default function CheckoutPage() {
                 ...form,
                 storeId,
                 items: orderItems,
-                totalAmount: checkoutTotal,
+                totalAmount: discountedTotal,
                 paymentMethod,
+                couponCode: couponApplied || undefined,
             });
             if (res.data.success) {
                 orderPlacedRef.current = true;   // redirect guard বন্ধ করা, cart clear হলেও যেন হোমে না পাঠায়
@@ -131,7 +164,7 @@ export default function CheckoutPage() {
                         "last_order",
                         JSON.stringify({
                             orderId: res.data.orderId,
-                            totalAmount: checkoutTotal,
+                            totalAmount: discountedTotal,
                             items: trackingItems,
                         })
                     );
@@ -144,9 +177,9 @@ export default function CheckoutPage() {
                     dispatch(clearCart());
                 }
                 
-                if (res.data.paymentMethod === "COD") {
+                    if (res.data.paymentMethod === "COD") {
                     toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
-                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${checkoutTotal}`);
+                    router.push(`/order-confirmed?orderId=${res.data.orderId}&total=${discountedTotal}`);
                 } else if (res.data.paymentUrl) {
                     // ✅ SSLCommerz payment page এ পাঠিয়ে দেওয়া
                     window.location.href = res.data.paymentUrl;
@@ -301,9 +334,42 @@ export default function CheckoutPage() {
                             ))}
                         </div>
 
-                        <div className="flex justify-between font-medium text-[#181410] pt-3 border-t border-[#181410]/10">
-                            <span>মোট</span>
-                            <span className="font-['IBM_Plex_Mono']">৳{checkoutTotal}</span>
+                        {/* Coupon */}
+                        <div className="flex gap-2 mt-3">
+                            <input
+                                type="text"
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                placeholder="Coupon code"
+                                disabled={!!couponApplied}
+                                className="flex-1 px-3 py-2 rounded-xl border border-[#181410]/15 text-sm font-mono uppercase disabled:bg-gray-50"
+                            />
+                            {couponApplied ? (
+                                <button type="button" onClick={handleRemoveCoupon} className="px-4 py-2 rounded-xl bg-gray-100 text-sm font-medium">Remove</button>
+                            ) : (
+                                <button type="button" onClick={handleApplyCoupon} disabled={couponLoading || !couponCode.trim()} className="px-4 py-2 rounded-xl bg-[#0E3B2C] text-white text-sm font-medium disabled:opacity-50">
+                                    {couponLoading ? "..." : "Apply"}
+                                </button>
+                            )}
+                        </div>
+                        {couponError && <p className="text-xs text-red-600 mt-1">{couponError}</p>}
+                        {couponApplied && <p className="text-xs text-green-700 mt-1">✓ {couponApplied} applied</p>}
+
+                        <div className="flex flex-col gap-1.5 pt-3 border-t border-[#181410]/10 mt-3 text-sm">
+                            <div className="flex justify-between text-[#75705F]">
+                                <span>Subtotal</span>
+                                <span className="font-['IBM_Plex_Mono']">৳{checkoutTotal}</span>
+                            </div>
+                            {couponDiscount > 0 && (
+                                <div className="flex justify-between text-green-700 font-medium">
+                                    <span>Discount ({couponApplied})</span>
+                                    <span className="font-['IBM_Plex_Mono']">-৳{couponDiscount}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between font-bold text-[#181410] text-base pt-1 border-t border-[#181410]/10">
+                                <span>মোট</span>
+                                <span className="font-['IBM_Plex_Mono']">৳{discountedTotal}</span>
+                            </div>
                         </div>
                     </div>
                     {/* Payment Method নির্বাচন */}

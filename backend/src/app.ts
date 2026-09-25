@@ -13,6 +13,7 @@ import tenantRoutes from './routes/tenantRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import paymentCallbackRoutes from './routes/paymentCallbackRoutes'
 import categoryRoutes from './routes/categoryRoutes';
+import couponRoutes from './routes/couponRoutes';
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -46,6 +47,7 @@ app.use('/api/v1/store', storeRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/v1/payment", paymentRoutes);

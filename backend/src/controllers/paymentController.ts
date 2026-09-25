@@ -5,7 +5,13 @@ import { Store } from "../models/Store";
 import { Product } from "../models/Product";
 import { decrypt } from "../utils/encryption";
 import { sendOrderConfirmationEmail } from "../utils/sendEmail";
+import { Coupon } from "../models/Coupon";
 const SSLCommerzPayment = require("sslcommerz-lts");
+
+const calcCouponDiscount = (coupon: any, subtotal: number): number => {
+    if (coupon.discountType === "percent") return Math.min(Math.round(subtotal * coupon.discountValue / 100), subtotal);
+    return Math.min(coupon.discountValue, subtotal);
+};
 
 
 const PLATFORM_STORE_ID = process.env.SSLCOMMERZ_STORE_ID as string;
@@ -64,12 +70,34 @@ export const initiatePayment = async (req: Request, res: Response) => {
             items,
             storeId,
             paymentMethod,
+            couponCode,
         } = req.body;
 
         if (!customerName || !customerEmail || !shippingAddress || !totalAmount || !items?.length || !storeId) {
             await session.abortTransaction();
             res.status(400).json({ message: "Please provide all required order fields including storeId." });
             return;
+        }
+
+        // coupon validation if provided
+        let discountAmount = 0;
+        let appliedCouponCode: string | null = null;
+        if (couponCode) {
+            const cleanCode = (couponCode as string).trim().toUpperCase();
+            const coupon = await Coupon.findOne({ storeId, code: cleanCode }).session(session);
+            if (!coupon) { await session.abortTransaction(); res.status(400).json({ message: "Invalid coupon code." }); return; }
+            if (!coupon.isActive) { await session.abortTransaction(); res.status(400).json({ message: "Coupon is inactive." }); return; }
+            if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) { await session.abortTransaction(); res.status(400).json({ message: "Coupon has expired." }); return; }
+            if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) { await session.abortTransaction(); res.status(400).json({ message: "Coupon usage limit reached." }); return; }
+            const originalTotal = (items as any[]).reduce((s: number, it: any) => s + Number(it.price) * Number(it.quantity), 0);
+            if (originalTotal < coupon.minOrderAmount) { await session.abortTransaction(); res.status(400).json({ message: `Minimum order ৳${coupon.minOrderAmount} required for this coupon.` }); return; }
+            discountAmount = calcCouponDiscount(coupon, originalTotal);
+            const expectedTotal = originalTotal - discountAmount;
+            if (Math.abs(Number(totalAmount) - expectedTotal) > 1) { await session.abortTransaction(); res.status(400).json({ message: "Order total does not match coupon discount. Please re-apply coupon." }); return; }
+            appliedCouponCode = cleanCode;
+            // increment usedCount
+            coupon.usedCount += 1;
+            await coupon.save({ session });
         }
 
         const store = await Store.findById(storeId).select("+sslcommerzStorePassword").session(session);
@@ -109,6 +137,8 @@ export const initiatePayment = async (req: Request, res: Response) => {
                     status: "Pending",
                     paymentStatus: "Unpaid",
                     paymentMethod: paymentMethod === "COD" ? "COD" : "SSLCommerz",
+                    couponCode: appliedCouponCode,
+                    discountAmount,
                 },
             ],
             { session }
@@ -287,6 +317,9 @@ export const paymentFail = async (req: Request, res: Response) => {
             for (const item of order.items) {
                 await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } }, { session });
             }
+            if (order.couponCode) {
+                await Coupon.updateOne({ storeId: order.storeId, code: order.couponCode }, { $inc: { usedCount: -1 } }, { session });
+            }
             order.paymentStatus = "Failed";
             order.status = "Cancelled";
             await order.save({ session });
@@ -315,6 +348,9 @@ export const paymentCancel = async (req: Request, res: Response) => {
         if (order && order.paymentStatus === "Unpaid") {
             for (const item of order.items) {
                 await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } }, { session });
+            }
+            if (order.couponCode) {
+                await Coupon.updateOne({ storeId: order.storeId, code: order.couponCode }, { $inc: { usedCount: -1 } }, { session });
             }
             order.paymentStatus = "Cancelled";
             order.status = "Cancelled";
