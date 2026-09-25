@@ -2,14 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { registerVendor } from "@/services/authService";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function LocalizedRegisterPage() {
-    const dispatch = useDispatch();
     const router = useRouter();
     const { t, language } = useTranslation();
     const [formData, setFormData] = useState({
@@ -50,11 +47,7 @@ export default function LocalizedRegisterPage() {
         try {
             const data = await registerVendor(formData);
             if (data.success) {
-                dispatch(setCredentials({ user: data.user, store: data.store, token: data.token }));
-                setMessage(t("register.registerSuccess"));
-                setTimeout(() => {
-                    router.push(`/${language}/dashboard`);
-                }, 1500);
+                router.push(`/${language}/verify-email?email=${encodeURIComponent(formData.email)}`);
             }
         } catch (error: any) {
             setMessage(error.response?.data?.message || "Something went wrong!");

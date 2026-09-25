@@ -79,7 +79,12 @@ export default function LocalizedLoginPage() {
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium text-gray-700">{t("login.passwordLabel")}</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-gray-700">{t("login.passwordLabel")}</label>
+                                <Link href={`/${language}/forgot-password`} className="text-xs font-semibold text-orange-600 hover:text-orange-700">
+                                    {t("login.forgotPassword")}
+                                </Link>
+                            </div>
                             <input
                                 name="password"
                                 type="password"
@@ -103,9 +108,17 @@ export default function LocalizedLoginPage() {
                     </div>
 
                     {message && (
-                        <p className="mt-2 text-center text-sm font-medium text-gray-700">
-                            {message}
-                        </p>
+                        <div className="mt-2 text-center">
+                            <p className="text-sm font-medium text-gray-700">{message}</p>
+                            {message.toLowerCase().includes("verify") && formData.email && (
+                                <Link
+                                    href={`/${language}/verify-email?email=${encodeURIComponent(formData.email)}`}
+                                    className="mt-1 inline-block text-xs font-semibold text-orange-600 hover:text-orange-700"
+                                >
+                                    {t("login.resendVerify")}
+                                </Link>
+                            )}
+                        </div>
                     )}
                 </form>
 

@@ -168,7 +168,9 @@
     "noAccount": "Don't have a vendor store yet?",
     "createStore": "Create Store",
     "backHome": "← Back to Home",
-    "loginSuccess": "Login Successful! Redirecting..."
+    "loginSuccess": "Login Successful! Redirecting...",
+    "forgotPassword": "Forgot password?",
+    "resendVerify": "Email not verified? Get a new link"
   },
   "register": {
     "title": "Create Vendor Account 🚀",
@@ -184,6 +186,44 @@
     "signIn": "Sign In",
     "backHome": "← Back to Home",
     "registerSuccess": "Registration Successful! Redirecting to dashboard..."
+  },
+  "verifyEmail": {
+    "verifying": "Verifying your email...",
+    "success": "Email Verified! 🎉",
+    "successSub": "Your account is active now. You can log in.",
+    "invalid": "Invalid or Expired Link",
+    "invalidSub": "The verification link is invalid or has expired. Enter your email to receive a new one.",
+    "sent": "Check Your Inbox 📬",
+    "checkInbox": "We've sent a verification link to",
+    "enterEmail": "Verify Your Email",
+    "enterEmailSub": "Enter your email address and we'll send you a verification link.",
+    "emailLabel": "Email Address",
+    "resend": "Resend Verification Email",
+    "goLogin": "Go to Login",
+    "backHome": "← Back to Home"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password?",
+    "subtitle": "Enter your email and we'll send you a reset link",
+    "emailLabel": "Email Address",
+    "send": "Send Reset Link",
+    "sending": "Sending...",
+    "success": "If an account exists with that email, a password reset link has been sent. Check your inbox and spam folder.",
+    "backLogin": "← Back to Login"
+  },
+  "resetPassword": {
+    "title": "Set New Password",
+    "subtitle": "Choose a strong password for your account",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Reset Password",
+    "submitting": "Updating...",
+    "mismatch": "Passwords do not match!",
+    "tooShort": "Password must be at least 6 characters!",
+    "invalidLink": "Missing or invalid reset link. Please request a new one.",
+    "success": "Password updated successfully! You can log in now.",
+    "goLogin": "Go to Login",
+    "backLogin": "← Back to Login"
   },
   "dashboard": {
     "overview": "Overview",

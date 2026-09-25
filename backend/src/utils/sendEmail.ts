@@ -195,3 +195,204 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
         console.error("❌ [EMAIL EXCEPTION]:", error);
     }
 };
+
+const getResend = (): Resend | null => {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        console.error("❌ [EMAIL] RESEND_API_KEY is not configured in environment variables!");
+        return null;
+    }
+    return new Resend(apiKey);
+};
+
+export const sendVerificationEmail = async (data: { to: string; name: string; verifyUrl: string }) => {
+    try {
+        const resend = getResend();
+        if (!resend) return;
+
+        const html = `
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ইমেইল ভেরিফিকেশন</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+    <tr>
+        <td style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); padding: 36px 40px; text-align: center;">
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1.5px;">ইমেইল ভেরিফিকেশন</p>
+            <h1 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700;">Vendoo</h1>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 28px 40px 0 40px;">
+            <p style="margin: 0; font-size: 15px; color: #374151;">প্রিয় <strong>${data.name}</strong>,</p>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.7;">আপনার Vendoo অ্যাকাউন্ট তৈরি হয়েছে! আপনার অ্যাকাউন্ট সক্রিয় করতে নিচের বাটনে ক্লিক করে আপনার ইমেইল ঠিকানাটি ভেরিফাই করুন।</p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 28px 40px 0 40px; text-align: center;">
+            <a href="${data.verifyUrl}" style="display: inline-block; background-color: #ea580c; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 14px 36px; border-radius: 8px;">✅ ইমেইল ভেরিফাই করুন</a>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 20px 40px 0 40px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">অথবা নিচের লিংকটি ব্রাউজারে খুলুন:</p>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #ea580c; word-break: break-all;">${data.verifyUrl}</p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa;">
+                <tr>
+                    <td style="padding: 12px 16px; font-size: 12px; color: #9a3412; line-height: 1.6;">⏰ এই লিংকটি <strong>২৪ ঘন্টার জন্য</strong> বৈধ থাকবে।</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 32px 40px 0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+                <tr><td style="border-top: 1px solid #e5e7eb; font-size: 0;">&nbsp;</td></tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 36px 40px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+        </td>
+    </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+        const response = await resend.emails.send({
+            from: "Vendoo <noreply@vendoo.shop>",
+            to: data.to,
+            subject: "✅ Vendoo — ইমেইল ভেরিফাই করুন",
+            html,
+        });
+
+        if (response.error) {
+            console.error("❌ [VERIFY EMAIL ERROR]:", {
+                message: response.error.message,
+                to: data.to,
+            });
+        } else {
+            console.log("✅ [VERIFY EMAIL SENT] to", data.to, "ID:", response.data?.id);
+        }
+    } catch (error) {
+        console.error("❌ [VERIFY EMAIL EXCEPTION]:", error);
+    }
+};
+
+export const sendResetPasswordEmail = async (data: { to: string; name: string; resetUrl: string }) => {
+    try {
+        const resend = getResend();
+        if (!resend) return;
+
+        const html = `
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>পাসওয়ার্ড রিসেট</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+    <tr>
+        <td style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); padding: 36px 40px; text-align: center;">
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1.5px;">পাসওয়ার্ড রিসেট</p>
+            <h1 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700;">Vendoo</h1>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 28px 40px 0 40px;">
+            <p style="margin: 0; font-size: 15px; color: #374151;">প্রিয় <strong>${data.name}</strong>,</p>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.7;">আমরা আপনার পাসওয়ার্ড রিসেট করার জন্য একটি অনুরোধ পেয়েছি। নিচের বাটনে ক্লিক করে একটি নতুন পাসওয়ার্ড সেট করুন।</p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 28px 40px 0 40px; text-align: center;">
+            <a href="${data.resetUrl}" style="display: inline-block; background-color: #ea580c; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 14px 36px; border-radius: 8px;">🔑 পাসওয়ার্ড রিসেট করুন</a>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 20px 40px 0 40px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">অথবা নিচের লিংকটি ব্রাউজারে খুলুন:</p>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #ea580c; word-break: break-all;">${data.resetUrl}</p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff7ed; border-radius: 8px; border: 1px solid #fed7aa;">
+                <tr>
+                    <td style="padding: 12px 16px; font-size: 12px; color: #9a3412; line-height: 1.6;">⏰ এই লিংকটি <strong>১ ঘন্টার জন্য</strong> বৈধ থাকবে। আপনি যদি এই অনুরোধ না করে থাকেন, তাহলে এই ইমেইলটি উপেক্ষা করুন।</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 32px 40px 0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+                <tr><td style="border-top: 1px solid #e5e7eb; font-size: 0;">&nbsp;</td></tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 36px 40px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+        </td>
+    </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+        const response = await resend.emails.send({
+            from: "Vendoo <noreply@vendoo.shop>",
+            to: data.to,
+            subject: "🔑 Vendoo — পাসওয়ার্ড রিসেট করুন",
+            html,
+        });
+
+        if (response.error) {
+            console.error("❌ [RESET EMAIL ERROR]:", {
+                message: response.error.message,
+                to: data.to,
+            });
+        } else {
+            console.log("✅ [RESET EMAIL SENT] to", data.to, "ID:", response.data?.id);
+        }
+    } catch (error) {
+        console.error("❌ [RESET EMAIL EXCEPTION]:", error);
+    }
+};
