@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
 import { User } from "../models/User";
 import { Store } from "../models/Store";
+import { Category } from "../models/Category";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmail";
+
+const DEFAULT_CATEGORIES = ["Clothing", "Gadgets", "Accessories", "Home & Kitchen", "Beauty & Health"];
 
 const getFrontendUrl = (): string => {
     return (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
@@ -60,6 +63,11 @@ export const registerVendor = async (req: Request, res: Response) => {
             storeName,
             subdomain,
         });
+
+        // 🏷️ নতুন স্টোরের জন্য default categories তৈরি
+        await Category.insertMany(
+            DEFAULT_CATEGORIES.map((name) => ({ vendorId: user._id, storeId: store._id, name }))
+        );
 
         const verifyUrl = `${getFrontendUrl()}/en/verify-email?token=${verificationToken}`;
         sendVerificationEmail({ to: user.email, name: user.name, verifyUrl });

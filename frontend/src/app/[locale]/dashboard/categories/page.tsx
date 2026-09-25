@@ -12,6 +12,7 @@ export default function LocalizedCategoriesPage() {
 
     const [newName, setNewName] = useState("");
     const [creating, setCreating] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editingName, setEditingName] = useState("");
     const [saving, setSaving] = useState(false);
@@ -27,6 +28,7 @@ export default function LocalizedCategoriesPage() {
             await createCategory(name);
             toast.success(t("dashboard.categoriesPage.createdSuccess"));
             setNewName("");
+            setIsAddModalOpen(false);
             refresh();
         } catch (err: any) {
             toast.error(err.message || "Failed to create category.");
@@ -91,28 +93,59 @@ export default function LocalizedCategoriesPage() {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("dashboard.categoriesPage.title")}</h1>
                     <p className="text-gray-500 mt-1 text-sm">{t("dashboard.categoriesPage.subtitle")}</p>
                 </div>
+                <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-sm shrink-0"
+                >
+                    + {t("dashboard.categoriesPage.addButton")}
+                </button>
             </div>
 
-            {/* Add New Category */}
-            <form
-                onSubmit={handleCreate}
-                className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3"
-            >
-                <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder={t("dashboard.categoriesPage.addPlaceholder")}
-                    className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
-                />
-                <button
-                    type="submit"
-                    disabled={creating || !newName.trim()}
-                    className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-sm shrink-0 disabled:bg-orange-300"
-                >
-                    {creating ? t("dashboard.categoriesPage.creating") : t("dashboard.categoriesPage.addButton")}
-                </button>
-            </form>
+            {/* Add Category Modal */}
+            {isAddModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+                    <div className="bg-white rounded-t-2xl sm:rounded-2xl p-5 sm:p-8 w-full sm:max-w-md shadow-xl border border-gray-100">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">🏷️ {t("dashboard.categoriesPage.modalTitle")}</h2>
+                        <p className="text-sm text-gray-500 mb-6">{t("dashboard.categoriesPage.modalSubtitle")}</p>
+
+                        <form onSubmit={handleCreate} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+                                    {t("dashboard.categoriesPage.categoryName")}
+                                </label>
+                                <input
+                                    type="text"
+                                    autoFocus
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    placeholder={t("dashboard.categoriesPage.addPlaceholder")}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsAddModalOpen(false);
+                                        setNewName("");
+                                    }}
+                                    className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
+                                >
+                                    {t("dashboard.categoriesPage.cancel")}
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={creating || !newName.trim()}
+                                    className="px-5 py-2.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors shadow-sm disabled:bg-orange-300"
+                                >
+                                    {creating ? t("dashboard.categoriesPage.creating") : t("dashboard.categoriesPage.addButton")}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* List */}
             {loading ? (

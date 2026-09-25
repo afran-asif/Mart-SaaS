@@ -348,6 +348,8 @@
       "subtitle": "Organize your products into categories for easy browsing.",
       "addButton": "Add Category",
       "addPlaceholder": "e.g. Electronics",
+      "modalTitle": "Create New Category",
+      "modalSubtitle": "Type a name for the new category.",
       "creating": "Adding...",
       "loading": "Loading categories...",
       "listEmpty": "No categories yet. Add your first category above.",
