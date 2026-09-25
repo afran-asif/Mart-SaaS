@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
-import { getAllProducts, deleteProductApi } from "@/services/productService";
+import { getAllProducts, deleteProductApi, toggleFeaturedApi } from "@/services/productService";
 import { Product } from "@/types/product";
 import ProductSearchBar from "@/components/products/ProductSearchBar";
 import ProductTable from "@/components/products/ProductTable";
@@ -98,6 +98,16 @@ export default function LocalizedProductsPage() {
         );
     };
 
+    const handleToggleFeatured = async (id: string) => {
+        try {
+            const res = await toggleFeaturedApi(id);
+            setProducts((prev) => prev.map((p) => (p._id === id ? res.product : p)));
+            toast.success(res.message);
+        } catch (error: any) {
+            toast.error(error.message || "Failed to toggle featured.");
+        }
+    };
+
     return (
         <div className="space-y-5 sm:space-y-6 relative">
             {/* Header */}
@@ -137,6 +147,7 @@ export default function LocalizedProductsPage() {
                     itemsPerPage={ITEMS_PER_PAGE}
                     onEdit={handleEditClick}
                     onDelete={handleDelete}
+                    onToggleFeatured={handleToggleFeatured}
                     onPageChange={setCurrentPage}
                 />
             )}

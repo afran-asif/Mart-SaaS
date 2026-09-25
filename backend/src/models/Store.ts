@@ -14,9 +14,13 @@ export interface IStore extends Document {
     facebookPixelId?: string;
     googleAnalyticsId?: string;
     tiktokPixelId?: string;
-    facebookUrl?: string;
-    instagramUrl?: string;
-    whatsappNumber?: string;
+    facebookUrl?: string | null;
+    instagramUrl?: string | null;
+    whatsappNumber?: string | null;
+    brandColor?: string | null;
+    heroTitle?: string | null;
+    heroSubtitle?: string | null;
+    heroImage?: string | null;
 }
 
 const storeSchema = new Schema<IStore>(
@@ -94,8 +98,27 @@ const storeSchema = new Schema<IStore>(
             default: null,
             trim: true,
         },
+        brandColor: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        heroTitle: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        heroSubtitle: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        heroImage: {
+            type: String,
+            default: null,
+        },
     },
-{ timestamps: true }
+    { timestamps: true }
 );
 
 

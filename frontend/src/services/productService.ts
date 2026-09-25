@@ -17,6 +17,7 @@ export interface Product {
     image?: string;
     images?: string[];
     description?: string;
+    featured?: boolean;
 }
 
 // 🔍 ১. সব প্রোডাক্ট নিয়ে আসার এপিআই
@@ -37,6 +38,11 @@ export const createProduct = async (formData: FormData) => {
     const response = await api.post("/products", formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
+    return response.data;
+};
+
+export const toggleFeaturedApi = async (id: string) => {
+    const response = await api.patch(`/products/${id}/featured`);
     return response.data;
 };
 

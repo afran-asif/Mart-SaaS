@@ -5,9 +5,10 @@ interface StorefrontHeaderProps {
     variant: "home" | "sub";
     storeName?: string;
     storeLogo?: string;
+    brandColor?: string;
 }
 
-export default function StorefrontHeader({ variant, storeName, storeLogo }: StorefrontHeaderProps) {
+export default function StorefrontHeader({ variant, storeName, storeLogo, brandColor }: StorefrontHeaderProps) {
     return (
         <header className="sticky top-0 z-10 bg-[#FFFDF7]/90 backdrop-blur-md border-b border-[#C6A15B]/40">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -20,7 +21,10 @@ export default function StorefrontHeader({ variant, storeName, storeLogo }: Stor
                                 className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-[#0E3B2C] ring-offset-2 ring-offset-[#FFFDF7]"
                             />
                         ) : (
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0E3B2C] flex items-center justify-center text-[#FFFDF7] font-['Fraunces',serif] font-semibold text-xl">
+                            <div
+                                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#FFFDF7] font-['Fraunces',serif] font-semibold text-xl"
+                                style={{ background: brandColor || "#0E3B2C" }}
+                            >
                                 {storeName?.charAt(0).toUpperCase()}
                             </div>
                         )}

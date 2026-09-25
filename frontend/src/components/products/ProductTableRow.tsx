@@ -8,9 +8,10 @@ interface ProductTableRowProps {
     product: Product;
     onEdit: (product: Product) => void;
     onDelete: (id: string, name: string) => void;
+    onToggleFeatured?: (id: string) => void;
 }
 
-export default function ProductTableRow({ product, onEdit, onDelete }: ProductTableRowProps) {
+export default function ProductTableRow({ product, onEdit, onDelete, onToggleFeatured }: ProductTableRowProps) {
     return (
         <tr className="hover:bg-gray-50/50 transition-colors">
             {/* Image */}
@@ -56,6 +57,13 @@ export default function ProductTableRow({ product, onEdit, onDelete }: ProductTa
             {/* Actions */}
             <td className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
                 <div className="flex items-center justify-end gap-1 sm:gap-2">
+                    <button
+                        onClick={() => onToggleFeatured?.(product._id)}
+                        title={product.featured ? "Remove from featured" : "Add to featured"}
+                        className={`text-xs font-bold px-2 py-1 rounded-lg transition-colors ${product.featured ? "bg-amber-400 text-white" : "bg-gray-100 text-gray-400 hover:bg-amber-50 hover:text-amber-600"}`}
+                    >
+                        ★
+                    </button>
                     <button
                         onClick={() => onEdit(product)}
                         className="text-blue-600 hover:underline font-medium transition-colors hover:text-blue-800 text-xs"

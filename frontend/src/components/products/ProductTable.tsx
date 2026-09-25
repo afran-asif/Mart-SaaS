@@ -14,6 +14,7 @@ interface ProductTableProps {
     itemsPerPage: number;
     onEdit: (product: Product) => void;
     onDelete: (id: string, name: string) => void;
+    onToggleFeatured?: (id: string) => void;
     onPageChange: (page: number) => void;
 }
 
@@ -25,6 +26,7 @@ export default function ProductTable({
     itemsPerPage,
     onEdit,
     onDelete,
+    onToggleFeatured,
     onPageChange,
 }: ProductTableProps) {
     const { t } = useTranslation();
@@ -62,6 +64,7 @@ export default function ProductTable({
                                 product={product}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
+                                onToggleFeatured={onToggleFeatured}
                             />
                         ))}
                     </tbody>

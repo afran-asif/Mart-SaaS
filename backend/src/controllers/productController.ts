@@ -10,7 +10,7 @@ import { uploadToCloudinary } from "../middlewares/uploadMiddleware";
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         // FormData থেকে পাঠানো ফিল্ডগুলো রিসিভ করা হচ্ছে
-        const { name, price, description, category, stock } = req.body;
+        const { name, price, description, category, stock, featured } = req.body;
         const vendorId = req.user._id;
 
         // ভেন্ডরের স্টোর খুঁজে বের করা
@@ -39,7 +39,8 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
             description,
             category,
             images: productImages,      // লোকাল ইমেজের ইউআরএল অ্যারেতে সেট হলো
-            stock: Number(stock)        // নাম্বারে কাস্ট করা হলো
+            stock: Number(stock),        // নাম্বারে কাস্ট করা হলো
+            featured: featured === "true" || featured === true,
         });
 
         const savedProduct = await newProduct.save();
@@ -118,7 +119,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
             return;
         }
 
-        const { name, price, description, category, stock, existingImages } = req.body;
+        const { name, price, description, category, stock, featured, existingImages } = req.body;
 
         const updateData: any = {};
         if (name !== undefined) updateData.name = name;
@@ -126,6 +127,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
         if (stock !== undefined) updateData.stock = Number(stock);
         if (category !== undefined) updateData.category = category;
         if (description !== undefined) updateData.description = description;
+        if (featured !== undefined) updateData.featured = featured === "true" || featured === true;
 
         // Image Handling
         let finalImages: string[] = [];
@@ -175,6 +177,23 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
 };
 
 
+
+export const toggleFeatured = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const vendorId = req.user._id;
+        const product = await Product.findOne({ _id: id, vendorId });
+        if (!product) {
+            res.status(404).json({ message: "Product not found or unauthorized" });
+            return;
+        }
+        product.featured = !product.featured;
+        await product.save();
+        res.status(200).json({ success: true, message: product.featured ? "Added to featured" : "Removed from featured", product });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
 
 // 🗑️ ৪. প্রোডাক্ট ডিলিট করা
 export const deleteProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {

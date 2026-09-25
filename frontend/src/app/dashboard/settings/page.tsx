@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { api } from "@/services/api";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { updateStoreInfo } from "@/redux/authSlice";
 
 interface StoreData {
     id: string;
@@ -13,10 +15,17 @@ interface StoreData {
     status: "active" | "suspended";
     useOwnSSLCommerz: boolean;
     sslcommerzStoreId?: string;
+    facebookPixelId?: string;
+    googleAnalyticsId?: string;
+    tiktokPixelId?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    whatsappNumber?: string;
 }
 
-export default function SettingsPage() {
+export default function LocalizedSettingsPage() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
     const [store, setStore] = useState<StoreData | null>(null);
 
     const [storeName, setStoreName] = useState("");
@@ -30,6 +39,22 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [uploadingLogo, setUploadingLogo] = useState(false);
+    const logoInputRef = useRef<HTMLInputElement>(null);
+
+    const [facebookPixelId, setFacebookPixelId] = useState("");
+    const [googleAnalyticsId, setGoogleAnalyticsId] = useState("");
+    const [tiktokPixelId, setTiktokPixelId] = useState("");
+    const [facebookUrl, setFacebookUrl] = useState("");
+    const [instagramUrl, setInstagramUrl] = useState("");
+    const [whatsappNumber, setWhatsappNumber] = useState("");
+    const [brandColor, setBrandColor] = useState("#F4501A");
+    const [heroTitle, setHeroTitle] = useState("");
+    const [heroSubtitle, setHeroSubtitle] = useState("");
+    const [heroImage, setHeroImage] = useState("");
+    const [heroImageError, setHeroImageError] = useState(false);
+    const [uploadingHero, setUploadingHero] = useState(false);
+    const heroInputRef = useRef<HTMLInputElement>(null);
 
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
@@ -45,6 +70,16 @@ export default function SettingsPage() {
                 setStatus(data.status || "active");
                 setUseOwnSSLCommerz(data.useOwnSSLCommerz || false);
                 setSslcommerzStoreId(data.sslcommerzStoreId || "");
+                setFacebookPixelId(data.facebookPixelId || "");
+                setGoogleAnalyticsId(data.googleAnalyticsId || "");
+                setTiktokPixelId(data.tiktokPixelId || "");
+                setFacebookUrl(data.facebookUrl || "");
+                setInstagramUrl(data.instagramUrl || "");
+                setWhatsappNumber(data.whatsappNumber || "");
+                setBrandColor(data.brandColor || "#F4501A");
+                setHeroTitle(data.heroTitle || "");
+                setHeroSubtitle(data.heroSubtitle || "");
+                setHeroImage(data.heroImage || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -54,12 +89,72 @@ export default function SettingsPage() {
         fetchStore();
     }, []);
 
-    const handleCopySubdomain = () => {
-        if (!store) return;
+    const handleCopySubdomain = () => {        if (!store) return;
         navigator.clipboard.writeText(`${protocol}://${store.subdomain}.${baseDomain}`);
         setCopied(true);
         toast.success("Store URL copied.");
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleHeroFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be under 5MB.");
+            return;
+        }
+        setUploadingHero(true);
+        try {
+            const formData = new FormData();
+            formData.append("heroImage", file);
+            const res = await api.post("/store/hero-image", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            setHeroImage(res.data.heroImage || "");
+            setHeroImageError(false);
+            toast.success("Hero image uploaded.");
+        } catch (error: any) {
+            toast.error(error.message || "Hero upload failed.");
+        } finally {
+            setUploadingHero(false);
+            if (heroInputRef.current) heroInputRef.current.value = "";
+        }
+    };
+
+    // Logo file upload — Cloudinary te direct upload
+    const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be under 5MB.");
+            return;
+        }
+
+        setUploadingLogo(true);
+        try {
+            const formData = new FormData();
+            formData.append("logo", file);
+            const res = await api.post("/store/logo", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            setLogo(res.data.logo || "");
+            setLogoError(false);
+            toast.success("Logo uploaded successfully.");
+        } catch (error: any) {
+            toast.error(error.message || "Logo upload failed.");
+        } finally {
+            setUploadingLogo(false);
+            if (logoInputRef.current) logoInputRef.current.value = "";
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -72,6 +167,16 @@ export default function SettingsPage() {
                 logo: logo.trim() ? logo.trim() : null,
                 status,
                 useOwnSSLCommerz,
+                facebookPixelId: facebookPixelId.trim(),
+                googleAnalyticsId: googleAnalyticsId.trim(),
+                tiktokPixelId: tiktokPixelId.trim(),
+                facebookUrl: facebookUrl.trim(),
+                instagramUrl: instagramUrl.trim(),
+                whatsappNumber: whatsappNumber.trim(),
+                brandColor: brandColor.trim() || null,
+                heroTitle: heroTitle.trim() || null,
+                heroSubtitle: heroSubtitle.trim() || null,
+                heroImage: heroImage.trim() || null,
             };
 
             if (useOwnSSLCommerz) {
@@ -81,6 +186,14 @@ export default function SettingsPage() {
 
             const res = await api.put("/store/config", payload);
             setStore(res.data.store);
+            dispatch(
+                updateStoreInfo({
+                    id: res.data.store.id,
+                    storeName: res.data.store.storeName,
+                    subdomain: res.data.store.subdomain,
+                    logo: res.data.store.logo,
+                })
+            );
             setSslcommerzStorePassword("");
             toast.success("Settings updated successfully.");
         } catch (error: any) {
@@ -164,16 +277,50 @@ export default function SettingsPage() {
                             <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                                 {t("dashboard.settingsPage.logoUrl")}
                             </label>
-                            <input
-                                type="url"
-                                value={logo}
-                                onChange={(e) => {
-                                    setLogo(e.target.value);
-                                    setLogoError(false);
-                                }}
-                                placeholder="https://res.cloudinary.com/..."
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                            />
+                            <div className="flex items-center gap-3">
+                                <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                                    {logo.trim() && !logoError ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={logo}
+                                            alt="Store logo"
+                                            className="w-full h-full object-contain"
+                                            onError={() => setLogoError(true)}
+                                        />
+                                    ) : (
+                                        <span className="text-xl font-bold text-gray-300">🏪</span>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => logoInputRef.current?.click()}
+                                        disabled={uploadingLogo}
+                                        className="px-4 py-2 rounded-xl bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {uploadingLogo ? "Uploading..." : logo.trim() ? "Change logo" : "Upload logo"}
+                                    </button>
+                                    {logo.trim() && !uploadingLogo && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setLogo("");
+                                                setLogoError(false);
+                                            }}
+                                            className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600 transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <input
+                                    ref={logoInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleLogoFileChange}
+                                />
+                            </div>
                             <p className="text-xs text-gray-400 mt-1">{t("dashboard.settingsPage.logoDesc")}</p>
                         </div>
 
@@ -348,6 +495,171 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Marketing & Tracking card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Marketing & Tracking</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Add your ad pixels to track visitors and measure ad performance.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Facebook Pixel ID
+                            </label>
+                            <input
+                                type="text"
+                                value={facebookPixelId}
+                                onChange={(e) => setFacebookPixelId(e.target.value)}
+                                placeholder="e.g. 123456789012345"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Found in Facebook Events Manager → Data Sources → your Pixel.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Google Analytics Measurement ID
+                            </label>
+                            <input
+                                type="text"
+                                value={googleAnalyticsId}
+                                onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+                                placeholder="e.g. G-XXXXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Found in Google Analytics → Admin → Data Streams.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                TikTok Pixel ID
+                            </label>
+                            <input
+                                type="text"
+                                value={tiktokPixelId}
+                                onChange={(e) => setTiktokPixelId(e.target.value)}
+                                placeholder="e.g. CXXXXXXXXXXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Found in TikTok Ads Manager → Assets → Events.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Branding & Hero card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Branding & Hero</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">Customize your storefront colors and hero banner.</p>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Brand Color</label>
+                            <div className="flex items-center gap-3">
+                                <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} className="w-10 h-10 rounded-lg border border-gray-200 p-1 bg-white" />
+                                <input type="text" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} placeholder="#F4501A" className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm font-mono outline-none" />
+                                <span className="w-6 h-6 rounded-full border border-gray-200" style={{ background: brandColor }} />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Title</label>
+                            <input type="text" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="e.g. Summer Collection 2026" className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Subtitle</label>
+                            <textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Short tagline under title" rows={2} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none resize-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Banner Image</label>
+                            <div className="flex items-center gap-3">
+                                <div className="w-20 h-14 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                                    {heroImage.trim() && !heroImageError ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={heroImage} alt="Hero" className="w-full h-full object-cover" onError={() => setHeroImageError(true)} />
+                                    ) : (
+                                        <span className="text-gray-300 text-lg">🖼️</span>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button type="button" onClick={() => heroInputRef.current?.click()} disabled={uploadingHero} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 disabled:opacity-60">
+                                        {uploadingHero ? "Uploading..." : heroImage.trim() ? "Change banner" : "Upload banner"}
+                                    </button>
+                                    {heroImage.trim() && !uploadingHero && (
+                                        <button type="button" onClick={() => { setHeroImage(""); setHeroImageError(false); }} className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600">
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroFileChange} />
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">Recommended 1200×400, will be overlayed with brand color.</p>
+                        </div>
+                    </div>
+
+                    {/* Social Media Links card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Social Media</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Add your social links — only the ones you fill in will show on your storefront.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-blue-700">
+                                Facebook Page URL
+                            </label>
+                            <input
+                                type="url"
+                                value={facebookUrl}
+                                onChange={(e) => setFacebookUrl(e.target.value)}
+                                placeholder="https://facebook.com/yourpage"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                আপনার Facebook পেজের পুরো লিংক দিন।
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-pink-700">
+                                Instagram URL
+                            </label>
+                            <input
+                                type="url"
+                                value={instagramUrl}
+                                onChange={(e) => setInstagramUrl(e.target.value)}
+                                placeholder="https://instagram.com/yourpage"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                আপনার Instagram প্রোফাইলের পুরো লিংক দিন।
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-green-700">
+                                WhatsApp Number
+                            </label>
+                            <input
+                                type="tel"
+                                value={whatsappNumber}
+                                onChange={(e) => setWhatsappNumber(e.target.value)}
+                                placeholder="e.g. 8801XXXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                            <p className="text-xs text-gray-400 mt-1">
+                                Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX
+                            </p>
                         </div>
                     </div>
 

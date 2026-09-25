@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getVendorProducts, updateProduct } from "../controllers/productController";
+import { createProduct, deleteProduct, getVendorProducts, updateProduct, toggleFeatured } from "../controllers/productController";
 import { protect, authorize } from "../middlewares/authMiddleware";
 import { upload } from "../middlewares/uploadMiddleware";
 
@@ -14,5 +14,7 @@ router.route("/")
 router.route("/:id")
     .put(protect, authorize("vendor"), upload.array("images", 5), updateProduct)
     .delete(protect, authorize("vendor"), deleteProduct);
+
+router.patch("/:id/featured", protect, authorize("vendor"), toggleFeatured);
 
 export default router;

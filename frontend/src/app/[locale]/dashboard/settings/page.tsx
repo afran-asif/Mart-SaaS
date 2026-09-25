@@ -48,6 +48,13 @@ export default function LocalizedSettingsPage() {
     const [facebookUrl, setFacebookUrl] = useState("");
     const [instagramUrl, setInstagramUrl] = useState("");
     const [whatsappNumber, setWhatsappNumber] = useState("");
+    const [brandColor, setBrandColor] = useState("#F4501A");
+    const [heroTitle, setHeroTitle] = useState("");
+    const [heroSubtitle, setHeroSubtitle] = useState("");
+    const [heroImage, setHeroImage] = useState("");
+    const [heroImageError, setHeroImageError] = useState(false);
+    const [uploadingHero, setUploadingHero] = useState(false);
+    const heroInputRef = useRef<HTMLInputElement>(null);
 
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
@@ -69,6 +76,10 @@ export default function LocalizedSettingsPage() {
                 setFacebookUrl(data.facebookUrl || "");
                 setInstagramUrl(data.instagramUrl || "");
                 setWhatsappNumber(data.whatsappNumber || "");
+                setBrandColor(data.brandColor || "#F4501A");
+                setHeroTitle(data.heroTitle || "");
+                setHeroSubtitle(data.heroSubtitle || "");
+                setHeroImage(data.heroImage || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -83,6 +94,35 @@ export default function LocalizedSettingsPage() {
         setCopied(true);
         toast.success("Store URL copied.");
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleHeroFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file.");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be under 5MB.");
+            return;
+        }
+        setUploadingHero(true);
+        try {
+            const formData = new FormData();
+            formData.append("heroImage", file);
+            const res = await api.post("/store/hero-image", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            setHeroImage(res.data.heroImage || "");
+            setHeroImageError(false);
+            toast.success("Hero image uploaded.");
+        } catch (error: any) {
+            toast.error(error.message || "Hero upload failed.");
+        } finally {
+            setUploadingHero(false);
+            if (heroInputRef.current) heroInputRef.current.value = "";
+        }
     };
 
     // Logo file upload — Cloudinary te direct upload
@@ -133,6 +173,10 @@ export default function LocalizedSettingsPage() {
                 facebookUrl: facebookUrl.trim(),
                 instagramUrl: instagramUrl.trim(),
                 whatsappNumber: whatsappNumber.trim(),
+                brandColor: brandColor.trim() || null,
+                heroTitle: heroTitle.trim() || null,
+                heroSubtitle: heroSubtitle.trim() || null,
+                heroImage: heroImage.trim() || null,
             };
 
             if (useOwnSSLCommerz) {
@@ -509,6 +553,55 @@ export default function LocalizedSettingsPage() {
                             <p className="text-xs text-gray-400 mt-1">
                                 Found in TikTok Ads Manager → Assets → Events.
                             </p>
+                        </div>
+                    </div>
+
+                    {/* Branding & Hero card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Branding & Hero</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">Customize your storefront colors and hero banner.</p>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Brand Color</label>
+                            <div className="flex items-center gap-3">
+                                <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} className="w-10 h-10 rounded-lg border border-gray-200 p-1 bg-white" />
+                                <input type="text" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} placeholder="#F4501A" className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm font-mono outline-none" />
+                                <span className="w-6 h-6 rounded-full border border-gray-200" style={{ background: brandColor }} />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Title</label>
+                            <input type="text" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="e.g. Summer Collection 2026" className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Subtitle</label>
+                            <textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Short tagline under title" rows={2} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none resize-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Banner Image</label>
+                            <div className="flex items-center gap-3">
+                                <div className="w-20 h-14 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                                    {heroImage.trim() && !heroImageError ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={heroImage} alt="Hero" className="w-full h-full object-cover" onError={() => setHeroImageError(true)} />
+                                    ) : (
+                                        <span className="text-gray-300 text-lg">🖼️</span>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button type="button" onClick={() => heroInputRef.current?.click()} disabled={uploadingHero} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 disabled:opacity-60">
+                                        {uploadingHero ? "Uploading..." : heroImage.trim() ? "Change banner" : "Upload banner"}
+                                    </button>
+                                    {heroImage.trim() && !uploadingHero && (
+                                        <button type="button" onClick={() => { setHeroImage(""); setHeroImageError(false); }} className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600">
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroFileChange} />
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">Recommended 1200×400, will be overlayed with brand color.</p>
                         </div>
                     </div>
 

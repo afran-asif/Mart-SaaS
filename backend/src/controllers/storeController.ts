@@ -39,6 +39,10 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             facebookUrl,
             instagramUrl,
             whatsappNumber,
+            brandColor,
+            heroTitle,
+            heroSubtitle,
+            heroImage,
         } = req.body;
         const vendorId = req.user._id;
 
@@ -89,6 +93,15 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (instagramUrl !== undefined) store.instagramUrl = instagramUrl || null;
         if (whatsappNumber !== undefined) store.whatsappNumber = whatsappNumber || null;
 
+        // ✅ Branding & hero
+        if (brandColor !== undefined) {
+            const v = (brandColor as string).trim();
+            store.brandColor = v ? v : null;
+        }
+        if (heroTitle !== undefined) store.heroTitle = (heroTitle as string).trim() || null;
+        if (heroSubtitle !== undefined) store.heroSubtitle = (heroSubtitle as string).trim() || null;
+        if (heroImage !== undefined) store.heroImage = (heroImage as string).trim() || null;
+
         // Logo বদলালে/মুছলে পুরনো Cloudinary ইমেজ auto-delete (orphan জমবে না)
         let oldLogoToDelete: string | null = null;
         if (logo !== undefined) {
@@ -122,10 +135,50 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                brandColor: store.brandColor,
+                heroTitle: store.heroTitle,
+                heroSubtitle: store.heroSubtitle,
+                heroImage: store.heroImage,
                 updatedAt: store.updatedAt,
             }
         });
     } catch(error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+export const uploadHeroImage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const file = (req as any).file as Express.Multer.File | undefined;
+        if (!file) {
+            res.status(400).json({ message: "Please select an image file to upload." });
+            return;
+        }
+        const vendorId = req.user._id;
+        const store = await Store.findOne({ vendorId });
+        if (!store) {
+            res.status(404).json({ message: "Store not found for this vendor" });
+            return;
+        }
+        const heroUrl = await uploadToCloudinary(file.path);
+        const oldHero = store.heroImage;
+        store.heroImage = heroUrl;
+        await store.save();
+        if (oldHero && oldHero !== heroUrl) {
+            deleteFromCloudinary(oldHero);
+        }
+        res.status(200).json({
+            success: true,
+            message: "Hero image uploaded successfully",
+            heroImage: heroUrl,
+            store: {
+                id: store._id,
+                storeName: store.storeName,
+                subdomain: store.subdomain,
+                heroImage: store.heroImage,
+            },
+        });
+    } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
 };
@@ -199,6 +252,10 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                brandColor: store.brandColor,
+                heroTitle: store.heroTitle,
+                heroSubtitle: store.heroSubtitle,
+                heroImage: store.heroImage,
             }
         });
     } catch (error) {
@@ -232,6 +289,10 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                brandColor: store.brandColor,
+                heroTitle: store.heroTitle,
+                heroSubtitle: store.heroSubtitle,
+                heroImage: store.heroImage,
             },
         });
     } catch (error) {

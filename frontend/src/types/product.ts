@@ -9,4 +9,5 @@ export interface Product {
     description: string;
     images: string[];
     image?: string;
+    featured?: boolean;
 }

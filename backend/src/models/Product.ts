@@ -9,6 +9,7 @@ export interface IProduct extends Document {
     category: string;
     images: string[];
     stock: number;
+    featured: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -53,6 +54,10 @@ const productSchema = new Schema<IProduct>(
             required: [true, 'Product stock quantity is required'],
             min: [0, 'Stock cannot be negative'],
             default: 0,
+        },
+        featured: {
+            type: Boolean,
+            default: false,
         },
     },
     {
