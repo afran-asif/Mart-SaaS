@@ -172,7 +172,7 @@ export default async function StorePage({
     return (
         <div className={`min-h-screen ${themeBg[theme] || themeBg.classic}`}>
             {/* Header — শপ ব্যানার */}
-            <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} brandColor={brand} />
+            <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} brandColor={brand} theme={theme} />
 
             {/* Hero */}
             {hasHero && (
@@ -188,7 +188,7 @@ export default async function StorePage({
                                 <div className="absolute inset-0" style={{ background: `linear-gradient(90deg, ${brand}E6 0%, ${brand}99 45%, transparent 100%)` }} />
                             </>
                         ) : null}
-                        <div className={`relative z-10 flex-1 p-6 sm:p-8 lg:p-10 flex flex-col justify-center ${isLuxe ? "text-black" : "text-white"}`}>
+                        <div className={`relative z-[1] flex-1 p-6 sm:p-8 lg:p-10 flex flex-col justify-center ${isLuxe ? "text-black" : "text-white"}`}>
                             {store.heroTitle && (
                                 <h2 className={`font-['Fraunces',serif] text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight leading-tight ${isLuxe ? "text-black" : "text-white"}`}>
                                     {store.heroTitle}

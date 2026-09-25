@@ -14,10 +14,12 @@ interface Product {
     stock: number;
 }
 
-export default function AddToCartButton({ product }: { product: Product }) {
+export default function AddToCartButton({ product, theme = "classic" }: { product: Product; theme?: string }) {
     const dispatch = useDispatch();
     const router = useRouter();
     const outOfStock = product.stock === 0;
+    const isLuxe = theme === "luxe";
+    const isDark = theme === "bold" || theme === "luxe";
 
     const handleAddToCart = () => {
         dispatch(addToCart({ product, quantity: 1 }));
@@ -50,6 +52,10 @@ export default function AddToCartButton({ product }: { product: Product }) {
             className={`w-full py-3.5 rounded-xl font-medium text-sm transition-all border-2 ${
                 outOfStock
                     ? "border-[#75705F]/20 text-[#75705F] cursor-not-allowed"
+                    : isLuxe
+                    ? "border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black"
+                    : isDark
+                    ? "border-white text-white hover:bg-white hover:text-black"
                     : "border-[#0E3B2C] text-[#0E3B2C] hover:bg-[#0E3B2C] hover:text-white"
             }`}
             >

@@ -105,7 +105,7 @@ export default async function ProductDetailPage({
     return (
         <div className={`min-h-screen ${bg}`}>
             {/* সিম্পল হেডার — ব্যাক লিংক সহ */}
-            <StorefrontHeader variant="sub" />
+            <StorefrontHeader variant="sub" theme={theme} brandColor={storeInfo.brandColor || undefined} />
 
             {/* E-commerce ViewContent Tracking (Meta, TikTok, GA) */}
             <TrackViewContent
@@ -161,14 +161,14 @@ export default async function ProductDetailPage({
                                     মাত্র {product.stock}টি বাকি — দ্রুত অর্ডার করুন
                                 </p>
                             ) : (
-                                <p className="inline-flex items-center gap-2 text-sm text-[#0E3B2C] font-medium bg-[#0E3B2C]/5 border border-[#0E3B2C]/15 rounded-full px-3.5 py-1.5">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#1F9D55]" />
+                                <p className={`inline-flex items-center gap-2 text-sm font-medium rounded-full px-3.5 py-1.5 border ${isLuxe ? "text-[#d4af37] bg-[#d4af37]/10 border-[#d4af37]/20" : isDark ? "text-white bg-white/10 border-white/20" : "text-[#0E3B2C] bg-[#0E3B2C]/5 border-[#0E3B2C]/15"}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isLuxe ? "bg-[#d4af37]" : isDark ? "bg-white" : "bg-[#1F9D55]"}`} />
                                     স্টকে আছে
                                 </p>
                             )}
                         </div>
 
-                        <AddToCartButton product={product}/>
+                        <AddToCartButton product={product} theme={theme} />
 
                         {/* Trust badges */}
                         {!outOfStock && (

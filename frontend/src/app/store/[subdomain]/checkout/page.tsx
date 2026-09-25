@@ -215,7 +215,7 @@ export default function CheckoutPage() {
 
     return (
         <div className={`min-h-screen ${bg}`}>
-            <StorefrontHeader variant="sub" brandColor={brand} />
+            <StorefrontHeader variant="sub" brandColor={brand} theme={theme} />
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
                 <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>

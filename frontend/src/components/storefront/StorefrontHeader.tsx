@@ -6,11 +6,51 @@ interface StorefrontHeaderProps {
     storeName?: string;
     storeLogo?: string;
     brandColor?: string;
+    theme?: string;
 }
 
-export default function StorefrontHeader({ variant, storeName, storeLogo, brandColor }: StorefrontHeaderProps) {
+const themeHeader: Record<string, string> = {
+    classic: "bg-[#FFFDF7]/90 border-[#C6A15B]/40",
+    minimal: "bg-white/90 border-gray-200",
+    bold: "bg-[#0a0a0a]/90 border-white/10",
+    elegant: "bg-[#fdfbf7]/90 border-[#e8e0d0]",
+    vibrant: "bg-white/90 border-orange-100",
+    retro: "bg-[#fff8dc]/90 border-[#d2b48c]",
+    luxe: "bg-[#0a0a0a]/90 border-[#d4af37]/20",
+    pastel: "bg-[#fdf2f8]/90 border-pink-100",
+    urban: "bg-[#f3f4f6]/90 border-gray-300",
+};
+
+const themeText: Record<string, string> = {
+    classic: "text-[#181410]",
+    minimal: "text-gray-900",
+    bold: "text-white",
+    elegant: "text-[#3a332a]",
+    vibrant: "text-gray-900",
+    retro: "text-[#5d4037]",
+    luxe: "text-[#d4af37]",
+    pastel: "text-gray-700",
+    urban: "text-gray-900",
+};
+
+const themeSubText: Record<string, string> = {
+    classic: "text-[#75705F]",
+    minimal: "text-gray-500",
+    bold: "text-white/60",
+    elegant: "text-[#8a7d6b]",
+    vibrant: "text-gray-500",
+    retro: "text-[#8b7355]",
+    luxe: "text-[#d4af37]/60",
+    pastel: "text-pink-400",
+    urban: "text-gray-500",
+};
+
+export default function StorefrontHeader({ variant, storeName, storeLogo, brandColor, theme = "classic" }: StorefrontHeaderProps) {
+    const headerBg = themeHeader[theme] || themeHeader.classic;
+    const titleColor = themeText[theme] || themeText.classic;
+    const subColor = themeSubText[theme] || themeSubText.classic;
     return (
-        <header className="sticky top-0 z-10 bg-[#FFFDF7]/90 backdrop-blur-md border-b border-[#C6A15B]/40">
+        <header className={`sticky top-0 z-30 backdrop-blur-md border-b ${headerBg}`}>
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
                 {variant === "home" ? (
                     <div className="flex items-center gap-3 sm:gap-4">
@@ -29,7 +69,7 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
                             </div>
                         )}
                         <div>
-                            <h1 className="font-['Fraunces',serif] font-semibold text-xl sm:text-2xl text-[#181410] leading-tight tracking-tight">
+                            <h1 className={`font-['Fraunces',serif] font-semibold text-xl sm:text-2xl leading-tight tracking-tight ${titleColor}`}>
                                 {storeName}
                             </h1>
                             <div className="flex items-center gap-1.5 mt-1">
@@ -37,7 +77,7 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1F9D55] opacity-60" />
                                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#1F9D55]" />
                                 </span>
-                                <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.14em] text-[#75705F]">
+                                <span className={`font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.14em] ${subColor}`}>
                                     Open now
                                 </span>
                             </div>
@@ -46,13 +86,13 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
                 ) : (
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-1.5 text-sm text-[#0E3B2C] font-medium hover:text-[#F4501A] transition-colors underline-offset-4 hover:underline"
+                        className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors underline-offset-4 hover:underline ${titleColor} hover:opacity-70`}
                     >
                         ← দোকানে ফিরে যান
                     </Link>
                 )}
 
-                <CartIcon />
+                <CartIcon theme={theme} />
             </div>
         </header>
     );

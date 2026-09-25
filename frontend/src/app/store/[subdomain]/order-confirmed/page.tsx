@@ -34,7 +34,7 @@ export default async function OrderConfirmedPage({ params }: { params: Promise<{
     const bg = themeBgMap[storeInfo.theme as string] || themeBgMap.classic;
     return (
         <div className={`min-h-screen ${bg}`}>
-            <StorefrontHeader variant="sub" brandColor={storeInfo.brandColor || undefined} />
+            <StorefrontHeader variant="sub" brandColor={storeInfo.brandColor || undefined} theme={storeInfo.theme || undefined} />
             <Suspense fallback={<div className="text-center py-20 text-[#75705F]">লোড হচ্ছে...</div>}>
                 <OrderConfirmedContent />
             </Suspense>

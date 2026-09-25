@@ -4,13 +4,17 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
-export default function CartIcon() {
+export default function CartIcon({ theme = "classic" }: { theme?: string }) {
     const totalQuantity = useSelector((state: RootState) => state.cart.totalQuantity);
+    const isDark = theme === "bold" || theme === "luxe";
+    const isLuxe = theme === "luxe";
+    const stroke = isLuxe ? "#d4af37" : isDark ? "#ffffff" : "#181410";
+    const hoverBg = isDark ? "hover:bg-white/10" : "hover:bg-[#F4EEE2]";
 
     return (
         <Link
             href="/cart"
-            className="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#F4EEE2] transition-colors"
+            className={`relative inline-flex items-center justify-center w-10 h-10 rounded-full transition-colors ${hoverBg}`}
             aria-label="কার্ট দেখুন"
         >
             <svg
@@ -18,7 +22,7 @@ export default function CartIcon() {
                 height="20"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#181410"
+                stroke={stroke}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

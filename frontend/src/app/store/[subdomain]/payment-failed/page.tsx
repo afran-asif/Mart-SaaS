@@ -42,7 +42,7 @@ export default async function PaymentFailedPage({
 
     return (
         <div className={`min-h-screen ${bg}`}>
-            <StorefrontHeader variant="sub" brandColor={storeInfo.brandColor || undefined} />
+            <StorefrontHeader variant="sub" brandColor={storeInfo.brandColor || undefined} theme={storeInfo.theme || undefined} />
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
                 <div className="bg-white rounded-3xl border border-[#181410]/10 px-6 py-10 sm:px-12 text-center shadow-[0_24px_60px_-24px_rgba(24,20,16,0.3)]">
