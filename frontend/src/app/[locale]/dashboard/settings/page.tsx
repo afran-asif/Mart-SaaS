@@ -206,6 +206,9 @@ export default function LocalizedSettingsPage() {
             setCustomDomainStatus(res.data.customDomainStatus);
             if (res.data.success) {
                 toast.success("Domain verified! Now live on your custom domain.");
+                if (res.data.vercelAdded === false) {
+                    toast("Note: full activation can take a few minutes.", { icon: "⏳" });
+                }
             } else {
                 toast.error("DNS record not found yet. Check records and try again.");
             }

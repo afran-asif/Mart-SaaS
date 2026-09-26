@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import dns from "dns";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { addDomainToVercel, removeDomainFromVercel } from "../utils/vercel";
 
 const DNS_NAME_PATTERN =
     /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))+$/;
@@ -127,10 +128,20 @@ export const verifyCustomDomain = async (req: AuthenticatedRequest, res: Respons
         if (verified) {
             store.customDomainStatus = "verified";
             await store.save();
+
+            // Vercel-এ domain auto-add (non-blocking — fail হলেও verify সফল থাকবে)
+// fail হলে platform owner backend log-এ দেখবে, vendor-কে raw error দেখানো হবে না
+            const vercel = await addDomainToVercel(store.customDomain);
+            if (!vercel.ok && !vercel.skipped) {
+                console.error(`[VERCEL] Failed to auto-add ${store.customDomain}: ${vercel.message}`);
+            }
+
             res.status(200).json({
                 success: true,
                 customDomain: store.customDomain,
                 customDomainStatus: "verified",
+                vercelAdded: vercel.ok,
+                vercelMessage: vercel.message,
             });
             return;
         }
@@ -160,15 +171,25 @@ export const removeCustomDomain = async (req: AuthenticatedRequest, res: Respons
             return;
         }
 
+        const domainToRemove = store.customDomain;
+
         store.customDomain = null;
         store.customDomainStatus = "none";
         store.customDomainVerificationCode = null;
         await store.save();
 
+        // Vercel থেকেও domain সরানো (non-blocking)
+        let vercelMessage: string | undefined;
+        if (domainToRemove) {
+            const vercel = await removeDomainFromVercel(domainToRemove);
+            vercelMessage = vercel.message;
+        }
+
         res.status(200).json({
             success: true,
             customDomain: null,
             customDomainStatus: "none",
+            vercelMessage,
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
