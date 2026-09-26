@@ -22,6 +22,9 @@ export interface IStore extends Document {
     heroSubtitle?: string | null;
     heroImage?: string | null;
     theme?: string;
+    customDomain?: string | null;
+    customDomainStatus?: "none" | "pending" | "verified" | "failed";
+    customDomainVerificationCode?: string | null;
 }
 
 const storeSchema = new Schema<IStore>(
@@ -118,10 +121,27 @@ const storeSchema = new Schema<IStore>(
             type: String,
             default: null,
         },
-        theme: {
+theme: {
             type: String,
             enum: ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"],
             default: "classic",
+        },
+        customDomain: {
+            type: String,
+            default: null,
+            trim: true,
+            lowercase: true,
+            unique: true,
+            sparse: true,
+        },
+        customDomainStatus: {
+            type: String,
+            enum: ["none", "pending", "verified", "failed"],
+            default: "none",
+        },
+        customDomainVerificationCode: {
+            type: String,
+            default: null,
         },
     },
     { timestamps: true }

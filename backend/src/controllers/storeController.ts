@@ -146,6 +146,9 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
                 theme: store.theme,
+                customDomain: store.customDomain,
+                customDomainStatus: store.customDomainStatus,
+                customDomainVerificationCode: store.customDomainVerificationCode,
                 updatedAt: store.updatedAt,
             }
         });
@@ -302,6 +305,9 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
                 theme: store.theme,
+                customDomain: store.customDomain,
+                customDomainStatus: store.customDomainStatus,
+                customDomainVerificationCode: store.customDomainVerificationCode,
             },
         });
     } catch (error) {

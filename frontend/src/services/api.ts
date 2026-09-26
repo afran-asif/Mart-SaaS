@@ -5,14 +5,14 @@ export const api = axios.create({
     withCredentials: true,
 });
 
-// ✅ Subdomain বের করার হেল্পার ফাংশন
+// ✅ Tenant identifier বের করার হেল্পার — subdomain অথবা custom domain
 const getSubdomain = (): string | null => {
     if (typeof window === "undefined") return null;
 
     const hostname = window.location.hostname;
     const parts = hostname.split(".");
 
-    // main domain গুলো — কোনো subdomain নেই
+    // main domain গুলো — কোনো tenant নেই
     if (
         hostname === "localhost" ||
         hostname === "mart-saa-s.vercel.app" ||
@@ -23,11 +23,16 @@ const getSubdomain = (): string | null => {
         return null;
     }
 
-    if (parts.length >= 2) {
+    const isSubOfBase = ["localhost", "vendoo.shop", "mart-saa-s.vercel.app"].some(
+        (b) => hostname.endsWith(`.${b}`)
+    );
+
+    if (isSubOfBase && parts.length >= 2) {
         return parts[0]; // প্রথম অংশটাই subdomain
     }
 
-    return null;
+    // Custom domain — পুরো hostname-ই identifier
+    return hostname;
 };
 
 // ✅ প্রতিটি request-এ token + tenant subdomain যুক্ত করা

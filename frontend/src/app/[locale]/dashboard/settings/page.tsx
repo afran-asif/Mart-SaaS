@@ -26,6 +26,9 @@ interface StoreData {
     heroSubtitle?: string | null;
     heroImage?: string | null;
     theme?: string | null;
+    customDomain?: string | null;
+    customDomainStatus?: "none" | "pending" | "verified" | "failed";
+    customDomainVerificationCode?: string | null;
 }
 
 export default function LocalizedSettingsPage() {
@@ -61,6 +64,13 @@ export default function LocalizedSettingsPage() {
     const [uploadingHero, setUploadingHero] = useState(false);
     const heroInputRef = useRef<HTMLInputElement>(null);
     const [theme, setTheme] = useState("classic");
+    const [customDomain, setCustomDomain] = useState("");
+    const [customDomainStatus, setCustomDomainStatus] = useState<
+        "none" | "pending" | "verified" | "failed"
+    >("none");
+    const [verificationCode, setVerificationCode] = useState("");
+    const [cnameTarget, setCnameTarget] = useState("");
+    const [domainLoading, setDomainLoading] = useState(false);
 
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
@@ -87,6 +97,9 @@ export default function LocalizedSettingsPage() {
                 setHeroSubtitle(data.heroSubtitle || "");
                 setHeroImage(data.heroImage || "");
                 setTheme(data.theme || "classic");
+                setCustomDomain(data.customDomain || "");
+                setCustomDomainStatus(data.customDomainStatus || "none");
+                setVerificationCode(data.customDomainVerificationCode || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -161,6 +174,62 @@ export default function LocalizedSettingsPage() {
         } finally {
             setUploadingLogo(false);
             if (logoInputRef.current) logoInputRef.current.value = "";
+        }
+    };
+
+    // Custom domain handlers
+    const handleRequestDomain = async () => {
+        const value = customDomain.trim();
+        if (!value) {
+            toast.error("Enter your domain first.");
+            return;
+        }
+        setDomainLoading(true);
+        try {
+            const res = await api.post("/store/config/domain/request", { domain: value });
+            setCustomDomain(res.data.customDomain);
+            setCustomDomainStatus(res.data.customDomainStatus);
+            setVerificationCode(res.data.verificationCode);
+            setCnameTarget(res.data.cnameTarget);
+            toast.success("Domain connected. Add the DNS records below to verify.");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to connect domain.");
+        } finally {
+            setDomainLoading(false);
+        }
+    };
+
+    const handleVerifyDomain = async () => {
+        setDomainLoading(true);
+        try {
+            const res = await api.post("/store/config/domain/verify");
+            setCustomDomainStatus(res.data.customDomainStatus);
+            if (res.data.success) {
+                toast.success("Domain verified! Now live on your custom domain.");
+            } else {
+                toast.error("DNS record not found yet. Check records and try again.");
+            }
+        } catch (error: any) {
+            setCustomDomainStatus("failed");
+            toast.error(error.message || "Verification failed.");
+        } finally {
+            setDomainLoading(false);
+        }
+    };
+
+    const handleRemoveDomain = async () => {
+        setDomainLoading(true);
+        try {
+            await api.post("/store/config/domain/remove");
+            setCustomDomain("");
+            setCustomDomainStatus("none");
+            setVerificationCode("");
+            setCnameTarget("");
+            toast.success("Custom domain removed.");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to remove domain.");
+        } finally {
+            setDomainLoading(false);
         }
     };
 
@@ -504,6 +573,118 @@ export default function LocalizedSettingsPage() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Custom Domain card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.domainTitle")}</h2>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                    {t("dashboard.settingsPage.domainDesc")}
+                                </p>
+                            </div>
+                            <span
+                                className={`text-[11px] font-semibold px-2.5 py-1 rounded-md ${
+                                    customDomainStatus === "verified"
+                                        ? "bg-green-50 text-green-700"
+                                        : customDomainStatus === "pending"
+                                        ? "bg-amber-50 text-amber-700"
+                                        : customDomainStatus === "failed"
+                                        ? "bg-red-50 text-red-700"
+                                        : "bg-gray-100 text-gray-500"
+                                }`}
+                            >
+                                {customDomainStatus === "verified"
+                                    ? t("dashboard.settingsPage.domainVerified")
+                                    : customDomainStatus === "pending"
+                                    ? t("dashboard.settingsPage.domainPending")
+                                    : customDomainStatus === "failed"
+                                    ? t("dashboard.settingsPage.domainFailed")
+                                    : t("dashboard.settingsPage.domainNone")}
+                            </span>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={customDomain}
+                                onChange={(e) => setCustomDomain(e.target.value)}
+                                disabled={customDomainStatus === "verified" || (customDomainStatus === "pending" && !!customDomain)}
+                                placeholder="shop.youraddress.com"
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleRequestDomain}
+                                disabled={domainLoading || customDomainStatus === "verified"}
+                                className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {domainLoading ? "..." : customDomainStatus === "pending" ? "Reconnect" : "Connect"}
+                            </button>
+                        </div>
+
+                        {(customDomainStatus === "pending" || customDomainStatus === "failed") && verificationCode && (
+                            <div className="space-y-3 bg-amber-50/60 border border-amber-200 rounded-xl p-4">
+                                <div className="flex items-start gap-2.5 text-xs text-amber-900">
+                                    <span className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                    <p className="leading-relaxed">{t("dashboard.settingsPage.domainInstructions")}</p>
+                                </div>
+
+                                <div className="bg-white border border-amber-200 rounded-lg p-3 text-xs divide-y divide-gray-100">
+                                    <div className="py-1.5">
+                                        <p className="font-semibold text-gray-700 mb-0.5">{t("dashboard.settingsPage.domainTxtLabel")}</p>
+                                        <p className="font-mono text-[11px] text-gray-600 break-all">
+                                            vendoo-verify={verificationCode}
+                                        </p>
+                                    </div>
+                                    {cnameTarget && (
+                                        <div className="py-1.5">
+                                            <p className="font-semibold text-gray-700 mb-0.5">{t("dashboard.settingsPage.domainCnameLabel")}</p>
+                                            <p className="font-mono text-[11px] text-gray-600 break-all">
+                                                {customDomain} → {cnameTarget}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={handleVerifyDomain}
+                                    disabled={domainLoading}
+                                    className="w-full py-2.5 rounded-xl bg-[#0E3B2C] hover:bg-[#0a2e22] text-white text-xs font-semibold transition-colors disabled:opacity-60"
+                                >
+                                    {domainLoading ? "Checking DNS..." : t("dashboard.settingsPage.domainVerify")}
+                                </button>
+                            </div>
+                        )}
+
+                        {customDomainStatus === "verified" && (
+                            <div className="flex items-center justify-between gap-3 bg-green-50/60 border border-green-200 rounded-xl p-4">
+                                <div className="min-w-0">
+                                    <p className="text-sm font-semibold text-green-800 break-all">{customDomain}</p>
+                                    <p className="text-xs text-green-700 mt-0.5">{t("dashboard.settingsPage.domainLive")}</p>
+                                </div>
+                                <div className="flex gap-2 shrink-0">
+                                    <a
+                                        href={`${protocol}://${customDomain}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-3 py-2 rounded-lg bg-green-700 hover:bg-green-800 text-white text-xs font-semibold transition-colors"
+                                    >
+                                        {t("dashboard.settingsPage.visitStore")}
+                                    </a>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveDomain}
+                                        disabled={domainLoading}
+                                        className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-60"
+                                    >
+                                        {t("dashboard.settingsPage.domainRemove")}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Marketing & Tracking card */}

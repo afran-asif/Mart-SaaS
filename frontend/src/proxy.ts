@@ -10,17 +10,35 @@ export function proxy(request: NextRequest) {
 
     const parts = hostname.split(".");
 
-    const isMainDomain =
-        hostname === "localhost:3000" ||
-        hostname === "mart-saa-s.vercel.app" ||  
-        hostname === "vendoo.shop" ||          
-        hostname === "www.vendoo.shop";
+    // দেওয়া main domain গুলো (configurable) — এখানেই subdomain নয়, platform root
+    const MAIN_DOMAINS = [
+        "localhost:3000",
+        "mart-saa-s.vercel.app",
+        "vendoo.shop",
+        "www.vendoo.shop",
+    ];
 
-    // 1. Subdomain handling (e.g., sestone.localhost:3000 or brand.vendoo.shop)
+    // বেস domain এরো subdomain চেনা (যেমন af-brand.vendoo.shop, anything.localhost:3000)
+    const BASEHOST_NAMES = ["vendoo.shop", "mart-saa-s.vercel.app", "localhost:3000"];
+
+    const isMainDomain = MAIN_DOMAINS.includes(hostname);
+
+    // hostname থেকে port বাদ (custom domain identifier-এ port থাকবে না)
+    const hostWithoutPort = hostname.split(":")[0];
+
     if (!isMainDomain) {
-        const subdomain = parts[0];
-        if (subdomain && subdomain !== "www") {
-            url.pathname = `/store/${subdomain}${pathname}`;
+        const isSubOfBase = BASEHOST_NAMES.some((b) => hostname.endsWith(`.${b}`));
+
+        if (isSubOfBase) {
+            // 1. Platform subdomain (ex: sestone.vendoo.shop / af-brand.localhost:3000)
+            const subdomain = parts[0];
+            if (subdomain && subdomain !== "www") {
+                url.pathname = `/store/${subdomain}${pathname}`;
+                return NextResponse.rewrite(url);
+            }
+        } else {
+            // 2. Custom domain (ex: shop.afrangadget.com) — পুরো hostname-ই tenant identifier
+            url.pathname = `/store/${hostWithoutPort}${pathname}`;
             return NextResponse.rewrite(url);
         }
     }
