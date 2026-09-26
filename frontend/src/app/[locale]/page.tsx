@@ -131,9 +131,12 @@ export default function LocalizedHomePage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
           {/* Logo */}
           <Link href={`/${language}`} className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-600 text-white font-bold shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-              V
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/favicon.ico"
+              alt="Vendoo"
+              className="h-9 w-9 rounded-xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform"
+            />
             <div className="flex flex-col">
               <span className="text-xl font-extrabold tracking-tight text-gray-900 leading-none">
                 Vendoo
