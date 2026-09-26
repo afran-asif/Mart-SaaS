@@ -1,15 +1,24 @@
 import {Router } from 'express';
+import rateLimit from "express-rate-limit";
 import { registerVendor, loginUser, verifyEmail, resendVerificationEmail, forgotPassword, resetPassword } from "../controllers/authController";
 import { protect, authorize } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.post('/register', registerVendor);
-router.post('/login', loginUser);
+const limitMsg = { message: "Too many requests. Please try again later." };
+const std = { windowMs: 15 * 60 * 1000, standardHeaders: true, legacyHeaders: false, message: limitMsg } as const;
+// register/forgot = DB + email খরচ → সবচেয়ে কড়া; login = typo-র জায়গা রেখে মাঝারি
+const registerLimiter = rateLimit({ ...std, max: 5 });
+const loginLimiter = rateLimit({ ...std, max: 15 });
+const emailLimiter = rateLimit({ ...std, max: 5 }); // forgot + resend (inbox-bomb রোধে)
+const resetLimiter = rateLimit({ ...std, max: 10 });
+
+router.post('/register', registerLimiter, registerVendor);
+router.post('/login', loginLimiter, loginUser);
 router.get('/verify-email/:token', verifyEmail);
-router.post('/resend-verification', resendVerificationEmail);
-router.post('/forgot-password', forgotPassword);
-router.post('/reset-password', resetPassword);
+router.post('/resend-verification', emailLimiter, resendVerificationEmail);
+router.post('/forgot-password', emailLimiter, forgotPassword);
+router.post('/reset-password', resetLimiter, resetPassword);
 
 router.get('/dashboard-data', protect, authorize('vendor', 'super-admin'), (req, res) => {
     res.status(200).json({

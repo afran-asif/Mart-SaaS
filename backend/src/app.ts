@@ -4,6 +4,8 @@ dotenv.config();
 import express, { Application, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import storeRoutes from './routes/storeRoutes';
 import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
@@ -24,6 +26,20 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// 🛡️ Security headers (XSS filter, clickjacking, MIME-sniffing...)
+app.use(helmet());
+
+// 🚦 Rate limiting — brute-force ও flood ঠেকাতে
+// NOTE: backend সরাসরি চলে (সামনে কোনো proxy নেই), তাই trust proxy OFF —
+// ভবিষ্যতে Cloudflare/nginx-এর পেছনে গেলে app.set("trust proxy", 1) লাগবে।
+const tooManyMsg = { message: "Too many requests. Please try again later." };
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 150, standardHeaders: true, legacyHeaders: false, message: tooManyMsg });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false, message: tooManyMsg });
+const paymentLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 15, standardHeaders: true, legacyHeaders: false, message: tooManyMsg });
+app.use("/api/", globalLimiter);
+app.use("/api/v1/auth", authLimiter);
+app.use("/api/v1/payment", paymentLimiter);
 const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saa-s\.vercel\.app|vendoo\.shop)$/;
 
 app.use("/api/v1/payment", paymentCallbackRoutes);

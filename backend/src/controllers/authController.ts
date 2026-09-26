@@ -31,6 +31,11 @@ const generateToken = (res: Response, userId: string): string => {
 export const registerVendor = async (req: Request, res: Response) => {
     try {
         const {name, email, password, storeName, subdomain } = req.body;
+
+        if (!password || password.length < 8) {
+            res.status(400).json({ message: 'Password must be at least 8 characters long' });
+            return;
+        }
         
         const userExists = await User.findOne({ email })
         if (userExists) {
@@ -215,6 +220,11 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 export const resetPassword = async (req: Request, res: Response): Promise<void> => {
     try {
         const { token, password } = req.body;
+
+        if (!password || password.length < 8) {
+            res.status(400).json({ message: 'Password must be at least 8 characters long' });
+            return;
+        }
 
         const user = await User.findOne({
             resetPasswordToken: token,
