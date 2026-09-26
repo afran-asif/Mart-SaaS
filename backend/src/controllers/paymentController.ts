@@ -7,6 +7,7 @@ import { decrypt } from "../utils/encryption";
 import { sendOrderConfirmationEmail } from "../utils/sendEmail";
 import { Coupon } from "../models/Coupon";
 import { getDeliveryCharge, BANGLADESH_DISTRICTS } from "../utils/deliveryCharges";
+import { checkMonthlyOrderLimit } from "../utils/plan";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
 const calcCouponDiscount = (coupon: any, subtotal: number): number => {
@@ -146,6 +147,14 @@ export const initiatePayment = async (req: Request, res: Response) => {
         if (paymentMethod !== "COD" && !(store.useOwnSSLCommerz && store.sslcommerzStoreId)) {
             await session.abortTransaction();
             res.status(400).json({ message: "Online payment is not enabled for this store." });
+            return;
+        }
+
+        // 🧾 Plan limit — free plan-এ মাসে ১০০ অর্ডার পর্যন্ত
+        const orderLimitMsg = await checkMonthlyOrderLimit(store);
+        if (orderLimitMsg) {
+            await session.abortTransaction();
+            res.status(403).json({ message: orderLimitMsg, proRequired: true });
             return;
         }
 

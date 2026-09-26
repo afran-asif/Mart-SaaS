@@ -4,9 +4,11 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { getCoupons, createCoupon, updateCoupon, deleteCoupon, type Coupon } from "@/services/couponService";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export default function LocalizedCouponsPage() {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
+    const { sub } = useSubscription();
     const [coupons, setCoupons] = useState<Coupon[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -74,6 +76,15 @@ export default function LocalizedCouponsPage() {
                 </div>
                 <button onClick={openCreate} className="bg-orange-600 hover:bg-orange-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm">+ {t("dashboard.couponsPage.addButton")}</button>
             </div>
+
+            {sub && sub.plan !== "pro" && (
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <p className="text-sm text-gray-700 flex-1">🔒 Coupons are a Pro feature. Upgrade to create discount codes.</p>
+                    <a href={`/${language}/dashboard/billing`} className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold whitespace-nowrap transition-colors">
+                        Upgrade to Pro →
+                    </a>
+                </div>
+            )}
 
             {loading ? (
                 <p className="text-gray-600 p-4 bg-white rounded-2xl border border-gray-100">{t("dashboard.couponsPage.loading")}</p>

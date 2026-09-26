@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
 import { encrypt } from "../utils/encryption";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
+import { getEffectivePlan, getPlanLimits } from "../utils/plan";
 
 export const getAllActiveStores = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -58,7 +59,17 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (logo !== undefined) store.logo = logo || null;
         if (status) store.status = status;
 
+        // 💳 Plan limits — proLocked ফিল্ডগুলো free-তে সেভ হবে না (আগের মান বহাল থাকবে)
+        const plan = getEffectivePlan(store);
+        const limits = await getPlanLimits(plan);
+        const proLocked: string[] = [];
+
                 // --- Hybrid SSLCommerz logic শুরু ---
+        // নিজের gateway নতুন করে চালু করা শুধু Pro-তে (আগে থেকে চালু থাকলে grandfathered)
+        if (useOwnSSLCommerz === true && !store.useOwnSSLCommerz && plan !== "pro") {
+            res.status(403).json({ message: "Own SSLCommerz gateway is a Pro feature. Please upgrade your plan.", proRequired: true });
+            return;
+        }
         if (typeof useOwnSSLCommerz === "boolean") {
             // vendor যদি নিজের SSLCommerz চালু করতে চায়
             if (useOwnSSLCommerz) {
@@ -84,10 +95,21 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         }
         // --- Hybrid SSLCommerz logic শেষ ---
 
-        // ✅ Pixel IDs — খালি স্ট্রিং দিলে মুছে ফেলা যাবে (null করে), না দিলে অপরিবর্তিত
-        if (facebookPixelId !== undefined) store.facebookPixelId = facebookPixelId || null;
-        if (googleAnalyticsId !== undefined) store.googleAnalyticsId = googleAnalyticsId || null;
-        if (tiktokPixelId !== undefined) store.tiktokPixelId = tiktokPixelId || null;
+        // ✅ Pixel IDs — শুধু Pro-তে নতুন করে বসানো যাবে (খালি করা সবসময় যাবে)
+        const pixelFields = [
+            ["facebookPixelId", facebookPixelId],
+            ["googleAnalyticsId", googleAnalyticsId],
+            ["tiktokPixelId", tiktokPixelId],
+        ] as const;
+        for (const [key, value] of pixelFields) {
+            if (value === undefined) continue;
+            const v = (value as string).trim();
+            if (v && !(store as any)[key] && !limits.pixels) {
+                proLocked.push("pixels");
+                continue;
+            }
+            (store as any)[key] = v || null;
+        }
 
         // ✅ Social links — খালি স্ট্রিং দিলে মুছে ফেলা যাবে (null করে)
         if (facebookUrl !== undefined) store.facebookUrl = facebookUrl || null;
@@ -103,9 +125,15 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (heroSubtitle !== undefined) store.heroSubtitle = (heroSubtitle as string).trim() || null;
         if (heroImage !== undefined) store.heroImage = (heroImage as string).trim() || null;
         if (theme !== undefined) {
-            const allowed = ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"];
+            const allowed: string[] = limits.themes.length
+                ? [...limits.themes]
+                : ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"];
             const v = (theme as string).trim().toLowerCase();
-            if (allowed.includes(v)) store.theme = v;
+            if (allowed.includes(v)) {
+                store.theme = v;
+            } else if (v !== store.theme) {
+                proLocked.push(`theme:${v}`);
+            }
         }
 
         // Logo বদলালে/মুছলে পুরনো Cloudinary ইমেজ auto-delete (orphan জমবে না)
@@ -127,6 +155,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         res.status(200).json({
             success: true,
             message: "Store configuaration updated successfully",
+            proLocked: [...new Set(proLocked)],
             store:{
                 id: store._id,
                 storeName: store.storeName,
@@ -149,6 +178,8 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 customDomain: store.customDomain,
                 customDomainStatus: store.customDomainStatus,
                 customDomainVerificationCode: store.customDomainVerificationCode,
+                plan: getEffectivePlan(store),
+                planExpiresAt: store.planExpiresAt,
                 updatedAt: store.updatedAt,
             }
         });
@@ -269,6 +300,8 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 theme: store.theme,
                 // অনলাইন পেমেন্ট শুধু vendor নিজের SSLCommerz বসালেই (platform gateway এখন OFF)
                 onlinePaymentEnabled: !!(store.useOwnSSLCommerz && store.sslcommerzStoreId),
+                // Pro-তে "Powered by Vendoo" badge লুকানো যাবে
+                plan: getEffectivePlan(store),
             }
         });
     } catch (error) {
@@ -310,6 +343,8 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 customDomain: store.customDomain,
                 customDomainStatus: store.customDomainStatus,
                 customDomainVerificationCode: store.customDomainVerificationCode,
+                plan: getEffectivePlan(store),
+                planExpiresAt: store.planExpiresAt,
             },
         });
     } catch (error) {

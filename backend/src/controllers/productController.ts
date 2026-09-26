@@ -5,6 +5,7 @@ import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
 import { uploadToCloudinary } from "../middlewares/uploadMiddleware";
+import { checkProductLimit } from "../utils/plan";
 
 // 📤 ১. নতুন প্রোডাক্ট তৈরি করা (Multer ফাইল সাপোর্টসহ)
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -17,6 +18,13 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
         const store = await Store.findOne({ vendorId });
         if (!store) {
             res.status(400).json({ message: "Store not found. You must have a store to add products." });
+            return;
+        }
+
+        // 📦 Plan limit — free plan-এ ২০টা পর্যন্ত
+        const limitMsg = await checkProductLimit(store);
+        if (limitMsg) {
+            res.status(403).json({ message: limitMsg, proRequired: true });
             return;
         }
 

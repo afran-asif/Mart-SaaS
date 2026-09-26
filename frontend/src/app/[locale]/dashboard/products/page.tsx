@@ -10,11 +10,13 @@ import ProductTable from "@/components/products/ProductTable";
 import AddProductModal from "@/components/products/AddProductModal";
 import EditProductModal from "@/components/products/EditProductModal";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const ITEMS_PER_PAGE = 8;
 
 export default function LocalizedProductsPage() {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
+    const { sub } = useSubscription();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -114,7 +116,14 @@ export default function LocalizedProductsPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t("dashboard.productsPage.title")}</h1>
-                    <p className="text-gray-500 mt-1 text-sm">{t("dashboard.productsPage.subtitle")}</p>
+                    <p className="text-gray-500 mt-1 text-sm">
+                        {t("dashboard.productsPage.subtitle")}
+                        {sub && sub.plan !== "pro" && sub.usage.maxProducts !== null && (
+                            <span className={`ml-2 font-mono font-semibold ${products.length >= sub.usage.maxProducts ? "text-red-600" : "text-gray-500"}`}>
+                                ({products.length}/{sub.usage.maxProducts})
+                            </span>
+                        )}
+                    </p>
                 </div>
                 <button
                     onClick={() => setIsAddModalOpen(true)}
@@ -123,6 +132,15 @@ export default function LocalizedProductsPage() {
                     {t("dashboard.productsPage.addNew")}
                 </button>
             </div>
+
+            {sub && sub.plan !== "pro" && sub.usage.maxProducts !== null && products.length >= sub.usage.maxProducts && (
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <p className="text-sm text-gray-700 flex-1">🔒 Product limit reached ({sub.usage.maxProducts}). Upgrade to Pro for unlimited products.</p>
+                    <a href={`/${language}/dashboard/billing`} className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold whitespace-nowrap transition-colors">
+                        Upgrade to Pro →
+                    </a>
+                </div>
+            )}
 
             {/* Search, Filter & Sort */}
             <ProductSearchBar

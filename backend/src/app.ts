@@ -14,7 +14,9 @@ import paymentRoutes from './routes/paymentRoutes';
 import paymentCallbackRoutes from './routes/paymentCallbackRoutes'
 import categoryRoutes from './routes/categoryRoutes';
 import couponRoutes from './routes/couponRoutes';
+import subscriptionRoutes from './routes/subscriptionRoutes';
 import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
+import { seedPlans } from "./models/Plan";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -56,6 +58,7 @@ app.use('/api/v1/products', productRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/coupons', couponRoutes);
+app.use('/api/v1/subscription', subscriptionRoutes);
 app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/v1/payment", paymentRoutes);
@@ -63,6 +66,7 @@ app.use("/api/v1/payment", paymentRoutes);
 const startServer = async () => {
     await connectDB();
 
+    await seedPlans();
     await refreshCustomDomainCache();
     setInterval(refreshCustomDomainCache, 5 * 60 * 1000);
     

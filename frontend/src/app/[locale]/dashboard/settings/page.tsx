@@ -26,15 +26,18 @@ interface StoreData {
     heroSubtitle?: string | null;
     heroImage?: string | null;
     theme?: string | null;
+    plan?: "free" | "pro";
+    planExpiresAt?: string | null;
     customDomain?: string | null;
     customDomainStatus?: "none" | "pending" | "verified" | "failed";
     customDomainVerificationCode?: string | null;
 }
 
 export default function LocalizedSettingsPage() {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const dispatch = useDispatch();
     const [store, setStore] = useState<StoreData | null>(null);
+    const [plan, setPlan] = useState<"free" | "pro">("free");
 
     const [storeName, setStoreName] = useState("");
     const [logo, setLogo] = useState("");
@@ -97,6 +100,7 @@ export default function LocalizedSettingsPage() {
                 setHeroSubtitle(data.heroSubtitle || "");
                 setHeroImage(data.heroImage || "");
                 setTheme(data.theme || "classic");
+                setPlan(data.plan || "free");
                 setCustomDomain(data.customDomain || "");
                 setCustomDomainStatus(data.customDomainStatus || "none");
                 setVerificationCode(data.customDomainVerificationCode || "");
@@ -266,6 +270,10 @@ export default function LocalizedSettingsPage() {
 
             const res = await api.put("/store/config", payload);
             setStore(res.data.store);
+            setPlan(res.data.store.plan || "free");
+            if (res.data.proLocked?.length) {
+                toast.error(`Pro required: ${res.data.proLocked.join(", ")} not saved. Upgrade from Billing.`);
+            }
             dispatch(
                 updateStoreInfo({
                     id: res.data.store.id,
@@ -468,6 +476,7 @@ export default function LocalizedSettingsPage() {
                             <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.paymentRouting")}</h2>
                             <p className="text-xs text-gray-500 mt-0.5">
                                 {t("dashboard.settingsPage.paymentRoutingDesc")}
+                                {plan !== "pro" && " Own gateway is Pro-only."}
                             </p>
                         </div>
 
@@ -608,6 +617,19 @@ export default function LocalizedSettingsPage() {
                             </span>
                         </div>
 
+                        {plan !== "pro" && (customDomainStatus === "none" || customDomainStatus === "failed") ? (
+                            <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4 text-center">
+                                <p className="text-sm font-bold text-gray-900">🔒 Custom domain is a Pro feature</p>
+                                <p className="text-xs text-gray-500 mt-1">Connect your own domain like shop.yourbrand.com</p>
+                                <a
+                                    href={`/${language}/dashboard/billing`}
+                                    className="inline-block mt-3 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-colors"
+                                >
+                                    Upgrade to Pro →
+                                </a>
+                            </div>
+                        ) : (
+                            <>
                         <div className="flex gap-2">
                             <input
                                 type="text"
@@ -697,14 +719,17 @@ export default function LocalizedSettingsPage() {
                                 </div>
                             </div>
                         )}
+                            </>
+                        )}
                     </div>
 
                     {/* Marketing & Tracking card */}
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
                         <div>
-                            <h2 className="text-sm font-bold text-gray-900">Marketing & Tracking</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Marketing & Tracking {plan !== "pro" && <span className="text-[10px] bg-gray-900 text-white px-1.5 py-0.5 rounded-md align-middle">🔒 Pro</span>}</h2>
                             <p className="text-xs text-gray-500 mt-0.5">
                                 Add your ad pixels to track visitors and measure ad performance.
+                                {plan !== "pro" && " Upgrade to Pro to enable pixels."}
                             </p>
                         </div>
 
@@ -716,8 +741,9 @@ export default function LocalizedSettingsPage() {
                                 type="text"
                                 value={facebookPixelId}
                                 onChange={(e) => setFacebookPixelId(e.target.value)}
+                                disabled={plan !== "pro"}
                                 placeholder="e.g. 123456789012345"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
                             />
                             <p className="text-xs text-gray-400 mt-1">
                                 Found in Facebook Events Manager → Data Sources → your Pixel.
@@ -732,8 +758,9 @@ export default function LocalizedSettingsPage() {
                                 type="text"
                                 value={googleAnalyticsId}
                                 onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+                                disabled={plan !== "pro"}
                                 placeholder="e.g. G-XXXXXXXXXX"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
                             />
                             <p className="text-xs text-gray-400 mt-1">
                                 Found in Google Analytics → Admin → Data Streams.
@@ -748,8 +775,9 @@ export default function LocalizedSettingsPage() {
                                 type="text"
                                 value={tiktokPixelId}
                                 onChange={(e) => setTiktokPixelId(e.target.value)}
+                                disabled={plan !== "pro"}
                                 placeholder="e.g. CXXXXXXXXXXXXXXXX"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
                             />
                             <p className="text-xs text-gray-400 mt-1">
                                 Found in TikTok Ads Manager → Assets → Events.
@@ -810,7 +838,7 @@ export default function LocalizedSettingsPage() {
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
                         <div>
                             <h2 className="text-sm font-bold text-gray-900">Store Theme</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">Choose a design for your storefront. 5 themes available.</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Free: classic, minimal, vibrant · Pro: all 9 themes.</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             {[
@@ -823,18 +851,32 @@ export default function LocalizedSettingsPage() {
                                 { id: "luxe", name: "Luxe", desc: "Gold & black", bg: "bg-[#111] border-[#d4af37]/30" },
                                 { id: "pastel", name: "Pastel", desc: "Soft pink/purple", bg: "bg-pink-50 border-pink-200" },
                                 { id: "urban", name: "Urban", desc: "Street gray", bg: "bg-gray-100 border-gray-300" },
-                            ].map((th) => (
+                            ].map((th) => {
+                                const locked = plan !== "pro" && !["classic", "minimal", "vibrant"].includes(th.id);
+                                return (
                                 <button
                                     key={th.id}
                                     type="button"
-                                    onClick={() => setTheme(th.id)}
-                                    className={`p-3 rounded-xl border-2 text-left transition-all ${theme === th.id ? "border-orange-500 ring-2 ring-orange-500/20" : "border-gray-200 hover:border-gray-300"} ${th.bg}`}
+                                    onClick={() => {
+                                        if (locked) {
+                                            toast.error("This theme is Pro-only. Upgrade from Billing.");
+                                            return;
+                                        }
+                                        setTheme(th.id);
+                                    }}
+                                    className={`relative p-3 rounded-xl border-2 text-left transition-all ${theme === th.id ? "border-orange-500 ring-2 ring-orange-500/20" : "border-gray-200 hover:border-gray-300"} ${th.bg} ${locked ? "opacity-70" : ""}`}
                                 >
+                                    {locked && (
+                                        <span className="absolute top-2 right-2 text-[10px] font-bold bg-gray-900 text-white px-1.5 py-0.5 rounded-md">
+                                            🔒 Pro
+                                        </span>
+                                    )}
                                     <div className={`w-full h-14 rounded-lg mb-2 border ${theme === th.id ? "border-orange-300" : "border-black/5"} ${th.id === "bold" ? "bg-[#1a1a1a]" : th.id === "minimal" ? "bg-gray-50" : th.id === "elegant" ? "bg-[#f5efe6]" : th.id === "vibrant" ? "bg-gradient-to-br from-orange-200 to-pink-200" : "bg-[#F4EEE2]"}`} />
                                     <p className={`text-xs font-bold ${th.id === "luxe" ? "text-[#d4af37]" : th.id === "bold" ? "text-white" : "text-gray-900"}`}>{th.name}</p>
                                     <p className={`text-[11px] ${th.id === "luxe" ? "text-[#d4af37]/60" : th.id === "bold" ? "text-white/60" : "text-gray-500"}`}>{th.desc}</p>
                                 </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 

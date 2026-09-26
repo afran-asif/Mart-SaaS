@@ -3,6 +3,7 @@ import { Coupon } from "../models/Coupon";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
+import { requirePro } from "../utils/plan";
 
 const getVendorStore = async (vendorId: string) => Store.findOne({ vendorId });
 
@@ -21,6 +22,7 @@ export const createCoupon = async (req: AuthenticatedRequest, res: Response): Pr
     try {
         const store = await getVendorStore(req.user._id.toString());
         if (!store) { res.status(404).json({ message: "Store not found." }); return; }
+        if (!requirePro(store, res, "Coupons")) return;
         const { code, discountType, discountValue, minOrderAmount, maxUses, expiresAt, isActive } = req.body;
         const cleanCode = (code || "").toString().trim().toUpperCase();
         if (!cleanCode) { res.status(400).json({ message: "Coupon code is required." }); return; }

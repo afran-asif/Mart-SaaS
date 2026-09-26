@@ -37,6 +37,7 @@ interface Store {
     heroSubtitle?: string | null;
     heroImage?: string | null;
     theme?: string | null;
+    plan?: string;
 }
 
 export async function generateMetadata({
@@ -253,9 +254,11 @@ export default async function StorePage({
                             />
                         </div>
                     </div>
-                    <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
-                        Powered by Vendoo
-                    </p>
+                    {store.plan !== "pro" && (
+                        <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
+                            Powered by Vendoo
+                        </p>
+                    )}
                 </div>
             </footer>
         </div>

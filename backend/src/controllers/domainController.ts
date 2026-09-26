@@ -5,6 +5,7 @@ import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { addDomainToVercel, removeDomainFromVercel } from "../utils/vercel";
 import { refreshCustomDomainCache } from "../utils/customDomainCache";
+import { requirePro } from "../utils/plan";
 
 const DNS_NAME_PATTERN =
     /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))+$/;
@@ -76,6 +77,9 @@ export const requestCustomDomain = async (req: AuthenticatedRequest, res: Respon
             res.status(404).json({ message: "Store not found for this vendor" });
             return;
         }
+
+        // 🌐 Custom domain শুধু Pro-তে
+        if (!requirePro(store, res, "Custom domain")) return;
 
         // নিজের subdomain URL (af-gadgets-2.vendoo.shop) নিজে আবার বাঁধা যাবে না
         if (hostname === `${store.subdomain}.${BASE_HOST}`) {

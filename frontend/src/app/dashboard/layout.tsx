@@ -38,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { nameKey: "dashboard.orders", path: "/dashboard/orders" },
         { nameKey: "dashboard.customers", path: "/dashboard/customers" },
         { nameKey: "dashboard.coupons", path: "/dashboard/coupons" },
+        { nameKey: "dashboard.billing", path: "/dashboard/billing" },
         { nameKey: "dashboard.storeSettings", path: "/dashboard/settings" },
     ];
 

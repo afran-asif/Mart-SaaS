@@ -232,6 +232,7 @@
     "categories": "Categories",
     "customers": "Customers",
     "coupons": "Coupons",
+    "billing": "Billing",
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
     "checkingAuth": "Checking authorization...",
@@ -407,6 +408,31 @@
       "updated": "Coupon updated!",
       "deleted": "Coupon deleted!",
       "deleteConfirm": "Delete this coupon?"
+    },
+    "billingPage": {
+      "title": "Billing & Plan",
+      "subtitle": "Manage your subscription and usage.",
+      "loading": "Loading subscription...",
+      "currentPlan": "Current Plan",
+      "trial": "Trial",
+      "validTill": "Valid till",
+      "proPriceLabel": "Pro plan",
+      "perMonth": "month",
+      "products": "Products",
+      "ordersMonth": "Orders this month",
+      "whyPro": "Why upgrade to Pro?",
+      "payTitle": "Pay via bKash",
+      "payDesc": "Send the monthly fee to the number below, then submit your Transaction ID and sender number. Pro activates after verification.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "trxId": "Transaction ID",
+      "senderNumber": "Sender Number",
+      "submitRequest": "Submit Request",
+      "fillAll": "Please fill in all fields.",
+      "requestSent": "Request submitted! Pro will activate after verification.",
+      "pendingTitle": "Request under review",
+      "pendingDesc": "Your payment is being verified. TrxID:",
+      "history": "Payment History"
     }
   }
 }

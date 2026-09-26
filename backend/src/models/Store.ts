@@ -25,6 +25,8 @@ export interface IStore extends Document {
     customDomain?: string | null;
     customDomainStatus?: "none" | "pending" | "verified" | "failed";
     customDomainVerificationCode?: string | null;
+    plan?: "free" | "pro";
+    planExpiresAt?: Date | null;
 }
 
 const storeSchema = new Schema<IStore>(
@@ -141,6 +143,15 @@ theme: {
         },
         customDomainVerificationCode: {
             type: String,
+            default: null,
+        },
+        plan: {
+            type: String,
+            enum: ["free", "pro"],
+            default: "free",
+        },
+        planExpiresAt: {
+            type: Date,
             default: null,
         },
     },
