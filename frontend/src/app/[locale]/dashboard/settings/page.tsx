@@ -659,6 +659,15 @@ export default function LocalizedSettingsPage() {
                                 >
                                     {domainLoading ? "Checking DNS..." : t("dashboard.settingsPage.domainVerify")}
                                 </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveDomain}
+                                    disabled={domainLoading}
+                                    className="w-full py-2 rounded-xl border border-gray-200 bg-white text-gray-500 text-xs font-semibold hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-60"
+                                >
+                                    {t("dashboard.settingsPage.domainRemove")}
+                                </button>
                             </div>
                         )}
 
