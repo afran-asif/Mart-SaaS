@@ -267,6 +267,8 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
                 theme: store.theme,
+                // অনলাইন পেমেন্ট শুধু vendor নিজের SSLCommerz বসালেই (platform gateway এখন OFF)
+                onlinePaymentEnabled: !!(store.useOwnSSLCommerz && store.sslcommerzStoreId),
             }
         });
     } catch (error) {

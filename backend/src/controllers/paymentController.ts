@@ -142,6 +142,13 @@ export const initiatePayment = async (req: Request, res: Response) => {
                 ? orderHost.trim().toLowerCase()
                 : undefined;
 
+        // অনলাইন পেমেন্ট শুধু vendor নিজের SSLCommerz বসালেই (platform gateway এখন OFF)
+        if (paymentMethod !== "COD" && !(store.useOwnSSLCommerz && store.sslcommerzStoreId)) {
+            await session.abortTransaction();
+            res.status(400).json({ message: "Online payment is not enabled for this store." });
+            return;
+        }
+
         // stock atomically চেক করে কমানো (আগের মতোই)
         for (const item of items) {
             const updatedProduct = await Product.findOneAndUpdate(

@@ -28,6 +28,7 @@ export default function CheckoutPage() {
     const [storeId, setStoreId] = useState<string | null>(null);    const [loading, setLoading] = useState(false);
     const [theme, setTheme] = useState("classic");
     const [brand, setBrand] = useState("#F4501A");
+    const [onlinePaymentEnabled, setOnlinePaymentEnabled] = useState(false);
     const orderPlacedRef = useRef(false);   // ✅ নতুন flag
     const initiatedRef = useRef(false);
     const [form, setForm] = useState({
@@ -68,6 +69,7 @@ export default function CheckoutPage() {
                 setStoreId(res.data.store.id);
                 setTheme(res.data.store.theme || "classic");
                 setBrand(res.data.store.brandColor || "#F4501A");
+                setOnlinePaymentEnabled(!!res.data.store.onlinePaymentEnabled);
             } catch {
                 toast.error("স্টোরের তথ্য লোড করা যায়নি");
             }
@@ -436,17 +438,19 @@ const res = await api.post("/payment/initiate", {
                             >
                                 ক্যাশ অন ডেলিভারি
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => setPaymentMethod("SSLCommerz")}
-                                className={`py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
-                                    paymentMethod === "SSLCommerz"
-                                        ? "border-[#0E3B2C] bg-[#0E3B2C]/5 text-[#0E3B2C] shadow-sm"
-                                        : "border-[#181410]/15 text-[#75705F] hover:border-[#C6A15B]"
-                                }`}
-                            >
-                                bKash / Nagad / Card
-                            </button>
+                            {onlinePaymentEnabled && (
+                                <button
+                                    type="button"
+                                    onClick={() => setPaymentMethod("SSLCommerz")}
+                                    className={`py-3 px-4 rounded-xl border-2 text-sm font-medium transition-all ${
+                                        paymentMethod === "SSLCommerz"
+                                            ? "border-[#0E3B2C] bg-[#0E3B2C]/5 text-[#0E3B2C] shadow-sm"
+                                            : "border-[#181410]/15 text-[#75705F] hover:border-[#C6A15B]"
+                                    }`}
+                                >
+                                    bKash / Nagad / Card
+                                </button>
+                            )}
                         </div>
                     </div>
                     <button
