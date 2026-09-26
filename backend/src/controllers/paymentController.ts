@@ -22,6 +22,15 @@ const FRONTEND_PROTOCOL = process.env.FRONTEND_PROTOCOL || "http";
 const FRONTEND_BASE_DOMAIN = process.env.FRONTEND_BASE_DOMAIN || "localhost:3000";
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const FRONTEND_HOST = FRONTEND_BASE_DOMAIN.split(":")[0];
+
+// redirect base — custom domain-এ অর্ডার হলে সেখানেই ফেরত, নইলে subdomain URL
+const redirectBase = (order: { orderHost?: string } | null, subdomain: string): string => {
+    if (order?.orderHost) {
+        return `${FRONTEND_PROTOCOL}://${order.orderHost}`;
+    }
+    return `${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}`;
+};
 
 // ইমেইল পাঠানোর নিরাপদ ও idempotent হেলপার (একবারই পাঠাবে এবং IPN ও success উভয় স্থান থেকেই নিরাপদে কল করা যাবে)
 const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: Types.ObjectId | string) => {
@@ -74,6 +83,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             storeId,
             paymentMethod,
             couponCode,
+            orderHost,
         } = req.body;
 
         if (!customerName || !customerEmail || !shippingAddress || !district || !totalAmount || !items?.length || !storeId) {
@@ -125,6 +135,13 @@ export const initiatePayment = async (req: Request, res: Response) => {
             return;
         }
 
+        // orderHost validate — শুধু এই store-এর নিজস্ব host-ই গ্রহণযোগ্য (open-redirect রোধে)
+        const allowedHosts = [`${store.subdomain}.${FRONTEND_HOST}`, store.customDomain].filter(Boolean) as string[];
+        const safeOrderHost =
+            typeof orderHost === "string" && allowedHosts.includes(orderHost.trim().toLowerCase())
+                ? orderHost.trim().toLowerCase()
+                : undefined;
+
         // stock atomically চেক করে কমানো (আগের মতোই)
         for (const item of items) {
             const updatedProduct = await Product.findOneAndUpdate(
@@ -151,6 +168,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
                     shippingAddress,
                     shippingDistrict: district,
                     deliveryCharge,
+                    orderHost: safeOrderHost,
                     phone,
                     totalAmount,
                     items,
@@ -256,7 +274,7 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         if (order.paymentStatus === "Paid") {
             // যদি IPN আগে এসে Paid করে কিন্তু ইমেইল এখনো না গিয়ে থাকে, নিশ্চিতভাবে পাঠাও
             await sendOrderEmailSafely(order._id, order.storeId);
-            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}&total=${order.totalAmount}`);
+            res.redirect(`${redirectBase(order, subdomain)}/order-confirmed?orderId=${order._id}&total=${order.totalAmount}`);
             return;
         }
 
@@ -290,7 +308,7 @@ export const paymentSuccess = async (req: Request, res: Response) => {
                 storeId: sslStoreId,
                 is_live,
             });
-            res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed`);
+            res.redirect(`${redirectBase(order, subdomain)}/payment-failed`);
             return;
         }
 
@@ -314,7 +332,7 @@ export const paymentSuccess = async (req: Request, res: Response) => {
         // ✅ Email পাঠানো — idempotent helper দিয়ে
         await sendOrderEmailSafely(order._id, order.storeId);
 
-        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/order-confirmed?orderId=${order._id}&total=${order.totalAmount}`);
+        res.redirect(`${redirectBase(order, subdomain)}/order-confirmed?orderId=${order._id}&total=${order.totalAmount}`);
     } catch (error: any) {
         console.error("paymentSuccess error:", error);
         res.redirect(`${FRONTEND_URL}/payment-failed`);
@@ -346,7 +364,7 @@ export const paymentFail = async (req: Request, res: Response) => {
         }
 
         await session.commitTransaction();
-        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed`);
+        res.redirect(`${redirectBase(order, subdomain)}/payment-failed`);
     } catch (error: any) {
         await session.abortTransaction();
         res.redirect(`${FRONTEND_URL}/payment-failed`);
@@ -379,7 +397,7 @@ export const paymentCancel = async (req: Request, res: Response) => {
 
         await session.commitTransaction();
         
-        res.redirect(`${FRONTEND_PROTOCOL}://${subdomain}.${FRONTEND_BASE_DOMAIN}/payment-failed?reason=cancelled`);
+        res.redirect(`${redirectBase(order, subdomain)}/payment-failed?reason=cancelled`);
     } catch (error: any) {
         await session.abortTransaction();
         res.redirect(`${FRONTEND_URL}/`);

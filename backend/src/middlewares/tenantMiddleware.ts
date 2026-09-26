@@ -18,7 +18,10 @@ const isCustomDomainIdentifier = (id: string): boolean => {
 
 export const tenantResolver = async (req: TenantRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const identifier = (req.headers["x-tenant-subdomain"] as string || "").trim().toLowerCase();
+        const identifier = (req.headers["x-tenant-subdomain"] as string || "")
+            .trim()
+            .toLowerCase()
+            .replace(/^www\./, "");
 
         if (!identifier) {
             res.status(400).json({ message: "X-Tenant-Subdomain header is missing" });

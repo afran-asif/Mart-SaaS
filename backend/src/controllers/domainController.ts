@@ -4,6 +4,7 @@ import dns from "dns";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { addDomainToVercel, removeDomainFromVercel } from "../utils/vercel";
+import { refreshCustomDomainCache } from "../utils/customDomainCache";
 
 const DNS_NAME_PATTERN =
     /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))+$/;
@@ -128,6 +129,7 @@ export const verifyCustomDomain = async (req: AuthenticatedRequest, res: Respons
         if (verified) {
             store.customDomainStatus = "verified";
             await store.save();
+            await refreshCustomDomainCache();
 
             // Vercel-এ domain auto-add (non-blocking — fail হলেও verify সফল থাকবে)
 // fail হলে platform owner backend log-এ দেখবে, vendor-কে raw error দেখানো হবে না
@@ -177,6 +179,7 @@ export const removeCustomDomain = async (req: AuthenticatedRequest, res: Respons
         store.customDomainStatus = "none";
         store.customDomainVerificationCode = null;
         await store.save();
+        await refreshCustomDomainCache();
 
         // Vercel থেকেও domain সরানো (non-blocking)
         let vercelMessage: string | undefined;

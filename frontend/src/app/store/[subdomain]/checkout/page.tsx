@@ -163,6 +163,7 @@ const res = await api.post("/payment/initiate", {
                 totalAmount: grandTotal,
                 paymentMethod,
                 couponCode: couponApplied || undefined,
+                orderHost: window.location.hostname,
             });
 
             const finalTotal = grandTotal;

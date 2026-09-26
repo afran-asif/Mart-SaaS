@@ -14,6 +14,7 @@ import paymentRoutes from './routes/paymentRoutes';
 import paymentCallbackRoutes from './routes/paymentCallbackRoutes'
 import categoryRoutes from './routes/categoryRoutes';
 import couponRoutes from './routes/couponRoutes';
+import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
@@ -32,6 +33,13 @@ app.use(
             if (allowedOriginPattern.test(origin)) {
                 return callback(null, true);
             }
+            // verified custom domain হলে allow (ex: https://shop.dressif.com)
+            try {
+                const host = new URL(origin).hostname.toLowerCase().replace(/^www\./, "");
+                if (isVerifiedCustomDomain(host)) {
+                    return callback(null, true);
+                }
+            } catch { /* invalid origin — নিচে reject হবে */ }
             return callback(new Error("Not allowed by CORS"));
         },
         credentials: true,
@@ -54,6 +62,9 @@ app.use("/api/v1/payment", paymentRoutes);
 
 const startServer = async () => {
     await connectDB();
+
+    await refreshCustomDomainCache();
+    setInterval(refreshCustomDomainCache, 5 * 60 * 1000);
     
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on port ${PORT}`);

@@ -9,16 +9,27 @@ export const api = axios.create({
 const getSubdomain = (): string | null => {
     if (typeof window === "undefined") return null;
 
-    const hostname = window.location.hostname;
-    const parts = hostname.split(".");
+    const raw = window.location.hostname;
 
     // main domain গুলো — কোনো tenant নেই
     if (
+        raw === "localhost" ||
+        raw === "mart-saa-s.vercel.app" ||
+        raw === "vendoo.shop" ||
+        raw === "www.vendoo.shop" ||
+        raw === "www.localhost"
+    ) {
+        return null;
+    }
+
+    // www. prefix থাকলে বাদ (www.shop.x.com → shop.x.com)
+    const hostname = raw.startsWith("www.") ? raw.slice(4) : raw;
+    const parts = hostname.split(".");
+
+    if (
         hostname === "localhost" ||
         hostname === "mart-saa-s.vercel.app" ||
-        hostname === "vendoo.shop" ||
-        hostname === "www.vendoo.shop" ||
-        hostname.startsWith("www.")
+        hostname === "vendoo.shop"
     ) {
         return null;
     }

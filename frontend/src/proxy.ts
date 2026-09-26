@@ -38,7 +38,9 @@ export function proxy(request: NextRequest) {
             }
         } else {
             // 2. Custom domain (ex: shop.afrangadget.com) — পুরো hostname-ই tenant identifier
-            url.pathname = `/store/${hostWithoutPort}${pathname}`;
+            // www. prefix থাকলে বাদ (www.shop.x.com → shop.x.com)
+            const identifier = hostWithoutPort.replace(/^www\./, "");
+            url.pathname = `/store/${identifier}${pathname}`;
             return NextResponse.rewrite(url);
         }
     }
