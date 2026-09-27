@@ -234,6 +234,14 @@
     "coupons": "কুপন",
     "billing": "বিলিং",
     "admin": "অ্যাডমিন",
+    "settingsTabs": {
+      "identity": "পরিচিতি",
+      "payments": "পেমেন্ট",
+      "domain": "ডোমেইন",
+      "marketing": "মার্কেটিং",
+      "branding": "ব্র্যান্ডিং",
+      "social": "সোশ্যাল"
+    },
     "storeSettings": "স্টোর সেটিংস",
     "signOut": "সাইন আউট",
     "checkingAuth": "অনুমোদন যাচাই হচ্ছে...",

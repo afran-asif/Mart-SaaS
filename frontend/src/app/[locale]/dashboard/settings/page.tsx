@@ -13,38 +13,16 @@ interface StoreData {
     subdomain: string;
     logo: string | null;
     status: "active" | "suspended";
-    useOwnSSLCommerz: boolean;
-    sslcommerzStoreId?: string;
-    facebookPixelId?: string;
-    googleAnalyticsId?: string;
-    tiktokPixelId?: string;
-    facebookUrl?: string;
-    instagramUrl?: string;
-    whatsappNumber?: string;
-    brandColor?: string | null;
-    heroTitle?: string | null;
-    heroSubtitle?: string | null;
-    heroImage?: string | null;
-    theme?: string | null;
-    plan?: "free" | "pro";
-    planExpiresAt?: string | null;
-    customDomain?: string | null;
-    customDomainStatus?: "none" | "pending" | "verified" | "failed";
-    customDomainVerificationCode?: string | null;
 }
 
 export default function LocalizedSettingsPage() {
-    const { t, language } = useTranslation();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const [store, setStore] = useState<StoreData | null>(null);
-    const [plan, setPlan] = useState<"free" | "pro">("free");
 
     const [storeName, setStoreName] = useState("");
     const [logo, setLogo] = useState("");
     const [status, setStatus] = useState<"active" | "suspended">("active");
-    const [useOwnSSLCommerz, setUseOwnSSLCommerz] = useState(false);
-    const [sslcommerzStoreId, setSslcommerzStoreId] = useState("");
-    const [sslcommerzStorePassword, setSslcommerzStorePassword] = useState("");
     const [logoError, setLogoError] = useState(false);
 
     const [loading, setLoading] = useState(true);
@@ -52,28 +30,6 @@ export default function LocalizedSettingsPage() {
     const [copied, setCopied] = useState(false);
     const [uploadingLogo, setUploadingLogo] = useState(false);
     const logoInputRef = useRef<HTMLInputElement>(null);
-
-    const [facebookPixelId, setFacebookPixelId] = useState("");
-    const [googleAnalyticsId, setGoogleAnalyticsId] = useState("");
-    const [tiktokPixelId, setTiktokPixelId] = useState("");
-    const [facebookUrl, setFacebookUrl] = useState("");
-    const [instagramUrl, setInstagramUrl] = useState("");
-    const [whatsappNumber, setWhatsappNumber] = useState("");
-    const [brandColor, setBrandColor] = useState("#F4501A");
-    const [heroTitle, setHeroTitle] = useState("");
-    const [heroSubtitle, setHeroSubtitle] = useState("");
-    const [heroImage, setHeroImage] = useState("");
-    const [heroImageError, setHeroImageError] = useState(false);
-    const [uploadingHero, setUploadingHero] = useState(false);
-    const heroInputRef = useRef<HTMLInputElement>(null);
-    const [theme, setTheme] = useState("classic");
-    const [customDomain, setCustomDomain] = useState("");
-    const [customDomainStatus, setCustomDomainStatus] = useState<
-        "none" | "pending" | "verified" | "failed"
-    >("none");
-    const [verificationCode, setVerificationCode] = useState("");
-    const [cnameTarget, setCnameTarget] = useState("");
-    const [domainLoading, setDomainLoading] = useState(false);
 
     const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
@@ -87,23 +43,6 @@ export default function LocalizedSettingsPage() {
                 setStoreName(data.storeName || "");
                 setLogo(data.logo || "");
                 setStatus(data.status || "active");
-                setUseOwnSSLCommerz(data.useOwnSSLCommerz || false);
-                setSslcommerzStoreId(data.sslcommerzStoreId || "");
-                setFacebookPixelId(data.facebookPixelId || "");
-                setGoogleAnalyticsId(data.googleAnalyticsId || "");
-                setTiktokPixelId(data.tiktokPixelId || "");
-                setFacebookUrl(data.facebookUrl || "");
-                setInstagramUrl(data.instagramUrl || "");
-                setWhatsappNumber(data.whatsappNumber || "");
-                setBrandColor(data.brandColor || "#F4501A");
-                setHeroTitle(data.heroTitle || "");
-                setHeroSubtitle(data.heroSubtitle || "");
-                setHeroImage(data.heroImage || "");
-                setTheme(data.theme || "classic");
-                setPlan(data.plan || "free");
-                setCustomDomain(data.customDomain || "");
-                setCustomDomainStatus(data.customDomainStatus || "none");
-                setVerificationCode(data.customDomainVerificationCode || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load store settings.");
             } finally {
@@ -118,35 +57,6 @@ export default function LocalizedSettingsPage() {
         setCopied(true);
         toast.success("Store URL copied.");
         setTimeout(() => setCopied(false), 2000);
-    };
-
-    const handleHeroFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        if (!file.type.startsWith("image/")) {
-            toast.error("Please select an image file.");
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error("Image must be under 5MB.");
-            return;
-        }
-        setUploadingHero(true);
-        try {
-            const formData = new FormData();
-            formData.append("heroImage", file);
-            const res = await api.post("/store/hero-image", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            setHeroImage(res.data.heroImage || "");
-            setHeroImageError(false);
-            toast.success("Hero image uploaded.");
-        } catch (error: any) {
-            toast.error(error.message || "Hero upload failed.");
-        } finally {
-            setUploadingHero(false);
-            if (heroInputRef.current) heroInputRef.current.value = "";
-        }
     };
 
     // Logo file upload — Cloudinary te direct upload
@@ -181,99 +91,17 @@ export default function LocalizedSettingsPage() {
         }
     };
 
-    // Custom domain handlers
-    const handleRequestDomain = async () => {
-        const value = customDomain.trim();
-        if (!value) {
-            toast.error("Enter your domain first.");
-            return;
-        }
-        setDomainLoading(true);
-        try {
-            const res = await api.post("/store/config/domain/request", { domain: value });
-            setCustomDomain(res.data.customDomain);
-            setCustomDomainStatus(res.data.customDomainStatus);
-            setVerificationCode(res.data.verificationCode);
-            setCnameTarget(res.data.cnameTarget);
-            toast.success("Domain connected. Add the DNS records below to verify.");
-        } catch (error: any) {
-            toast.error(error.message || "Failed to connect domain.");
-        } finally {
-            setDomainLoading(false);
-        }
-    };
-
-    const handleVerifyDomain = async () => {
-        setDomainLoading(true);
-        try {
-            const res = await api.post("/store/config/domain/verify");
-            setCustomDomainStatus(res.data.customDomainStatus);
-            if (res.data.success) {
-                toast.success("Domain verified! Now live on your custom domain.");
-                if (res.data.vercelAdded === false) {
-                    toast("Note: full activation can take a few minutes.", { icon: "⏳" });
-                }
-            } else {
-                toast.error("DNS record not found yet. Check records and try again.");
-            }
-        } catch (error: any) {
-            setCustomDomainStatus("failed");
-            toast.error(error.message || "Verification failed.");
-        } finally {
-            setDomainLoading(false);
-        }
-    };
-
-    const handleRemoveDomain = async () => {
-        setDomainLoading(true);
-        try {
-            await api.post("/store/config/domain/remove");
-            setCustomDomain("");
-            setCustomDomainStatus("none");
-            setVerificationCode("");
-            setCnameTarget("");
-            toast.success("Custom domain removed.");
-        } catch (error: any) {
-            toast.error(error.message || "Failed to remove domain.");
-        } finally {
-            setDomainLoading(false);
-        }
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
 
         try {
-            const payload: any = {
+            const res = await api.put("/store/config", {
                 storeName,
                 logo: logo.trim() ? logo.trim() : null,
                 status,
-                useOwnSSLCommerz,
-                facebookPixelId: facebookPixelId.trim(),
-                googleAnalyticsId: googleAnalyticsId.trim(),
-                tiktokPixelId: tiktokPixelId.trim(),
-                facebookUrl: facebookUrl.trim(),
-                instagramUrl: instagramUrl.trim(),
-                whatsappNumber: whatsappNumber.trim(),
-                brandColor: brandColor.trim() || null,
-                heroTitle: heroTitle.trim() || null,
-                heroSubtitle: heroSubtitle.trim() || null,
-                heroImage: heroImage.trim() || null,
-                theme,
-            };
-
-            if (useOwnSSLCommerz) {
-                if (sslcommerzStoreId) payload.sslcommerzStoreId = sslcommerzStoreId.trim();
-                if (sslcommerzStorePassword) payload.sslcommerzStorePassword = sslcommerzStorePassword.trim();
-            }
-
-            const res = await api.put("/store/config", payload);
+            });
             setStore(res.data.store);
-            setPlan(res.data.store.plan || "free");
-            if (res.data.proLocked?.length) {
-                toast.error(`Pro required: ${res.data.proLocked.join(", ")} not saved. Upgrade from Billing.`);
-            }
             dispatch(
                 updateStoreInfo({
                     id: res.data.store.id,
@@ -282,7 +110,6 @@ export default function LocalizedSettingsPage() {
                     logo: res.data.store.logo,
                 })
             );
-            setSslcommerzStorePassword("");
             toast.success("Settings updated successfully.");
         } catch (error: any) {
             toast.error(error.message || "Failed to update settings.");
@@ -470,474 +297,6 @@ export default function LocalizedSettingsPage() {
                         </div>
                     </div>
 
-                    {/* Payment Routing card */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.paymentRouting")}</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                                {t("dashboard.settingsPage.paymentRoutingDesc")}
-                                {plan !== "pro" && " Own gateway is Pro-only."}
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setUseOwnSSLCommerz(false)}
-                                className={`text-left p-4 rounded-xl border-2 transition-all ${
-                                    !useOwnSSLCommerz
-                                        ? "border-orange-500 bg-orange-50/40"
-                                        : "border-gray-200 hover:border-gray-300"
-                                }`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        Default
-                                    </span>
-                                    <span
-                                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                            !useOwnSSLCommerz ? "border-orange-600 bg-orange-600" : "border-gray-300"
-                                        }`}
-                                    >
-                                        {!useOwnSSLCommerz && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                                    </span>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.defaultGateway")}</p>
-                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    {t("dashboard.settingsPage.defaultGatewayDesc")}
-                                </p>
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => setUseOwnSSLCommerz(true)}
-                                className={`text-left p-4 rounded-xl border-2 transition-all ${
-                                    useOwnSSLCommerz
-                                        ? "border-orange-500 bg-orange-50/40"
-                                        : "border-gray-200 hover:border-gray-300"
-                                }`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        Direct
-                                    </span>
-                                    <span
-                                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                            useOwnSSLCommerz ? "border-orange-600 bg-orange-600" : "border-gray-300"
-                                        }`}
-                                    >
-                                        {useOwnSSLCommerz && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                                    </span>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.ownSSLCommerz")}</p>
-                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    {t("dashboard.settingsPage.ownSSLCommerzDesc")}
-                                </p>
-                            </button>
-                        </div>
-
-                        <div
-                            className={`grid transition-all duration-300 ease-in-out ${
-                                useOwnSSLCommerz ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                            }`}
-                        >
-                            <div className="overflow-hidden">
-                                <div className="pt-1 space-y-4 border-t border-gray-100 mt-1">
-                                    <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 mt-4">
-                                        <span className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                        <p className="leading-relaxed">
-                                            {t("dashboard.settingsPage.sslNote")}
-                                        </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                {t("dashboard.settingsPage.storeId")}
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={sslcommerzStoreId}
-                                                onChange={(e) => setSslcommerzStoreId(e.target.value)}
-                                                required={useOwnSSLCommerz}
-                                                placeholder="e.g. yourstorelive01"
-                                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                {t("dashboard.settingsPage.storePassword")}
-                                            </label>
-                                            <input
-                                                type="password"
-                                                value={sslcommerzStorePassword}
-                                                onChange={(e) => setSslcommerzStorePassword(e.target.value)}
-                                                placeholder={
-                                                    store.sslcommerzStoreId
-                                                        ? t("dashboard.settingsPage.storePasswordPlaceholder")
-                                                        : "Enter Store Password"
-                                                }
-                                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Custom Domain card */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.domainTitle")}</h2>
-                                <p className="text-xs text-gray-500 mt-0.5">
-                                    {t("dashboard.settingsPage.domainDesc")}
-                                </p>
-                            </div>
-                            <span
-                                className={`text-[11px] font-semibold px-2.5 py-1 rounded-md ${
-                                    customDomainStatus === "verified"
-                                        ? "bg-green-50 text-green-700"
-                                        : customDomainStatus === "pending"
-                                        ? "bg-amber-50 text-amber-700"
-                                        : customDomainStatus === "failed"
-                                        ? "bg-red-50 text-red-700"
-                                        : "bg-gray-100 text-gray-500"
-                                }`}
-                            >
-                                {customDomainStatus === "verified"
-                                    ? t("dashboard.settingsPage.domainVerified")
-                                    : customDomainStatus === "pending"
-                                    ? t("dashboard.settingsPage.domainPending")
-                                    : customDomainStatus === "failed"
-                                    ? t("dashboard.settingsPage.domainFailed")
-                                    : t("dashboard.settingsPage.domainNone")}
-                            </span>
-                        </div>
-
-                        {plan !== "pro" && (customDomainStatus === "none" || customDomainStatus === "failed") ? (
-                            <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4 text-center">
-                                <p className="text-sm font-bold text-gray-900">🔒 Custom domain is a Pro feature</p>
-                                <p className="text-xs text-gray-500 mt-1">Connect your own domain like shop.yourbrand.com</p>
-                                <a
-                                    href={`/${language}/dashboard/billing`}
-                                    className="inline-block mt-3 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-colors"
-                                >
-                                    Upgrade to Pro →
-                                </a>
-                            </div>
-                        ) : (
-                            <>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={customDomain}
-                                onChange={(e) => setCustomDomain(e.target.value)}
-                                disabled={customDomainStatus === "verified" || (customDomainStatus === "pending" && !!customDomain)}
-                                placeholder="shop.youraddress.com"
-                                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleRequestDomain}
-                                disabled={domainLoading || customDomainStatus === "verified"}
-                                className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {domainLoading ? "..." : customDomainStatus === "pending" ? "Reconnect" : "Connect"}
-                            </button>
-                        </div>
-
-                        {(customDomainStatus === "pending" || customDomainStatus === "failed") && verificationCode && (
-                            <div className="space-y-3 bg-amber-50/60 border border-amber-200 rounded-xl p-4">
-                                <div className="flex items-start gap-2.5 text-xs text-amber-900">
-                                    <span className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                    <p className="leading-relaxed">{t("dashboard.settingsPage.domainInstructions")}</p>
-                                </div>
-
-                                <div className="bg-white border border-amber-200 rounded-lg p-3 text-xs divide-y divide-gray-100">
-                                    <div className="py-1.5">
-                                        <p className="font-semibold text-gray-700 mb-0.5">{t("dashboard.settingsPage.domainTxtLabel")}</p>
-                                        <p className="font-mono text-[11px] text-gray-600 break-all">
-                                            vendoo-verify={verificationCode}
-                                        </p>
-                                    </div>
-                                    {cnameTarget && (
-                                        <div className="py-1.5">
-                                            <p className="font-semibold text-gray-700 mb-0.5">{t("dashboard.settingsPage.domainCnameLabel")}</p>
-                                            <p className="font-mono text-[11px] text-gray-600 break-all">
-                                                {customDomain} → {cnameTarget}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={handleVerifyDomain}
-                                    disabled={domainLoading}
-                                    className="w-full py-2.5 rounded-xl bg-[#0E3B2C] hover:bg-[#0a2e22] text-white text-xs font-semibold transition-colors disabled:opacity-60"
-                                >
-                                    {domainLoading ? "Checking DNS..." : t("dashboard.settingsPage.domainVerify")}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={handleRemoveDomain}
-                                    disabled={domainLoading}
-                                    className="w-full py-2 rounded-xl border border-gray-200 bg-white text-gray-500 text-xs font-semibold hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-60"
-                                >
-                                    {t("dashboard.settingsPage.domainRemove")}
-                                </button>
-                            </div>
-                        )}
-
-                        {customDomainStatus === "verified" && (
-                            <div className="flex items-center justify-between gap-3 bg-green-50/60 border border-green-200 rounded-xl p-4">
-                                <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-green-800 break-all">{customDomain}</p>
-                                    <p className="text-xs text-green-700 mt-0.5">{t("dashboard.settingsPage.domainLive")}</p>
-                                </div>
-                                <div className="flex gap-2 shrink-0">
-                                    <a
-                                        href={`${protocol}://${customDomain}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="px-3 py-2 rounded-lg bg-green-700 hover:bg-green-800 text-white text-xs font-semibold transition-colors"
-                                    >
-                                        {t("dashboard.settingsPage.visitStore")}
-                                    </a>
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveDomain}
-                                        disabled={domainLoading}
-                                        className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-60"
-                                    >
-                                        {t("dashboard.settingsPage.domainRemove")}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                            </>
-                        )}
-                    </div>
-
-                    {/* Marketing & Tracking card */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900">Marketing & Tracking {plan !== "pro" && <span className="text-[10px] bg-gray-900 text-white px-1.5 py-0.5 rounded-md align-middle">🔒 Pro</span>}</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                                Add your ad pixels to track visitors and measure ad performance.
-                                {plan !== "pro" && " Upgrade to Pro to enable pixels."}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Facebook Pixel ID
-                            </label>
-                            <input
-                                type="text"
-                                value={facebookPixelId}
-                                onChange={(e) => setFacebookPixelId(e.target.value)}
-                                disabled={plan !== "pro"}
-                                placeholder="e.g. 123456789012345"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
-                            />
-                            <p className="text-xs text-gray-400 mt-1">
-                                Found in Facebook Events Manager → Data Sources → your Pixel.
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Google Analytics Measurement ID
-                            </label>
-                            <input
-                                type="text"
-                                value={googleAnalyticsId}
-                                onChange={(e) => setGoogleAnalyticsId(e.target.value)}
-                                disabled={plan !== "pro"}
-                                placeholder="e.g. G-XXXXXXXXXX"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
-                            />
-                            <p className="text-xs text-gray-400 mt-1">
-                                Found in Google Analytics → Admin → Data Streams.
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                TikTok Pixel ID
-                            </label>
-                            <input
-                                type="text"
-                                value={tiktokPixelId}
-                                onChange={(e) => setTiktokPixelId(e.target.value)}
-                                disabled={plan !== "pro"}
-                                placeholder="e.g. CXXXXXXXXXXXXXXXX"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
-                            />
-                            <p className="text-xs text-gray-400 mt-1">
-                                Found in TikTok Ads Manager → Assets → Events.
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Branding & Hero card */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900">Branding & Hero</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">Customize your storefront colors and hero banner.</p>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Brand Color</label>
-                            <div className="flex items-center gap-3">
-                                <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} className="w-10 h-10 rounded-lg border border-gray-200 p-1 bg-white" />
-                                <input type="text" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} placeholder="#F4501A" className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm font-mono outline-none" />
-                                <span className="w-6 h-6 rounded-full border border-gray-200" style={{ background: brandColor }} />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Title</label>
-                            <input type="text" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="e.g. Summer Collection 2026" className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Subtitle</label>
-                            <textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Short tagline under title" rows={2} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none resize-none" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Hero Banner Image</label>
-                            <div className="flex items-center gap-3">
-                                <div className="w-20 h-14 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
-                                    {heroImage.trim() && !heroImageError ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={heroImage} alt="Hero" className="w-full h-full object-cover" onError={() => setHeroImageError(true)} />
-                                    ) : (
-                                        <span className="text-gray-300 text-lg">🖼️</span>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <button type="button" onClick={() => heroInputRef.current?.click()} disabled={uploadingHero} className="px-4 py-2 rounded-xl bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 disabled:opacity-60">
-                                        {uploadingHero ? "Uploading..." : heroImage.trim() ? "Change banner" : "Upload banner"}
-                                    </button>
-                                    {heroImage.trim() && !uploadingHero && (
-                                        <button type="button" onClick={() => { setHeroImage(""); setHeroImageError(false); }} className="px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-xs font-semibold hover:border-red-300 hover:text-red-600">
-                                            Remove
-                                        </button>
-                                    )}
-                                </div>
-                                <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroFileChange} />
-                            </div>
-                            <p className="text-xs text-gray-400 mt-1">Recommended 1200×400, will be overlayed with brand color.</p>
-                        </div>
-                    </div>
-
-                    {/* Theme Selector */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900">Store Theme</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">Free: classic, minimal, vibrant · Pro: all 9 themes.</p>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {[
-                                { id: "classic", name: "Classic", desc: "Warm & rounded", bg: "bg-[#FFFDF7] border-[#C6A15B]/40" },
-                                { id: "minimal", name: "Minimal", desc: "Clean & sharp", bg: "bg-white border-gray-200" },
-                                { id: "bold", name: "Bold", desc: "Dark & strong", bg: "bg-[#0a0a0a] border-white/20" },
-                                { id: "elegant", name: "Elegant", desc: "Soft & refined", bg: "bg-[#fdfbf7] border-[#e8e0d0]" },
-                                { id: "vibrant", name: "Vibrant", desc: "Colorful & fun", bg: "bg-gradient-to-br from-orange-50 to-pink-50 border-orange-200" },
-                                { id: "retro", name: "Retro", desc: "Vintage 70s", bg: "bg-[#fff8dc] border-[#d2b48c]" },
-                                { id: "luxe", name: "Luxe", desc: "Gold & black", bg: "bg-[#111] border-[#d4af37]/30" },
-                                { id: "pastel", name: "Pastel", desc: "Soft pink/purple", bg: "bg-pink-50 border-pink-200" },
-                                { id: "urban", name: "Urban", desc: "Street gray", bg: "bg-gray-100 border-gray-300" },
-                            ].map((th) => {
-                                const locked = plan !== "pro" && !["classic", "minimal", "vibrant"].includes(th.id);
-                                return (
-                                <button
-                                    key={th.id}
-                                    type="button"
-                                    onClick={() => {
-                                        if (locked) {
-                                            toast.error("This theme is Pro-only. Upgrade from Billing.");
-                                            return;
-                                        }
-                                        setTheme(th.id);
-                                    }}
-                                    className={`relative p-3 rounded-xl border-2 text-left transition-all ${theme === th.id ? "border-orange-500 ring-2 ring-orange-500/20" : "border-gray-200 hover:border-gray-300"} ${th.bg} ${locked ? "opacity-70" : ""}`}
-                                >
-                                    {locked && (
-                                        <span className="absolute top-2 right-2 text-[10px] font-bold bg-gray-900 text-white px-1.5 py-0.5 rounded-md">
-                                            🔒 Pro
-                                        </span>
-                                    )}
-                                    <div className={`w-full h-14 rounded-lg mb-2 border ${theme === th.id ? "border-orange-300" : "border-black/5"} ${th.id === "bold" ? "bg-[#1a1a1a]" : th.id === "minimal" ? "bg-gray-50" : th.id === "elegant" ? "bg-[#f5efe6]" : th.id === "vibrant" ? "bg-gradient-to-br from-orange-200 to-pink-200" : "bg-[#F4EEE2]"}`} />
-                                    <p className={`text-xs font-bold ${th.id === "luxe" ? "text-[#d4af37]" : th.id === "bold" ? "text-white" : "text-gray-900"}`}>{th.name}</p>
-                                    <p className={`text-[11px] ${th.id === "luxe" ? "text-[#d4af37]/60" : th.id === "bold" ? "text-white/60" : "text-gray-500"}`}>{th.desc}</p>
-                                </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Social Media Links card */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900">Social Media</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                                Add your social links — only the ones you fill in will show on your storefront.
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-blue-700">
-                                Facebook Page URL
-                            </label>
-                            <input
-                                type="url"
-                                value={facebookUrl}
-                                onChange={(e) => setFacebookUrl(e.target.value)}
-                                placeholder="https://facebook.com/yourpage"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                            />
-                            <p className="text-xs text-gray-400 mt-1">
-                                আপনার Facebook পেজের পুরো লিংক দিন।
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-pink-700">
-                                Instagram URL
-                            </label>
-                            <input
-                                type="url"
-                                value={instagramUrl}
-                                onChange={(e) => setInstagramUrl(e.target.value)}
-                                placeholder="https://instagram.com/yourpage"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                            />
-                            <p className="text-xs text-gray-400 mt-1">
-                                আপনার Instagram প্রোফাইলের পুরো লিংক দিন।
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5 text-green-700">
-                                WhatsApp Number
-                            </label>
-                            <input
-                                type="tel"
-                                value={whatsappNumber}
-                                onChange={(e) => setWhatsappNumber(e.target.value)}
-                                placeholder="e.g. 8801XXXXXXXXX"
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                            />
-                            <p className="text-xs text-gray-400 mt-1">
-                                Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX
-                            </p>
-                        </div>
-                    </div>
-
                     {/* Save bar */}
                     <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between gap-4">
                         <p className="text-xs text-gray-500">{t("dashboard.settingsPage.saveBar")}</p>
@@ -999,18 +358,6 @@ export default function LocalizedSettingsPage() {
                                     }`}
                                 />
                                 <span>{status === "active" ? t("dashboard.settingsPage.storefrontOnline") : t("dashboard.settingsPage.storefrontOffline")}</span>
-                            </div>
-
-                            <div className="pt-1">
-                                <span
-                                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md ${
-                                        useOwnSSLCommerz
-                                            ? "bg-blue-50 text-blue-700"
-                                            : "bg-orange-50 text-orange-700"
-                                    }`}
-                                >
-                                    {useOwnSSLCommerz ? t("dashboard.settingsPage.directRouting") : t("dashboard.settingsPage.platformRouting")}
-                                </span>
                             </div>
                         </div>
 

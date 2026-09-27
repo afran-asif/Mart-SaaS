@@ -234,6 +234,14 @@
     "coupons": "Coupons",
     "billing": "Billing",
     "admin": "Admin",
+    "settingsTabs": {
+      "identity": "Identity",
+      "payments": "Payments",
+      "domain": "Domain",
+      "marketing": "Marketing",
+      "branding": "Branding",
+      "social": "Social"
+    },
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
     "checkingAuth": "Checking authorization...",

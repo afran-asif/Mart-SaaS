@@ -70,8 +70,29 @@ export default function LocalizedDashboardShell({ children }: { children: React.
         ...(user?.role === "super-admin"
             ? [{ nameKey: "dashboard.admin", path: `/${language}/dashboard/admin` }]
             : []),
-        { nameKey: "dashboard.storeSettings", path: `/${language}/dashboard/settings` },
+        {
+            nameKey: "dashboard.storeSettings",
+            path: `/${language}/dashboard/settings`,
+            children: [
+                { nameKey: "dashboard.settingsTabs.identity", path: `/${language}/dashboard/settings` },
+                { nameKey: "dashboard.settingsTabs.payments", path: `/${language}/dashboard/settings/payments` },
+                { nameKey: "dashboard.settingsTabs.domain", path: `/${language}/dashboard/settings/domain` },
+                { nameKey: "dashboard.settingsTabs.marketing", path: `/${language}/dashboard/settings/marketing` },
+                { nameKey: "dashboard.settingsTabs.branding", path: `/${language}/dashboard/settings/branding` },
+                { nameKey: "dashboard.settingsTabs.social", path: `/${language}/dashboard/settings/social` },
+            ],
+        },
     ];
+
+    const settingsBase = `/${language}/dashboard/settings`;
+    const [settingsOpen, setSettingsOpen] = useState(false);
+
+    // Settings sub-page-এ থাকলে group auto-expand
+    useEffect(() => {
+        if (pathname.startsWith(settingsBase)) {
+            setSettingsOpen(true);
+        }
+    }, [pathname, settingsBase]);
 
     const handleSignOut = () => {
         dispatch(logout());
@@ -120,7 +141,60 @@ export default function LocalizedDashboardShell({ children }: { children: React.
                     <p className="text-xs text-gray-500 mt-1">{t("dashboard.shop")}: {store?.storeName || "My Store"}</p>
 
                     <nav className="mt-8 space-y-2">
-                        {menuItems.map((item) => {
+                        {menuItems.map((item: any) => {
+                            if (item.children) {
+                                const isActiveGroup = pathname === item.path || pathname.startsWith(item.path + "/");
+                                return (
+                                    <div key={item.path}>
+                                        <div
+                                            className={`flex items-center rounded-lg transition-colors ${
+                                                isActiveGroup
+                                                    ? "bg-orange-50 text-orange-600"
+                                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                            }`}
+                                        >
+                                            <Link
+                                                href={item.path}
+                                                className={`flex-1 px-4 py-2.5 text-sm font-medium border-l-4 ${
+                                                    isActiveGroup ? "border-orange-600" : "border-transparent"
+                                                }`}
+                                            >
+                                                {t(item.nameKey)}
+                                            </Link>
+                                            <button
+                                                type="button"
+                                                onClick={() => setSettingsOpen(!settingsOpen)}
+                                                className="px-3 py-2.5 text-gray-400 hover:text-gray-700"
+                                                aria-label="Toggle settings submenu"
+                                            >
+                                                <span className={`inline-block transition-transform ${settingsOpen ? "rotate-90" : ""}`}>
+                                                    ›
+                                                </span>
+                                            </button>
+                                        </div>
+                                        {settingsOpen && (
+                                            <div className="ml-4 mt-1 space-y-1 border-l border-gray-100 pl-2">
+                                                {item.children.map((child: any) => {
+                                                    const isChildActive = pathname === child.path;
+                                                    return (
+                                                        <Link
+                                                            key={child.path}
+                                                            href={child.path}
+                                                            className={`block px-3 py-1.5 text-[13px] font-medium rounded-lg transition-colors ${
+                                                                isChildActive
+                                                                    ? "bg-orange-50 text-orange-600"
+                                                                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                                            }`}
+                                                        >
+                                                            {t(child.nameKey)}
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            }
                             const isActive = pathname === item.path;
                             return (
                                 <Link
