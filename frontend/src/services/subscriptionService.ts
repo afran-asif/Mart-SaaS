@@ -27,11 +27,13 @@ export interface SubscriptionInfo {
     proPrice: number;
     bkashNumber: string;
     pendingRequest: { id: string; trxId?: string; createdAt: string } | null;
+    lastRejected: { adminNote: string; createdAt: string } | null;
     history: Array<{
         id: string;
         plan: string;
         status: string;
         amount: number;
+        adminNote?: string;
         periodStart?: string;
         periodEnd?: string;
         createdAt: string;

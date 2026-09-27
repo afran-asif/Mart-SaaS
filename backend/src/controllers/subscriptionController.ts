@@ -31,6 +31,10 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
             store.plan === "pro" && !!store.planExpiresAt && new Date(store.planExpiresAt) > new Date() &&
             !(await Subscription.exists({ storeId: store._id, status: "active" }));
 
+        const lastRejected = await Subscription.findOne({ storeId: store._id, status: "rejected" })
+            .sort({ createdAt: -1 })
+            .lean();
+
         res.status(200).json({
             success: true,
             subscription: {
@@ -50,11 +54,15 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
                 pendingRequest: pending
                     ? { id: pending._id, trxId: pending.trxId, createdAt: pending.createdAt }
                     : null,
+                lastRejected: lastRejected
+                    ? { adminNote: lastRejected.adminNote || "", createdAt: lastRejected.createdAt }
+                    : null,
                 history: history.map((h) => ({
                     id: h._id,
                     plan: h.plan,
                     status: h.status,
                     amount: h.amount,
+                    adminNote: h.adminNote || "",
                     periodStart: h.periodStart,
                     periodEnd: h.periodEnd,
                     createdAt: h.createdAt,

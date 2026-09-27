@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setSidebarOpen(false);
     }, [pathname]);
 
-    const menuItems = [
+const menuItems = [
         { nameKey: "dashboard.overview", path: "/dashboard" },
         { nameKey: "dashboard.myProducts", path: "/dashboard/products" },
         { nameKey: "dashboard.categories", path: "/dashboard/categories" },
@@ -39,6 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { nameKey: "dashboard.customers", path: "/dashboard/customers" },
         { nameKey: "dashboard.coupons", path: "/dashboard/coupons" },
         { nameKey: "dashboard.billing", path: "/dashboard/billing" },
+        ...(user?.role === "super-admin" ? [{ nameKey: "dashboard.admin", path: "/dashboard/admin" }] : []),
         { nameKey: "dashboard.storeSettings", path: "/dashboard/settings" },
     ];
 

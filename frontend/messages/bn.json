@@ -233,6 +233,7 @@
     "customers": "কাস্টমার",
     "coupons": "কুপন",
     "billing": "বিলিং",
+    "admin": "অ্যাডমিন",
     "storeSettings": "স্টোর সেটিংস",
     "signOut": "সাইন আউট",
     "checkingAuth": "অনুমোদন যাচাই হচ্ছে...",
@@ -432,7 +433,26 @@
       "requestSent": "রিকোয়েস্ট পাঠানো হয়েছে! যাচাইয়ের পর Pro চালু হবে।",
       "pendingTitle": "রিকোয়েস্ট যাচাইাধীন",
       "pendingDesc": "আপনার পেমেন্ট যাচাই করা হচ্ছে। TrxID:",
+      "rejectedTitle": "রিকোয়েস্ট বাতিল হয়েছে",
+      "rejectedDesc": "পেমেন্ট চেক করে আবার জমা দিন।",
+      "statusApproved": "Approved",
+      "statusRejected": "বাতিল",
+      "rejectReason": "কারণ",
       "history": "পেমেন্ট হিস্ট্রি"
+    },
+    "adminPage": {
+      "title": "সাবস্ক্রিপশন রিকোয়েস্ট",
+      "subtitle": "Vendor-দের Pro আপগ্রেড পেমেন্ট যাচাই করুন।",
+      "loading": "রিকোয়েস্ট লোড হচ্ছে...",
+      "empty": "এখানে কোনো রিকোয়েস্ট নেই।",
+      "approve": "Approve (৩০ দিন Pro)",
+      "reject": "Reject",
+      "approved": "Pro চালু হয়েছে!",
+      "rejected": "রিকোয়েস্ট বাতিল হয়েছে।",
+      "approveConfirm": "৩০ দিনের জন্য Pro চালু করবেন?",
+      "rejectNote": "বাতিলের কারণ (ঐচ্ছিক):",
+      "forbidden": "অনুমতি নেই",
+      "forbiddenDesc": "এই পেজ শুধু প্ল্যাটফর্ম অ্যাডমিনদের জন্য।"
     }
   }
 }

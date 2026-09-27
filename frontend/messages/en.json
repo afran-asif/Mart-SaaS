@@ -233,6 +233,7 @@
     "customers": "Customers",
     "coupons": "Coupons",
     "billing": "Billing",
+    "admin": "Admin",
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
     "checkingAuth": "Checking authorization...",
@@ -432,7 +433,26 @@
       "requestSent": "Request submitted! Pro will activate after verification.",
       "pendingTitle": "Request under review",
       "pendingDesc": "Your payment is being verified. TrxID:",
+      "rejectedTitle": "Request was rejected",
+      "rejectedDesc": "Please check your payment and submit again.",
+      "statusApproved": "Approved",
+      "statusRejected": "Rejected",
+      "rejectReason": "Reason",
       "history": "Payment History"
+    },
+    "adminPage": {
+      "title": "Subscription Requests",
+      "subtitle": "Review vendor Pro upgrade payments.",
+      "loading": "Loading requests...",
+      "empty": "No requests here.",
+      "approve": "Approve (30 days Pro)",
+      "reject": "Reject",
+      "approved": "Pro activated!",
+      "rejected": "Request rejected.",
+      "approveConfirm": "Approve Pro for 30 days?",
+      "rejectNote": "Rejection reason (optional):",
+      "forbidden": "Not authorized",
+      "forbiddenDesc": "This page is for platform admins only."
     }
   }
 }

@@ -67,6 +67,9 @@ export default function LocalizedDashboardShell({ children }: { children: React.
         { nameKey: "dashboard.customers", path: `/${language}/dashboard/customers` },
         { nameKey: "dashboard.coupons", path: `/${language}/dashboard/coupons` },
         { nameKey: "dashboard.billing", path: `/${language}/dashboard/billing` },
+        ...(user?.role === "super-admin"
+            ? [{ nameKey: "dashboard.admin", path: `/${language}/dashboard/admin` }]
+            : []),
         { nameKey: "dashboard.storeSettings", path: `/${language}/dashboard/settings` },
     ];
 

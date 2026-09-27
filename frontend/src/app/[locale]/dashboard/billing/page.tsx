@@ -210,25 +210,46 @@ export default function LocalizedBillingPage() {
                 </div>
             )}
 
+            {!isPro && !sub?.pendingRequest && sub?.lastRejected && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+                    <p className="text-sm font-bold text-red-800">{t("dashboard.billingPage.rejectedTitle")}</p>
+                    <p className="text-xs text-red-700 mt-1">
+                        {sub.lastRejected.adminNote || t("dashboard.billingPage.rejectedDesc")}
+                    </p>
+                </div>
+            )}
+
             {/* History */}
             {sub && sub.history.length > 0 && (
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <h3 className="text-sm font-bold text-gray-900 mb-3">{t("dashboard.billingPage.history")}</h3>
                     <div className="divide-y divide-gray-100">
                         {sub.history.map((h) => (
-                            <div key={h.id} className="py-2.5 flex items-center justify-between text-sm">
-                                <div>
-                                    <span className="font-semibold text-gray-800 capitalize">{h.plan}</span>
-                                    <span className={`ml-2 text-[11px] font-semibold px-2 py-0.5 rounded-md ${
-                                        h.status === "active" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"
-                                    }`}>
-                                        {h.status}
-                                    </span>
+                            <div key={h.id} className="py-2.5 text-sm border-b border-gray-50 last:border-0">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <span className="font-semibold text-gray-800 capitalize">{h.plan}</span>
+                                        <span className={`ml-2 text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                                            h.status === "active" ? "bg-green-50 text-green-700" : h.status === "rejected" ? "bg-red-50 text-red-700" : "bg-gray-100 text-gray-500"
+                                        }`}>
+                                            {h.status === "active" ? t("dashboard.billingPage.statusApproved") : h.status === "rejected" ? t("dashboard.billingPage.statusRejected") : h.status}
+                                        </span>
+                                    </div>
+                                    <div className="text-right text-xs text-gray-500">
+                                        <p className="font-mono font-semibold text-gray-700">৳{h.amount}</p>
+                                        <p>{new Date(h.createdAt).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
-                                <div className="text-right text-xs text-gray-500">
-                                    <p className="font-mono font-semibold text-gray-700">৳{h.amount}</p>
-                                    <p>{new Date(h.createdAt).toLocaleDateString()}</p>
-                                </div>
+                                {h.status === "active" && h.periodEnd && (
+                                    <p className="text-xs text-green-700 mt-1">
+                                        {t("dashboard.billingPage.validTill")}: {new Date(h.periodEnd).toLocaleDateString()}
+                                    </p>
+                                )}
+                                {h.status === "rejected" && (
+                                    <p className="text-xs text-red-600 mt-1">
+                                        {t("dashboard.billingPage.rejectReason")}: {h.adminNote || "—"}
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </div>
