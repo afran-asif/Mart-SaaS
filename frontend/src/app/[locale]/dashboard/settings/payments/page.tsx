@@ -103,17 +103,31 @@ export default function PaymentsSettingsPage() {
                         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                             {t("dashboard.settingsPage.defaultGatewayDesc")}
                         </p>
+                        <p className="mt-2 inline-block text-[11px] font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
+                            ⚠️ Currently OFF
+                        </p>
                     </button>
 
                     <button
                         type="button"
-                        onClick={() => setUseOwnSSLCommerz(true)}
-                        className={`text-left p-4 rounded-xl border-2 transition-all ${
+                        onClick={() => {
+                            if (plan !== "pro") {
+                                toast.error("Own gateway is Pro-only. Upgrade from Billing.");
+                                return;
+                            }
+                            setUseOwnSSLCommerz(true);
+                        }}
+                        className={`relative text-left p-4 rounded-xl border-2 transition-all ${
                             useOwnSSLCommerz
                                 ? "border-orange-500 bg-orange-50/40"
                                 : "border-gray-200 hover:border-gray-300"
-                        }`}
+                        } ${plan !== "pro" ? "opacity-50 grayscale cursor-not-allowed" : ""}`}
                     >
+                        {plan !== "pro" && (
+                            <span className="absolute top-2 right-2 text-[10px] font-bold bg-gray-900 text-white px-1.5 py-0.5 rounded-md">
+                                🔒 Pro
+                            </span>
+                        )}
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                                 Direct
@@ -130,6 +144,15 @@ export default function PaymentsSettingsPage() {
                         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                             {t("dashboard.settingsPage.ownSSLCommerzDesc")}
                         </p>
+                        {plan !== "pro" && (
+                            <a
+                                href={`/${language}/dashboard/billing`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="mt-2 inline-block text-[11px] font-bold text-orange-600 hover:underline"
+                            >
+                                Upgrade to Pro →
+                            </a>
+                        )}
                     </button>
                 </div>
 

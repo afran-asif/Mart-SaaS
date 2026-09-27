@@ -73,9 +73,18 @@ export default function MarketingSettingsPage() {
                 </p>
             </div>
 
+            {plan !== "pro" && (
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <p className="text-sm text-gray-700 flex-1">🔒 Pixels are a Pro feature. Upgrade to track your ads.</p>
+                    <a href={`/${language}/dashboard/billing`} className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold whitespace-nowrap transition-colors">
+                        Upgrade to Pro →
+                    </a>
+                </div>
+            )}
+
             <div className="space-y-4">
                 {/* Facebook — brand blue */}
-                <div className="rounded-2xl p-6 border border-blue-200 bg-gradient-to-br from-[#F0F6FF] to-white shadow-sm space-y-4">
+                <div className={`rounded-2xl p-6 border border-blue-200 bg-gradient-to-br from-[#F0F6FF] to-white shadow-sm space-y-4 ${plan !== "pro" ? "opacity-60" : ""}`}>
                 <div>
                     <label className="flex items-center gap-2 text-xs font-semibold text-[#1877F2] uppercase tracking-wider mb-1.5">
                         <span className="w-5 h-5 rounded-full bg-[#1877F2] text-white text-[11px] font-extrabold flex items-center justify-center">f</span>
@@ -121,7 +130,7 @@ export default function MarketingSettingsPage() {
                     </div>
 
                     {/* Google — G colors */}
-                    <div className="rounded-2xl p-6 border border-gray-200 bg-white shadow-sm space-y-4">
+                    <div className={`rounded-2xl p-6 border border-gray-200 bg-white shadow-sm space-y-4 ${plan !== "pro" ? "opacity-60" : ""}`}>
                 <div>
                     <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                         <span className="flex items-center gap-[3px]">
@@ -172,7 +181,7 @@ export default function MarketingSettingsPage() {
                     </div>
 
                     {/* TikTok — black + neon */}
-                    <div className="rounded-2xl p-6 border border-gray-800 bg-[#010101] shadow-sm space-y-4">
+                    <div className={`rounded-2xl p-6 border border-gray-800 bg-[#010101] shadow-sm space-y-4 ${plan !== "pro" ? "opacity-60" : ""}`}>
                 <div>
                     <label className="flex items-center gap-2 text-xs font-semibold text-white uppercase tracking-wider mb-1.5">
                         <span className="font-extrabold text-sm tracking-tight">

@@ -5,7 +5,7 @@ import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
 import { uploadToCloudinary } from "../middlewares/uploadMiddleware";
-import { checkProductLimit } from "../utils/plan";
+import { checkProductLimit, getEffectivePlan } from "../utils/plan";
 
 // 📤 ১. নতুন প্রোডাক্ট তৈরি করা (Multer ফাইল সাপোর্টসহ)
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -194,6 +194,17 @@ export const toggleFeatured = async (req: AuthenticatedRequest, res: Response): 
         if (!product) {
             res.status(404).json({ message: "Product not found or unauthorized" });
             return;
+        }
+        // ⭐ Free plan-এ সর্বোচ্চ ৩টা featured (Pro-তে unlimited)
+        if (!product.featured) {
+            const store = await Store.findOne({ vendorId }).select("plan planExpiresAt");
+            if (store && getEffectivePlan(store) !== "pro") {
+                const featuredCount = await Product.countDocuments({ storeId: product.storeId, featured: true });
+                if (featuredCount >= 3) {
+                    res.status(403).json({ message: "Free plan allows up to 3 featured products. Upgrade to Pro for unlimited Best Picks.", proRequired: true });
+                    return;
+                }
+            }
         }
         product.featured = !product.featured;
         await product.save();

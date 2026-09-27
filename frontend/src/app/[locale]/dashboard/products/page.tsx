@@ -123,6 +123,11 @@ export default function LocalizedProductsPage() {
                                 ({products.length}/{sub.usage.maxProducts})
                             </span>
                         )}
+                        {sub && sub.plan !== "pro" && (
+                            <span className="ml-2 font-mono font-semibold text-amber-600">
+                                (★ {products.filter((p) => p.featured).length}/3)
+                            </span>
+                        )}
                     </p>
                 </div>
                 <button
@@ -136,6 +141,15 @@ export default function LocalizedProductsPage() {
             {sub && sub.plan !== "pro" && sub.usage.maxProducts !== null && products.length >= sub.usage.maxProducts && (
                 <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <p className="text-sm text-gray-700 flex-1">🔒 Product limit reached ({sub.usage.maxProducts}). Upgrade to Pro for unlimited products.</p>
+                    <a href={`/${language}/dashboard/billing`} className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold whitespace-nowrap transition-colors">
+                        Upgrade to Pro →
+                    </a>
+                </div>
+            )}
+
+            {sub && sub.plan !== "pro" && products.filter((p) => p.featured).length >= 3 && (
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <p className="text-sm text-gray-700 flex-1">★ You have 3/3 featured products. Want more Best Picks? Upgrade to Pro for unlimited featured products.</p>
                     <a href={`/${language}/dashboard/billing`} className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold whitespace-nowrap transition-colors">
                         Upgrade to Pro →
                     </a>

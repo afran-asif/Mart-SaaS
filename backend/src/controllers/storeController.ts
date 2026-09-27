@@ -103,7 +103,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         ] as const;
         for (const [key, value] of pixelFields) {
             if (value === undefined) continue;
-            const v = (value as string).trim();
+            const v = String(value ?? "").trim();
             if (v && !(store as any)[key] && !limits.pixels) {
                 proLocked.push("pixels");
                 continue;
@@ -116,19 +116,23 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (instagramUrl !== undefined) store.instagramUrl = instagramUrl || null;
         if (whatsappNumber !== undefined) store.whatsappNumber = whatsappNumber || null;
 
-        // ✅ Branding & hero
+        // ✅ Branding & hero — null-safe (frontend খালি field null পাঠায়)
+        const toNullString = (v: unknown): string | null => {
+            if (v === undefined || v === null) return null;
+            const s = String(v).trim();
+            return s || null;
+        };
         if (brandColor !== undefined) {
-            const v = (brandColor as string).trim();
-            store.brandColor = v ? v : null;
+            store.brandColor = toNullString(brandColor);
         }
-        if (heroTitle !== undefined) store.heroTitle = (heroTitle as string).trim() || null;
-        if (heroSubtitle !== undefined) store.heroSubtitle = (heroSubtitle as string).trim() || null;
-        if (heroImage !== undefined) store.heroImage = (heroImage as string).trim() || null;
+        if (heroTitle !== undefined) store.heroTitle = toNullString(heroTitle);
+        if (heroSubtitle !== undefined) store.heroSubtitle = toNullString(heroSubtitle);
+        if (heroImage !== undefined) store.heroImage = toNullString(heroImage);
         if (theme !== undefined) {
             const allowed: string[] = limits.themes.length
                 ? [...limits.themes]
                 : ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"];
-            const v = (theme as string).trim().toLowerCase();
+            const v = String(theme ?? "").trim().toLowerCase();
             if (allowed.includes(v)) {
                 store.theme = v;
             } else if (v !== store.theme) {
