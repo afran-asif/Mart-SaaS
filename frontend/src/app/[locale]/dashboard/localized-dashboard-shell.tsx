@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { logout, updateStoreInfo } from "@/redux/authSlice";
+import { logout, updateStoreInfo, setCredentials } from "@/redux/authSlice";
 import { api } from "@/services/api";
+import { fetchMe, logoutVendor } from "@/services/authService";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -19,13 +20,27 @@ export default function LocalizedDashboardShell({ children }: { children: React.
     const { t, language } = useTranslation();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token && !isAuthenticated) {
-            router.replace(`/${language}/login`);
-        } else {
-            setAuthChecked(true);
-        }
-    }, [isAuthenticated, router, language]);
+        let cancelled = false;
+        (async () => {
+            if (isAuthenticated) {
+                setAuthChecked(true);
+                return;
+            }
+            // Refresh-safe session restore — httpOnly cookie দিয়ে server যাচাই করে
+            try {
+                const data = await fetchMe();
+                if (!cancelled && data?.success) {
+                    dispatch(setCredentials({ user: data.user, store: data.store }));
+                    setAuthChecked(true);
+                }
+            } catch {
+                if (!cancelled) router.replace(`/${language}/login`);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [isAuthenticated, router, language, dispatch]);
 
     // Sidebar-এ সবসময় fresh store name (settings এ পরিবর্তন হলে immediate update)
     useEffect(() => {
@@ -94,7 +109,12 @@ export default function LocalizedDashboardShell({ children }: { children: React.
         }
     }, [pathname, settingsBase]);
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
+        try {
+            await logoutVendor();
+        } catch {
+            // server cookie clear fail হলেও client state clear হবে
+        }
         dispatch(logout());
         router.push(`/${language}/login`);
     };

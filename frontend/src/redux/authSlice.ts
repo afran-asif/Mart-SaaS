@@ -4,67 +4,32 @@ interface AuthState {
     user: { id: string; name: string; email: string; role: string } | null;
     store: { id?: string; storeName: string; subdomain: string } | null;
     isAuthenticated: boolean;
-    token: string | null;
 }
 
 const initialState: AuthState = {
     user: null,
     store: null,
-    token: null,
     isAuthenticated: false,
 };
 
+// Auth শুধু in-memory + httpOnly cookie — localStorage-এ token/user রাখা হয় না (XSS-safe).
+// Refresh হলে shell /auth/me দিয়ে session restore করে।
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
         setCredentials: (
             state,
-            action: PayloadAction<{ user: any; store: any; token: string }>
+            action: PayloadAction<{ user: any; store: any }>
         ) => {
             state.user = action.payload.user;
             state.store = action.payload.store;
-            state.token = action.payload.token;
             state.isAuthenticated = true;
-
-            if (typeof window !== "undefined") {
-                localStorage.setItem("token", action.payload.token);
-                localStorage.setItem("user", JSON.stringify(action.payload.user));
-                localStorage.setItem("store", JSON.stringify(action.payload.store));
-            }
-        },
-        rehydrate: (state) => {
-            if (typeof window !== "undefined") {
-                const token = localStorage.getItem("token");
-                const userStr = localStorage.getItem("user");
-                const storeStr = localStorage.getItem("store");
-
-                if (token && userStr) {
-                    try {
-                        state.token = token;
-                        state.user = JSON.parse(userStr);
-                        state.store = storeStr ? JSON.parse(storeStr) : null;
-                        state.isAuthenticated = true;
-                    } catch {
-                        // If JSON parse fails, clear storage
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("user");
-                        localStorage.removeItem("store");
-                    }
-                }
-            }
         },
         logout: (state) => {
             state.user = null;
             state.store = null;
-            state.token = null;
             state.isAuthenticated = false;
-
-            if (typeof window !== "undefined") {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-                localStorage.removeItem("store");
-            }
         },
         updateStoreInfo: (
             state,
@@ -75,12 +40,9 @@ const authSlice = createSlice({
             } else {
                 state.store = action.payload as AuthState["store"];
             }
-            if (typeof window !== "undefined") {
-                localStorage.setItem("store", JSON.stringify(state.store));
-            }
         },
     },
 });
 
-export const { setCredentials, rehydrate, logout, updateStoreInfo } = authSlice.actions;
+export const { setCredentials, logout, updateStoreInfo } = authSlice.actions;
 export default authSlice.reducer;

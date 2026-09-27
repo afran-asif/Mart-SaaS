@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setCredentials } from "@/redux/authSlice";
+import { fetchMe } from "@/services/authService";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export default function LocalizedHomePage() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { isAuthenticated, user, store } = useSelector((state: any) => state.auth || {});
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,6 +21,17 @@ export default function LocalizedHomePage() {
 
   useEffect(() => {
     setMounted(true);
+    // Refresh-safe session restore (silent — public page, fail হলে guest-ই থাকে)
+    if (!isAuthenticated) {
+      fetchMe()
+        .then((data) => {
+          if (data?.success) {
+            dispatch(setCredentials({ user: data.user, store: data.store }));
+          }
+        })
+        .catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleClaimSubdomain = (e: React.FormEvent) => {

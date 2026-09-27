@@ -7,12 +7,20 @@ export const registerVendor = async ( vendorData: any ) => {
 
 export const loginVendor = async ( credentials: any ) => {
     const response = await api.post("/auth/login", credentials);
-    
-    // 🔑 লগইন সফল হলে টোকেনটি localStorage-এ সেভ করা হচ্ছে
-    if (response.data && response.data.token) {
-        localStorage.setItem("token", response.data.token);
+    // 🔑 Auth httpOnly cookie-তে হয় (server Set-Cookie) — localStorage-এ token রাখা হয় না
+    return response.data;
+}
+
+export const logoutVendor = async () => {
+    try {
+        await api.post("/auth/logout");
+    } catch {
+        // cookie না থাকলেও client state clear হবে
     }
-    
+}
+
+export const fetchMe = async () => {
+    const response = await api.get("/auth/me");
     return response.data;
 }
 

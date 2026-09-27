@@ -46,14 +46,10 @@ const getSubdomain = (): string | null => {
     return hostname;
 };
 
-// ✅ প্রতিটি request-এ token + tenant subdomain যুক্ত করা
+// ✅ প্রতিটি request-এ tenant subdomain যুক্ত করা
+// Auth httpOnly cookie দিয়ে হয় (withCredentials) — localStorage-এ token রাখা হয় না (XSS-safe)
 api.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
         const subdomain = getSubdomain();
         if (subdomain) {
             config.headers["X-Tenant-Subdomain"] = subdomain;

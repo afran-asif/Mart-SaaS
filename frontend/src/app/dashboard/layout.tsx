@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "@/redux/authSlice";
+import { logout, setCredentials } from "@/redux/authSlice";
+import { fetchMe, logoutVendor } from "@/services/authService";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -18,13 +19,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { t } = useTranslation();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token && !isAuthenticated) {
-            router.replace("/login");
-        } else {
-            setAuthChecked(true);
-        }
-    }, [isAuthenticated, router]);
+        let cancelled = false;
+        (async () => {
+            if (isAuthenticated) {
+                setAuthChecked(true);
+                return;
+            }
+            // Refresh-safe session restore — httpOnly cookie দিয়ে server যাচাই করে
+            try {
+                const data = await fetchMe();
+                if (!cancelled && data?.success) {
+                    dispatch(setCredentials({ user: data.user, store: data.store }));
+                    setAuthChecked(true);
+                }
+            } catch {
+                if (!cancelled) router.replace("/login");
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [isAuthenticated, router, dispatch]);
 
     // Close sidebar on route change (mobile)
     useEffect(() => {
@@ -64,7 +79,12 @@ const menuItems = [
         }
     }, [pathname]);
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
+        try {
+            await logoutVendor();
+        } catch {
+            // server cookie clear fail হলেও client state clear হবে
+        }
         dispatch(logout());
         router.push("/login");
     };

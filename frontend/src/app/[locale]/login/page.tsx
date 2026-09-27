@@ -28,11 +28,7 @@ export default function LocalizedLoginPage() {
         try {
             const data = await loginVendor(formData);
             if (data.success) {
-                dispatch(setCredentials({ user: data.user, store: data.store, token: data.token }));
-
-                if (data.token) {
-                    localStorage.setItem("token", data.token);
-                }
+                dispatch(setCredentials({ user: data.user, store: data.store }));
                 setMessage(t("login.loginSuccess"));
                 setTimeout(() => {
                     router.push(`/${language}/dashboard`);

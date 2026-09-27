@@ -13,19 +13,52 @@ const getFrontendUrl = (): string => {
     return (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
 };
 
+const isProdCookie = process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+    httpOnly: true,
+    // production-এ frontend/backend আলাদা host (cross-site) → SameSite=None + Secure লাগবে,
+    // নইলে browser cookie পাঠাবে না। local dev-এ lax।
+    secure: isProdCookie,
+    sameSite: (isProdCookie ? "none" : "lax") as "none" | "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 const generateToken = (res: Response, userId: string): string => {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET!, {
         expiresIn: '7d',
     });
 
-    res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', token, cookieOptions);
 
     return token; // ✅ token return করা হচ্ছে
+};
+
+export const logoutUser = async (_req: Request, res: Response): Promise<void> => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: isProdCookie,
+        sameSite: (isProdCookie ? "none" : "lax") as "none" | "lax",
+    });
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
+};
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = (req as any).user;
+        if (!user) {
+            res.status(401).json({ message: 'Not authenticated' });
+            return;
+        }
+        const store = await Store.findOne({ vendorId: user._id }).select("storeName subdomain");
+        res.status(200).json({
+            success: true,
+            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            store: store ? { id: store._id, storeName: store.storeName, subdomain: store.subdomain } : null,
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
 };
 
 export const registerVendor = async (req: Request, res: Response) => {
