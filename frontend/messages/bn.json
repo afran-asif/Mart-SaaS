@@ -460,7 +460,20 @@
       "approveConfirm": "৩০ দিনের জন্য Pro চালু করবেন?",
       "rejectNote": "বাতিলের কারণ (ঐচ্ছিক):",
       "forbidden": "অনুমতি নেই",
-      "forbiddenDesc": "এই পেজ শুধু প্ল্যাটফর্ম অ্যাডমিনদের জন্য।"
+      "forbiddenDesc": "এই পেজ শুধু প্ল্যাটফর্ম অ্যাডমিনদের জন্য।",
+      "tabRequests": "রিকোয়েস্ট",
+      "tabStores": "স্টোর",
+      "tabOrders": "অর্ডার",
+      "statStores": "মোট স্টোর",
+      "statPro": "Pro স্টোর",
+      "statOrdersToday": "আজকের অর্ডার",
+      "statOrdersMonth": "এই মাসের অর্ডার",
+      "statRevenueMonth": "এই মাসের রেভিনিউ",
+      "statFailedMonth": "ব্যর্থ পেমেন্ট (মাস)",
+      "statSuspended": "বন্ধ স্টোর",
+      "statExpiring": "৭ দিনে মেয়াদোত্তীর্ণ Pro",
+      "statPending": "অপেক্ষমাণ রিকোয়েস্ট",
+      "searchStores": "স্টোর, সাবডোমেইন, ডোমেইন খুঁজুন..."
     }
   }
 }

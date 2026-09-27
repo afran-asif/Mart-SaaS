@@ -460,7 +460,20 @@
       "approveConfirm": "Approve Pro for 30 days?",
       "rejectNote": "Rejection reason (optional):",
       "forbidden": "Not authorized",
-      "forbiddenDesc": "This page is for platform admins only."
+      "forbiddenDesc": "This page is for platform admins only.",
+      "tabRequests": "Requests",
+      "tabStores": "Stores",
+      "tabOrders": "Orders",
+      "statStores": "Total stores",
+      "statPro": "Pro stores",
+      "statOrdersToday": "Orders today",
+      "statOrdersMonth": "Orders this month",
+      "statRevenueMonth": "Revenue this month",
+      "statFailedMonth": "Failed payments (month)",
+      "statSuspended": "Suspended stores",
+      "statExpiring": "Pro expiring in 7 days",
+      "statPending": "Pending requests",
+      "searchStores": "Search store, subdomain, domain..."
     }
   }
 }

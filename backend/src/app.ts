@@ -17,6 +17,7 @@ import paymentCallbackRoutes from './routes/paymentCallbackRoutes'
 import categoryRoutes from './routes/categoryRoutes';
 import couponRoutes from './routes/couponRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
+import adminRoutes from './routes/adminRoutes';
 import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
 import { seedPlans } from "./models/Plan";
 
@@ -75,6 +76,7 @@ app.use("/api/v1/orders", orderRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/v1/payment", paymentRoutes);
