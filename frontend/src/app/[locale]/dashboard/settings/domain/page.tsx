@@ -157,7 +157,7 @@ export default function DomainSettingsPage() {
                                 value={customDomain}
                                 onChange={(e) => setCustomDomain(e.target.value)}
                                 disabled={customDomainStatus === "verified" || (customDomainStatus === "pending" && !!customDomain)}
-                                placeholder="shop.youraddress.com"
+                                placeholder="youraddress.com"
                                 className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all disabled:bg-gray-50"
                             />
                             <button

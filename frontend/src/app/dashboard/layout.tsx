@@ -95,7 +95,7 @@ const menuItems = [
                 className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white shadow-md flex flex-col justify-between transform transition-transform duration-300 ease-in-out
                     ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
             >
-                <div className="p-6">
+                <div className="p-6 flex flex-col min-h-0 flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-bold text-orange-600">Vendoo</h2>
                         {/* Close button (mobile only) */}
@@ -108,7 +108,7 @@ const menuItems = [
                     </div>
                     <p className="text-xs text-gray-500 mt-1">{t("dashboard.shop")}: {store?.storeName || "My Store"}</p>
 
-                    <nav className="mt-8 space-y-2">
+                    <nav className="mt-8 space-y-2 overflow-y-auto min-h-0 flex-1 pr-1">
                         {menuItems.map((item: any) => {
                             if (item.children) {
                                 const isActiveGroup = pathname === item.path || pathname.startsWith(item.path + "/");
@@ -181,7 +181,7 @@ const menuItems = [
                     </nav>
                 </div>
 
-                <div className="p-4 border-t border-gray-200 flex flex-col gap-2">
+                <div className="p-4 border-t border-gray-200 flex flex-col gap-2 shrink-0">
                     {/* Language Switcher in sidebar */}
                     <div className="px-2 pb-1">
                         <LanguageSwitcher variant="dark" />
