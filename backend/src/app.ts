@@ -19,6 +19,7 @@ import couponRoutes from './routes/couponRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import adminRoutes from './routes/adminRoutes';
 import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
+import { originCheck } from "./middlewares/originCheck";
 import { seedPlans } from "./models/Plan";
 
 const app: Application = express();
@@ -41,6 +42,8 @@ const paymentLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 15, standardHe
 app.use("/api/", globalLimiter);
 app.use("/api/v1/auth", authLimiter);
 app.use("/api/v1/payment", paymentLimiter);
+// 🛡️ CSRF — state-changing request-এর Origin যাচাই (GET বাদে সব /api/ route-এ)
+app.use("/api/", originCheck);
 const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saa-s\.vercel\.app|vendoo\.shop)$/;
 
 app.use("/api/v1/payment", paymentCallbackRoutes);
