@@ -212,7 +212,27 @@ export default function LocalizedDashboardPage() {
                 ) : !analytics || analytics.recentOrders.length === 0 ? (
                     <p className="text-sm text-gray-400 py-4 text-center">{t("dashboard.noOrders")}</p>
                 ) : (
-                    <div className="overflow-x-auto -mx-5 sm:-mx-6">
+                    <>
+                    {/* Mobile cards — no horizontal scroll */}
+                    <div className="md:hidden space-y-2.5">
+                        {analytics.recentOrders.map((order) => (
+                            <div key={order._id} className="flex items-center gap-3 bg-gray-50/60 border border-gray-100 rounded-xl p-3">
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-mono text-xs font-bold text-gray-900">#{order._id.slice(-6).toUpperCase()}</p>
+                                    <p className="font-medium text-gray-900 text-xs truncate mt-0.5">{order.customerName}</p>
+                                </div>
+                                <div className="text-right shrink-0">
+                                    <p className="font-semibold text-gray-900 text-xs whitespace-nowrap">৳{order.totalAmount.toFixed(2)}</p>
+                                    <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold rounded-lg border ${getStatusBadge(order.status)}`}>
+                                        {getStatusLabel(order.status)}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop table */}
+                    <div className="hidden md:block overflow-x-auto -mx-5 sm:-mx-6">
                         <div className="px-5 sm:px-6 min-w-full">
                             <table className="w-full text-left border-collapse min-w-[480px]">
                                 <thead>
@@ -250,6 +270,7 @@ export default function LocalizedDashboardPage() {
                             </table>
                         </div>
                     </div>
+                    </>
                 )}
             </div>
         </div>

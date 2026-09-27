@@ -91,7 +91,35 @@ export default function LocalizedCouponsPage() {
             ) : coupons.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-2xl border border-gray-100"><p className="text-gray-400">{t("dashboard.couponsPage.empty")}</p></div>
             ) : (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+                <>
+                {/* Mobile cards — no horizontal scroll */}
+                <div className="md:hidden space-y-3">
+                    {coupons.map((c) => (
+                        <div key={c._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                            <div className="flex items-center justify-between gap-2">
+                                <p className="font-mono font-bold text-gray-900 text-sm">{c.code}</p>
+                                <span className={`px-2 py-1 text-[11px] font-semibold rounded-full ${c.isActive ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                    {c.isActive ? "Active" : "Inactive"}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                                <span className="font-semibold text-gray-800 text-sm">{c.discountType === "percent" ? `${c.discountValue}%` : `৳${c.discountValue}`}</span>
+                                <span>Min ৳{c.minOrderAmount}</span>
+                                <span>Uses {c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 mt-1">
+                                {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : "No expiry"}
+                            </p>
+                            <div className="flex gap-2 mt-3">
+                                <button onClick={() => openEdit(c)} className="flex-1 px-3 py-2 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg">Edit</button>
+                                <button onClick={() => handleDelete(c._id)} className="flex-1 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 rounded-lg">Delete</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[720px]">
                         <thead>
                             <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">
@@ -122,6 +150,7 @@ export default function LocalizedCouponsPage() {
                         </tbody>
                     </table>
                 </div>
+                </>
             )}
 
             {showModal && (

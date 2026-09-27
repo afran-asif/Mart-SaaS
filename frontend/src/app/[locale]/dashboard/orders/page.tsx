@@ -165,9 +165,66 @@ export default function LocalizedOrdersPage() {
             {/* Loading */}
             {loading && <p className="text-gray-600 font-medium p-4">{t("dashboard.ordersPage.loading")}</p>}
 
-            {/* Orders Table */}
-            {!loading && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Mobile cards — no horizontal scroll */}
+                    {!loading && (
+                        <>
+                        {orders.length > 0 && (
+                        <div className="md:hidden space-y-3">
+                            {orders.map((order) => (
+                                <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div
+                                        onClick={() => setExpandedId(expandedId === order._id ? null : order._id)}
+                                        className="p-4 cursor-pointer"
+                                    >
+                                        <div className="flex items-center justify-between gap-2">
+                                            <span className="font-mono text-xs font-semibold text-gray-900">
+                                                #{order._id.slice(-6).toUpperCase()}
+                                            </span>
+                                            <span className="font-semibold text-gray-900 text-sm whitespace-nowrap">
+                                                ৳{order.totalAmount.toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-2 mt-2">
+                                            <div className="min-w-0">
+                                                <p className="font-medium text-gray-950 text-sm truncate">{order.customerName}</p>
+                                                <p className="text-[11px] text-gray-400">{formatDate(order.createdAt)}</p>
+                                            </div>
+                                            <span className={`inline-flex items-center transition-transform duration-200 ${expandedId === order._id ? "rotate-180" : ""}`}>
+                                                <svg viewBox="0 0 20 20" className="w-4 h-4 fill-current text-gray-400" aria-hidden="true">
+                                                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div className="mt-2.5" onClick={(e) => e.stopPropagation()}>
+                                            <select
+                                                value={order.status}
+                                                onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                                className={`w-full px-2.5 py-2 text-xs font-semibold rounded-lg border focus:outline-none cursor-pointer ${getStatusBadge(order.status)}`}
+                                            >
+                                                <option value="Pending">{t("dashboard.statusPending")}</option>
+                                                <option value="Processing">{t("dashboard.statusProcessing")}</option>
+                                                <option value="Delivered">{t("dashboard.statusDelivered")}</option>
+                                                <option value="Cancelled">{t("dashboard.statusCancelled")}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {expandedId === order._id && (
+                                        <div className="border-t border-gray-100 bg-orange-50/30 p-4">
+                                            <OrderDetailRow order={order} t={t} />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        )}
+                        {orders.length === 0 && (
+                        <div className="md:hidden p-10 text-center text-gray-500 bg-white rounded-2xl shadow-sm border border-gray-100">
+                            {t("dashboard.ordersPage.noOrdersFound")}
+                        </div>
+                    )}
+
+                    {/* Desktop table */}
+                    <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     {orders.length === 0 ? (
                         <div className="p-10 text-center text-gray-500">
                             {t("dashboard.ordersPage.noOrdersFound")}
@@ -297,7 +354,8 @@ export default function LocalizedOrdersPage() {
                         </div>
                     )}
                 </div>
-            )}
+                        </>
+                    )}
         </div>
     );
 }

@@ -75,7 +75,32 @@ export default function LocalizedCustomersPage() {
                 </div>
             ) : (
                 <>
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+                    {/* Mobile cards — no horizontal scroll */}
+                    <div className="md:hidden space-y-3">
+                        {customers.map((c) => (
+                            <div key={c._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                        <p className="font-semibold text-gray-900 text-sm truncate">{c.customerName}</p>
+                                        <p className="text-xs text-gray-500 truncate">{c.customerEmail}</p>
+                                    </div>
+                                    <span className="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-700 shrink-0">
+                                        {c.totalOrders} {t("dashboard.customersPage.orders")}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between gap-2 mt-2.5 pt-2.5 border-t border-gray-50 text-xs">
+                                    <span className="text-gray-500">{c.phone || "—"}</span>
+                                    <span className="font-semibold text-gray-900">৳{c.totalSpent.toFixed(2)}</span>
+                                </div>
+                                <p className="text-[11px] text-gray-400 mt-1">
+                                    {t("dashboard.customersPage.lastOrder")}: {formatDate(c.lastOrderAt)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop table */}
+                    <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                         <table className="w-full text-left border-collapse min-w-[640px]">
                             <thead>
                                 <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">

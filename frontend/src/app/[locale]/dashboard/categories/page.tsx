@@ -157,7 +157,77 @@ export default function LocalizedCategoriesPage() {
                     <p className="text-gray-400">{t("dashboard.categoriesPage.listEmpty")}</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+                <>
+                {/* Mobile cards — no horizontal scroll */}
+                <div className="md:hidden space-y-3">
+                    {categories.map((cat) => (
+                        <div key={cat._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                            {editingId === cat._id ? (
+                                <div className="flex flex-col gap-2">
+                                    <input
+                                        type="text"
+                                        autoFocus
+                                        value={editingName}
+                                        onChange={(e) => setEditingName(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleRename(cat._id);
+                                            }
+                                            if (e.key === "Escape") setEditingId(null);
+                                        }}
+                                        className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900"
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleRename(cat._id)}
+                                            disabled={saving || !editingName.trim()}
+                                            className="flex-1 px-3 py-2 text-xs font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-lg disabled:bg-orange-300"
+                                        >
+                                            {t("dashboard.categoriesPage.save")}
+                                        </button>
+                                        <button
+                                            onClick={() => setEditingId(null)}
+                                            className="flex-1 px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-100 rounded-lg"
+                                        >
+                                            {t("dashboard.categoriesPage.cancel")}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <p className="font-medium text-gray-900 text-sm truncate">{cat.name}</p>
+                                        <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-50 text-orange-700 shrink-0">
+                                            {cat.productCount ?? 0}
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-gray-400 mt-1">
+                                        {cat.createdAt ? new Date(cat.createdAt).toLocaleDateString() : "—"}
+                                    </p>
+                                    <div className="flex gap-2 mt-3">
+                                        <button
+                                            onClick={() => startEdit(cat)}
+                                            className="flex-1 px-3 py-2 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg"
+                                        >
+                                            {t("dashboard.categoriesPage.edit")}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(cat)}
+                                            disabled={deletingId === cat._id}
+                                            className="flex-1 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 rounded-lg disabled:opacity-50"
+                                        >
+                                            {deletingId === cat._id ? t("dashboard.categoriesPage.deleting") : t("dashboard.categoriesPage.delete")}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[480px]">
                         <thead>
                             <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">
@@ -233,6 +303,7 @@ export default function LocalizedCategoriesPage() {
                         </tbody>
                     </table>
                 </div>
+                </>
             )}
         </div>
     );

@@ -43,8 +43,62 @@ export default function ProductTable({
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            {/* Table with horizontal scroll */}
-            <div className="overflow-x-auto">
+            {/* Mobile cards — no horizontal scroll */}
+            <div className="md:hidden divide-y divide-gray-50">
+                {paginatedProducts.map((product) => (
+                    <div key={product._id} className="p-4 flex gap-3">
+                        {product.images && product.images.length > 0 ? (
+                            <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-16 h-16 object-cover rounded-xl border border-gray-100 shadow-sm shrink-0"
+                            />
+                        ) : (
+                            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm text-xl shrink-0">
+                                📦
+                            </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                                <p className="font-medium text-gray-950 text-sm truncate">{product.name}</p>
+                                <span
+                                    className={`px-2 py-0.5 rounded-md font-medium text-[11px] shrink-0 ${
+                                        product.stock > 0 ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                                    }`}
+                                >
+                                    {product.stock}
+                                </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5 truncate">{product.category || "General"}</p>
+                            <p className="font-semibold text-gray-900 text-sm mt-1">৳{Number(product.price).toFixed(2)}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                                <button
+                                    onClick={() => onToggleFeatured?.(product._id)}
+                                    title={product.featured ? "Remove from featured" : "Add to featured"}
+                                    className={`text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors ${product.featured ? "bg-amber-400 text-white" : "bg-gray-100 text-gray-400"}`}
+                                >
+                                    ★
+                                </button>
+                                <button
+                                    onClick={() => onEdit(product)}
+                                    className="flex-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => onDelete(product._id, product.name)}
+                                    className="flex-1 px-2.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-xs sm:text-sm font-semibold">
