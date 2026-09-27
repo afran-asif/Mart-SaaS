@@ -83,3 +83,8 @@ export const listAdminOrders = async (page = 1) => {
     const res = await api.get("/admin/orders", { params: { page, limit: 15 } });
     return res.data as { total: number; page: number; orders: any[] };
 };
+
+export const impersonateStore = async (id: string): Promise<string> => {
+    const res = await api.post(`/admin/stores/${id}/impersonate`);
+    return res.data.url as string;
+};

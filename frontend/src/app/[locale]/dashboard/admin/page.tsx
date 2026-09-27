@@ -7,7 +7,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import {
     listSubRequests, approveSubRequest, rejectSubRequest, SubRequest,
     getPlatformStats, PlatformStats, listAdminStores, AdminStore,
-    setAdminStorePlan, setAdminStoreStatus, listAdminOrders,
+    setAdminStorePlan, setAdminStoreStatus, listAdminOrders, impersonateStore,
 } from "@/services/adminService";
 
 type MainTab = "requests" | "stores" | "orders";
@@ -125,6 +125,16 @@ export default function LocalizedAdminPage() {
             toast.error(error.message || "Failed.");
         } finally {
             setActing(null);
+        }
+    };
+
+    const handleImpersonate = async (id: string, name: string) => {
+        if (!window.confirm(`Open ${name} as vendor? (logged for audit)`)) return;
+        try {
+            const url = await impersonateStore(id);
+            window.open(url, "_blank", "noopener");
+        } catch (error: any) {
+            toast.error(error.message || "Failed.");
         }
     };
 
@@ -295,6 +305,9 @@ export default function LocalizedAdminPage() {
                                                     Activate
                                                 </button>
                                             )}
+                                            <button onClick={() => handleImpersonate(s.id, s.storeName)} className="px-3 py-1.5 rounded-lg border border-blue-200 text-xs font-bold text-blue-700 hover:bg-blue-50">
+                                                👁 {t("dashboard.adminPage.loginAs")}
+                                            </button>
                                         </div>
                                     </div>
                                 ))}

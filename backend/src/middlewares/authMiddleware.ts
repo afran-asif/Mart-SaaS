@@ -4,6 +4,7 @@ import { User } from '../models/User'
 
 export interface AuthenticatedRequest extends Request {
     user?: any;
+    impersonatedBy?: string | null;
 }
 
 export const protect = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -24,13 +25,15 @@ export const protect = async (req: AuthenticatedRequest, res: Response, next: Ne
     }
 
     try{
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; imp?: boolean; by?: string }
         req.user = await User.findById(decoded.userId).select('-password');
 
         if(!req.user) {
             res.status(401).json({ message: 'User no longer exists'});
             return;
         }
+        // support-mode session (admin "login as vendor") — audit + /me banner এর জন্য
+        req.impersonatedBy = decoded.imp ? (decoded.by || null) : null;
         next();
     } catch (error) {
         res.status(401).json({ message: 'Not authorized, token failed' });

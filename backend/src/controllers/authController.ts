@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../models/User";
 import { Store } from "../models/Store";
 import { Category } from "../models/Category";
+import { ImpersonationLog } from "../models/ImpersonationLog";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -55,9 +56,48 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
             success: true,
             user: { id: user._id, name: user.name, email: user.email, role: user.role },
             store: store ? { id: store._id, storeName: store.storeName, subdomain: store.subdomain } : null,
+            impersonatedBy: (req as any).impersonatedBy || null,
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// GET /auth/impersonate/cb/:token — one-time link → vendor session cookie + dashboard redirect
+export const impersonateCallback = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const rawToken = (req.params.token as string) || "";
+        const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+        const entry = await ImpersonationLog.findOne({
+            tokenHash,
+            used: false,
+            expiresAt: { $gt: new Date() },
+        });
+        if (!entry) {
+            res.status(403).send("This link has expired or was already used.");
+            return;
+        }
+        entry.used = true;
+        entry.sessionStartedAt = new Date();
+        await entry.save();
+
+        const vendor = await User.findById(entry.vendorId);
+        if (!vendor) {
+            res.status(404).send("Vendor not found.");
+            return;
+        }
+
+        const token = jwt.sign(
+            { userId: vendor._id.toString(), imp: true, by: entry.adminId.toString() },
+            process.env.JWT_SECRET!,
+            { expiresIn: "15m" }
+        );
+        res.cookie("token", token, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+
+        const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
+        res.redirect(`${frontendUrl}/en/dashboard`);
+    } catch (error) {
+        res.status(500).send("Impersonation failed.");
     }
 };
 

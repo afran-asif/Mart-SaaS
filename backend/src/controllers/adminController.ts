@@ -1,7 +1,9 @@
 import { Response } from "express";
+import crypto from "crypto";
 import { Store } from "../models/Store";
 import { User } from "../models/User";
 import { Subscription } from "../models/Subscription";
+import { ImpersonationLog } from "../models/ImpersonationLog";
 import Order from "../models/Order";
 import { Product } from "../models/Product";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -122,6 +124,42 @@ export const listAllOrders = async (req: AuthenticatedRequest, res: Response): P
                 .lean(),
         ]);
         res.status(200).json({ success: true, total, page, orders });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// POST /admin/stores/:id/impersonate — one-time token বানানো (5 মিনিট, single-use)
+// Admin মূল tab-এ থাকে, vendor session নতুন tab-এ খোলে — admin session নষ্ট হয় না
+export const impersonateVendor = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const store = await Store.findById(req.params.id);
+        if (!store) {
+            res.status(404).json({ message: "Store not found." });
+            return;
+        }
+        const vendor = await User.findById(store.vendorId).select("_id");
+        if (!vendor) {
+            res.status(404).json({ message: "Vendor not found." });
+            return;
+        }
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+        await ImpersonationLog.create({
+            adminId: req.user._id,
+            vendorId: vendor._id,
+            storeId: store._id,
+            tokenHash,
+            used: false,
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+        });
+
+        const baseUrl = process.env.BACKEND_URL || "http://localhost:5000";
+        res.status(200).json({
+            success: true,
+            url: `${baseUrl}/api/v1/auth/impersonate/cb/${rawToken}`,
+        });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }

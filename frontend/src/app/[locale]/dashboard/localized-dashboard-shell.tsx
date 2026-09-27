@@ -17,6 +17,7 @@ export default function LocalizedDashboardShell({ children }: { children: React.
     const { user, store, isAuthenticated } = useSelector((state: any) => state.auth);
     const [authChecked, setAuthChecked] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [impersonated, setImpersonated] = useState(false);
     const { t, language } = useTranslation();
 
     useEffect(() => {
@@ -31,6 +32,7 @@ export default function LocalizedDashboardShell({ children }: { children: React.
                 const data = await fetchMe();
                 if (!cancelled && data?.success) {
                     dispatch(setCredentials({ user: data.user, store: data.store }));
+                    if (data.impersonatedBy) setImpersonated(true);
                     setAuthChecked(true);
                 }
             } catch {
@@ -253,6 +255,18 @@ export default function LocalizedDashboardShell({ children }: { children: React.
 
             {/* Main content area */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Impersonation banner — support mode */}
+                {impersonated && (
+                    <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between gap-3 text-xs font-semibold shrink-0">
+                        <span>👁 {t("dashboard.impersonateBanner")}</span>
+                        <button
+                            onClick={handleSignOut}
+                            className="bg-white/20 hover:bg-white/30 rounded-lg px-3 py-1 transition-colors whitespace-nowrap"
+                        >
+                            {t("dashboard.impersonateExit")}
+                        </button>
+                    </div>
+                )}
                 {/* Mobile Top Bar */}
                 <div className="lg:hidden flex items-center justify-between bg-white border-b border-gray-200 px-4 py-3 shrink-0">
                     <button
