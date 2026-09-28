@@ -301,7 +301,9 @@
       "of": "of",
       "entries": "entries",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "ordersPage": {
       "title": "Orders",
@@ -313,6 +315,11 @@
       "noOrdersFound": "No orders found matching your criteria.",
       "actions": "Actions",
       "view": "View",
+      "detail": "Detail",
+      "prev": "← Prev",
+      "next": "Next →",
+      "pageOf": "Page",
+      "ofPages": "of",
       "address": "Address:",
       "deliveryCharge": "Delivery Charge",
       "itemsOrdered": "Items Ordered",
@@ -407,7 +414,10 @@
       "contact": "Contact",
       "orders": "Orders",
       "totalSpent": "Total Spent",
-      "lastOrder": "Last Order"
+      "lastOrder": "Last Order",
+      "prev": "Prev",
+      "next": "Next",
+      "pageOf": "Page"
     },
     "couponsPage": {
       "title": "Coupons",
@@ -418,7 +428,33 @@
       "created": "Coupon created!",
       "updated": "Coupon updated!",
       "deleted": "Coupon deleted!",
-      "deleteConfirm": "Delete this coupon?"
+      "deleteConfirm": "Delete this coupon?",
+      "code": "Code",
+      "discount": "Discount",
+      "minOrder": "Min Order",
+      "uses": "Uses",
+      "expiry": "Expiry",
+      "status": "Status",
+      "actions": "Actions",
+      "active": "Active",
+      "inactive": "Inactive",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noExpiry": "No expiry",
+      "createTitle": "Create Coupon",
+      "editTitle": "Edit Coupon",
+      "type": "Type",
+      "percentOpt": "Percent %",
+      "fixedOpt": "Fixed ৳",
+      "value": "Value",
+      "minOrderAmount": "Min Order ৳",
+      "maxUses": "Max Uses",
+      "expiryDate": "Expiry Date",
+      "proBanner": "🔒 Coupons are a Pro feature. Upgrade to create discount codes.",
+      "upgrade": "Upgrade to Pro →",
+      "cancel": "Cancel",
+      "update": "Update",
+      "create": "Create"
     },
     "billingPage": {
       "title": "Billing & Plan",
@@ -449,6 +485,13 @@
       "statusRejected": "Rejected",
       "rejectReason": "Reason",
       "history": "Payment History"
+    },
+    "socialPage": {
+      "title": "Social Media",
+      "subtitle": "Add your social links — only the ones you fill in will show on your storefront.",
+      "fbHelp": "Enter your full Facebook page link.",
+      "igHelp": "Enter your full Instagram profile link.",
+      "waHelp": "Enter number with country code (digits only) — e.g. 8801XXXXXXXXX"
     },
     "adminPage": {
       "title": "Subscription Requests",

@@ -301,7 +301,9 @@
       "of": "এর মধ্যে",
       "entries": "টি",
       "previous": "পূর্ববর্তী",
-      "next": "পরবর্তী"
+      "next": "পরবর্তী",
+      "edit": "এডিট",
+      "delete": "মুছুন"
     },
     "ordersPage": {
       "title": "অর্ডারসমূহ",
@@ -313,6 +315,11 @@
       "noOrdersFound": "আপনার অনুসন্ধানের সাথে মেলে এমন কোনো অর্ডার পাওয়া যায়নি।",
       "actions": "অ্যাকশন",
       "view": "বিস্তারিত",
+      "detail": "বিস্তারিত",
+      "prev": "← আগে",
+      "next": "পরে →",
+      "pageOf": "পেজ",
+      "ofPages": "/",
       "address": "ঠিকানা:",
       "deliveryCharge": "ডেলিভারি চার্জ",
       "itemsOrdered": "অর্ডারকৃত পণ্যসমূহ",
@@ -407,7 +414,10 @@
       "contact": "যোগাযোগ",
       "orders": "অর্ডার",
       "totalSpent": "মোট খরচ",
-      "lastOrder": "শেষ অর্ডার"
+      "lastOrder": "শেষ অর্ডার",
+      "prev": "আগে",
+      "next": "পরে",
+      "pageOf": "পেজ"
     },
     "couponsPage": {
       "title": "কুপন",
@@ -418,7 +428,33 @@
       "created": "কুপন তৈরি হয়েছে!",
       "updated": "কুপন আপডেট হয়েছে!",
       "deleted": "কুপন মুছে ফেলা হয়েছে!",
-      "deleteConfirm": "এই কুপনটি মুছে ফেলবেন?"
+      "deleteConfirm": "এই কুপনটি মুছে ফেলবেন?",
+      "code": "কোড",
+      "discount": "ছাড়",
+      "minOrder": "সর্বনিম্ন অর্ডার",
+      "uses": "ব্যবহার",
+      "expiry": "মেয়াদ",
+      "status": "স্ট্যাটাস",
+      "actions": "অ্যাকশন",
+      "active": "চালু",
+      "inactive": "বন্ধ",
+      "edit": "এডিট",
+      "delete": "মুছুন",
+      "noExpiry": "মেয়াদ নেই",
+      "createTitle": "কুপন তৈরি করুন",
+      "editTitle": "কুপন এডিট করুন",
+      "type": "ধরন",
+      "percentOpt": "শতকরা %",
+      "fixedOpt": "নির্দিষ্ট ৳",
+      "value": "মান",
+      "minOrderAmount": "সর্বনিম্ন অর্ডার ৳",
+      "maxUses": "সর্বোচ্চ ব্যবহার",
+      "expiryDate": "মেয়াদের তারিখ",
+      "proBanner": "🔒 কুপন Pro ফিচার। ডিসকাউন্ট কোড বানাতে আপগ্রেড করুন।",
+      "upgrade": "Pro নিন →",
+      "cancel": "বাতিল",
+      "update": "আপডেট",
+      "create": "তৈরি করুন"
     },
     "billingPage": {
       "title": "বিলিং ও প্ল্যান",
@@ -449,6 +485,13 @@
       "statusRejected": "বাতিল",
       "rejectReason": "কারণ",
       "history": "পেমেন্ট হিস্ট্রি"
+    },
+    "socialPage": {
+      "title": "সোশ্যাল মিডিয়া",
+      "subtitle": "আপনার সোশ্যাল লিংক যোগ করুন — যেগুলো পূরণ করবেন শুধু সেগুলোই স্টোরফ্রন্টে দেখাবে।",
+      "fbHelp": "আপনার Facebook পেজের পুরো লিংক দিন।",
+      "igHelp": "আপনার Instagram প্রোফাইলের পুরো লিংক দিন।",
+      "waHelp": "Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX"
     },
     "adminPage": {
       "title": "সাবস্ক্রিপশন রিকোয়েস্ট",

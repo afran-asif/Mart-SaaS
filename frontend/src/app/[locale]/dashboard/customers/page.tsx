@@ -135,9 +135,9 @@ export default function LocalizedCustomersPage() {
 
                     {pages > 1 && (
                         <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-xs">
-                            <span className="text-gray-500">Page {page} of {pages} · {total} {t("dashboard.customersPage.totalCustomers")}</span>
+                            <span className="text-gray-500">{t("dashboard.customersPage.pageOf")} {page} of {pages} · {total} {t("dashboard.customersPage.totalCustomers")}</span>
                             <div className="flex gap-1">
-                                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 border border-gray-200 rounded-lg disabled:opacity-50">Prev</button>
+                                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 border border-gray-200 rounded-lg disabled:opacity-50">{t("dashboard.customersPage.prev")}</button>
                                 {Array.from({ length: Math.min(pages, 5) }, (_, i) => {
                                     let p: number;
                                     if (pages <= 5) p = i + 1;
@@ -148,7 +148,7 @@ export default function LocalizedCustomersPage() {
                                         <button key={p} onClick={() => setPage(p)} className={`px-3 py-1.5 rounded-lg font-semibold ${page === p ? "bg-orange-600 text-white" : "border border-gray-200 hover:bg-gray-50"}`}>{p}</button>
                                     );
                                 })}
-                                <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="px-3 py-1.5 border border-gray-200 rounded-lg disabled:opacity-50">Next</button>
+                                <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="px-3 py-1.5 border border-gray-200 rounded-lg disabled:opacity-50">{t("dashboard.customersPage.next")}</button>
                             </div>
                         </div>
                     )}

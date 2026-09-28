@@ -83,13 +83,13 @@ export default function ProductTable({
                                     onClick={() => onEdit(product)}
                                     className="flex-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg"
                                 >
-                                    Edit
+                                    {t("dashboard.productsPage.edit")}
                                 </button>
                                 <button
                                     onClick={() => onDelete(product._id, product.name)}
                                     className="flex-1 px-2.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg"
                                 >
-                                    Delete
+                                    {t("dashboard.productsPage.delete")}
                                 </button>
                             </div>
                         </div>

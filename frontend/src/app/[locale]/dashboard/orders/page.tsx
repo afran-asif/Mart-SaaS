@@ -241,10 +241,10 @@ export default function LocalizedOrdersPage() {
                                         <th className="p-3 sm:p-4">{t("dashboard.status")}</th>
                                         <th className="p-3 sm:p-4 pr-4 sm:pr-6 text-right">
                                             <span className="inline-flex items-center gap-1">
-                                                <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
-                                                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                                                </svg>
-                                                Detail
+<svg viewBox="0 0 20 20" className="w-3.5 h-3.5 fill-current" aria-hidden="true">
+                                                     <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                                                 </svg>
+                                                 {t("dashboard.ordersPage.detail")}
                                             </span>
                                         </th>
                                     </tr>
@@ -313,7 +313,7 @@ export default function LocalizedOrdersPage() {
                     {orders.length > 0 && pages > 1 && (
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6 py-4 border-t border-gray-100">
                             <p className="text-xs text-gray-500">
-                                Page {page} of {pages} · {totalOrders} orders
+                                {t("dashboard.ordersPage.pageOf")} {page} {t("dashboard.ordersPage.ofPages")} {pages} · {totalOrders} {t("dashboard.orders")}
                             </p>
                             <div className="flex items-center gap-1.5">
                                 <button
@@ -321,7 +321,7 @@ export default function LocalizedOrdersPage() {
                                     disabled={page <= 1}
                                     className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-orange-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
-                                    ← Prev
+                                    {t("dashboard.ordersPage.prev")}
                                 </button>
                                 {pageNumbers.map((p, idx) =>
                                     p === "..." ? (
@@ -348,7 +348,7 @@ export default function LocalizedOrdersPage() {
                                     disabled={page >= pages}
                                     className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-orange-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
-                                    Next →
+                                    {t("dashboard.ordersPage.next")}
                                 </button>
                             </div>
                         </div>

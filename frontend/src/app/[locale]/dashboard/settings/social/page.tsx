@@ -63,8 +63,8 @@ export default function SocialSettingsPage() {
                 <Link href={`/${language}/dashboard/settings`} className="text-xs text-gray-400 hover:text-gray-600">
                     ← {t("dashboard.storeSettings")}
                 </Link>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">Social Media</h1>
-                <p className="text-gray-500 mt-1 text-sm">Add your social links — only the ones you fill in will show on your storefront.</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{t("dashboard.socialPage.title")}</h1>
+                <p className="text-gray-500 mt-1 text-sm">{t("dashboard.socialPage.subtitle")}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
@@ -79,9 +79,9 @@ export default function SocialSettingsPage() {
                         placeholder="https://facebook.com/yourpage"
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
-                        আপনার Facebook পেজের পুরো লিংক দিন।
-                    </p>
+<p className="text-xs text-gray-400 mt-1">
+                                {t("dashboard.socialPage.fbHelp")}
+                            </p>
                 </div>
 
                 <div>
@@ -95,9 +95,9 @@ export default function SocialSettingsPage() {
                         placeholder="https://instagram.com/yourpage"
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
-                        আপনার Instagram প্রোফাইলের পুরো লিংক দিন।
-                    </p>
+<p className="text-xs text-gray-400 mt-1">
+                                {t("dashboard.socialPage.igHelp")}
+                            </p>
                 </div>
 
                 <div>
@@ -111,9 +111,9 @@ export default function SocialSettingsPage() {
                         placeholder="e.g. 8801XXXXXXXXX"
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
-                        Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX
-                    </p>
+<p className="text-xs text-gray-400 mt-1">
+                                {t("dashboard.socialPage.waHelp")}
+                            </p>
                 </div>
 
                 <div className="flex justify-end pt-1">

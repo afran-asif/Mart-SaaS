@@ -79,9 +79,9 @@ export default function LocalizedCouponsPage() {
 
             {sub && sub.plan !== "pro" && (
                 <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                    <p className="text-sm text-gray-700 flex-1">🔒 Coupons are a Pro feature. Upgrade to create discount codes.</p>
+                    <p className="text-sm text-gray-700 flex-1">{t("dashboard.couponsPage.proBanner")}</p>
                     <a href={`/${language}/dashboard/billing`} className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold whitespace-nowrap transition-colors">
-                        Upgrade to Pro →
+                        {t("dashboard.couponsPage.upgrade")}
                     </a>
                 </div>
             )}
@@ -99,20 +99,20 @@ export default function LocalizedCouponsPage() {
                             <div className="flex items-center justify-between gap-2">
                                 <p className="font-mono font-bold text-gray-900 text-sm">{c.code}</p>
                                 <span className={`px-2 py-1 text-[11px] font-semibold rounded-full ${c.isActive ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                                    {c.isActive ? "Active" : "Inactive"}
+                                    {c.isActive ? t("dashboard.couponsPage.active") : t("dashboard.couponsPage.inactive")}
                                 </span>
                             </div>
                             <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
                                 <span className="font-semibold text-gray-800 text-sm">{c.discountType === "percent" ? `${c.discountValue}%` : `৳${c.discountValue}`}</span>
-                                <span>Min ৳{c.minOrderAmount}</span>
-                                <span>Uses {c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</span>
+                                <span>Min {t("dashboard.couponsPage.minOrder")} ৳{c.minOrderAmount}</span>
+                                <span>{t("dashboard.couponsPage.uses")} {c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</span>
                             </div>
                             <p className="text-[11px] text-gray-400 mt-1">
-                                {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : "No expiry"}
+                                {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : t("dashboard.couponsPage.noExpiry")}
                             </p>
                             <div className="flex gap-2 mt-3">
-                                <button onClick={() => openEdit(c)} className="flex-1 px-3 py-2 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg">Edit</button>
-                                <button onClick={() => handleDelete(c._id)} className="flex-1 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 rounded-lg">Delete</button>
+                                <button onClick={() => openEdit(c)} className="flex-1 px-3 py-2 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg">{t("dashboard.couponsPage.edit")}</button>
+                                <button onClick={() => handleDelete(c._id)} className="flex-1 px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 rounded-lg">{t("dashboard.couponsPage.delete")}</button>
                             </div>
                         </div>
                     ))}
@@ -123,13 +123,13 @@ export default function LocalizedCouponsPage() {
                     <table className="w-full text-left border-collapse min-w-[720px]">
                         <thead>
                             <tr className="border-b border-gray-100 text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                                <th className="py-3 px-5">Code</th>
-                                <th className="py-3 px-5">Discount</th>
-                                <th className="py-3 px-5">Min Order</th>
-                                <th className="py-3 px-5">Uses</th>
-                                <th className="py-3 px-5">Expiry</th>
-                                <th className="py-3 px-5">Status</th>
-                                <th className="py-3 px-5 text-right">Actions</th>
+                                <th className="py-3 px-5">{t("dashboard.couponsPage.code")}</th>
+                                <th className="py-3 px-5">{t("dashboard.couponsPage.discount")}</th>
+                                <th className="py-3 px-5">{t("dashboard.couponsPage.minOrder")}</th>
+                                <th className="py-3 px-5">{t("dashboard.couponsPage.uses")}</th>
+                                <th className="py-3 px-5">{t("dashboard.couponsPage.expiry")}</th>
+                                <th className="py-3 px-5">{t("dashboard.couponsPage.status")}</th>
+                                <th className="py-3 px-5 text-right">{t("dashboard.couponsPage.actions")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50 text-sm">
@@ -140,10 +140,10 @@ export default function LocalizedCouponsPage() {
                                     <td className="py-3.5 px-5">৳{c.minOrderAmount}</td>
                                     <td className="py-3.5 px-5">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : " / ∞"}</td>
                                     <td className="py-3.5 px-5 text-xs text-gray-500">{c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : "—"}</td>
-                                    <td className="py-3.5 px-5"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${c.isActive ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>{c.isActive ? "Active" : "Inactive"}</span></td>
+                                    <td className="py-3.5 px-5"><span className={`px-2 py-1 text-xs font-semibold rounded-full ${c.isActive ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>{c.isActive ? t("dashboard.couponsPage.active") : t("dashboard.couponsPage.inactive")}</span></td>
                                     <td className="py-3.5 px-5 text-right">
-                                        <button onClick={() => openEdit(c)} className="px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-lg">Edit</button>
-                                        <button onClick={() => handleDelete(c._id)} className="ml-2 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg">Delete</button>
+                                        <button onClick={() => openEdit(c)} className="px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-lg">{t("dashboard.couponsPage.edit")}</button>
+                                        <button onClick={() => handleDelete(c._id)} className="ml-2 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg">{t("dashboard.couponsPage.delete")}</button>
                                     </td>
                                 </tr>
                             ))}
@@ -156,45 +156,45 @@ export default function LocalizedCouponsPage() {
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
                     <div className="bg-white rounded-t-2xl sm:rounded-2xl p-5 sm:p-8 w-full sm:max-w-md shadow-xl border border-gray-100 max-h-[92vh] overflow-y-auto">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">{editing ? "Edit Coupon" : "Create Coupon"}</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">{editing ? t("dashboard.couponsPage.editTitle") : t("dashboard.couponsPage.createTitle")}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Code</label>
+                                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{t("dashboard.couponsPage.code")}</label>
                                 <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })} placeholder="SAVE10" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-mono" required />
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Type</label>
+                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{t("dashboard.couponsPage.type")}</label>
                                     <select value={form.discountType} onChange={(e) => setForm({ ...form, discountType: e.target.value as any })} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white">
-                                        <option value="percent">Percent %</option>
-                                        <option value="fixed">Fixed ৳</option>
+                                        <option value="percent">{t("dashboard.couponsPage.percentOpt")}</option>
+                                        <option value="fixed">{t("dashboard.couponsPage.fixedOpt")}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Value</label>
+                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{t("dashboard.couponsPage.value")}</label>
                                     <input type="number" value={form.discountValue} onChange={(e) => setForm({ ...form, discountValue: e.target.value })} placeholder="10" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" required min={1} />
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Min Order ৳</label>
+                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{t("dashboard.couponsPage.minOrderAmount")}</label>
                                     <input type="number" value={form.minOrderAmount} onChange={(e) => setForm({ ...form, minOrderAmount: e.target.value })} placeholder="0" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" min={0} />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Max Uses</label>
+                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{t("dashboard.couponsPage.maxUses")}</label>
                                     <input type="number" value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: e.target.value })} placeholder="∞" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" min={1} />
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Expiry Date</label>
+                                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{t("dashboard.couponsPage.expiryDate")}</label>
                                 <input type="date" value={form.expiresAt} onChange={(e) => setForm({ ...form, expiresAt: e.target.value })} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm" />
                             </div>
                             <label className="flex items-center gap-2 text-sm">
-                                <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="rounded" /> Active
+                                <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="rounded" /> {t("dashboard.couponsPage.active")}
                             </label>
                             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl">Cancel</button>
-                                <button type="submit" className="px-5 py-2.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-sm">{editing ? "Update" : "Create"}</button>
+                                <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl">{t("dashboard.couponsPage.cancel")}</button>
+                                <button type="submit" className="px-5 py-2.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-sm">{editing ? t("dashboard.couponsPage.update") : t("dashboard.couponsPage.create")}</button>
                             </div>
                         </form>
                     </div>

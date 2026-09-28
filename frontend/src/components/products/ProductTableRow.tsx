@@ -3,6 +3,7 @@
 
 import React from "react";
 import { Product } from "@/types/product";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProductTableRowProps {
     product: Product;
@@ -12,6 +13,7 @@ interface ProductTableRowProps {
 }
 
 export default function ProductTableRow({ product, onEdit, onDelete, onToggleFeatured }: ProductTableRowProps) {
+    const { t } = useTranslation();
     return (
         <tr className="hover:bg-gray-50/50 transition-colors">
             {/* Image */}
@@ -68,13 +70,13 @@ export default function ProductTableRow({ product, onEdit, onDelete, onToggleFea
                         onClick={() => onEdit(product)}
                         className="text-blue-600 hover:underline font-medium transition-colors hover:text-blue-800 text-xs"
                     >
-                        Edit
+                        {t("dashboard.productsPage.edit")}
                     </button>
                     <button
                         onClick={() => onDelete(product._id, product.name)}
                         className="text-red-600 hover:underline font-medium transition-colors hover:text-red-800 text-xs"
                     >
-                        Delete
+                        {t("dashboard.productsPage.delete")}
                     </button>
                 </div>
             </td>
