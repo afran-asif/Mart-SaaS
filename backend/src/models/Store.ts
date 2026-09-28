@@ -158,5 +158,10 @@ theme: {
     { timestamps: true }
 );
 
+// Hot paths: every vendor op (vendorId), CORS cache (verified + active), plan stats
+storeSchema.index({ vendorId: 1 });
+storeSchema.index({ customDomainStatus: 1, status: 1 });
+storeSchema.index({ plan: 1, planExpiresAt: 1 });
+
 
 export const Store = model<IStore>('Store', storeSchema);

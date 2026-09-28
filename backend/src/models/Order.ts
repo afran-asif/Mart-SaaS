@@ -83,4 +83,8 @@ const OrderSchema: Schema = new Schema(
     { timestamps: true }
 );
 
+// Hot paths: vendor order list (filter + sort), monthly quota counts, admin stats
+OrderSchema.index({ storeId: 1, status: 1, createdAt: -1 });
+OrderSchema.index({ storeId: 1, createdAt: -1 });
+
 export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);

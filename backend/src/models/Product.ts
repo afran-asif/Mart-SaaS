@@ -65,4 +65,9 @@ const productSchema = new Schema<IProduct>(
     }
 )
 
+// Hot paths: storefront lists/counts, featured slider, vendor ops
+productSchema.index({ storeId: 1, createdAt: -1 });
+productSchema.index({ storeId: 1, featured: 1 });
+productSchema.index({ vendorId: 1 });
+
 export const Product = model<IProduct>('Product', productSchema);

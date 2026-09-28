@@ -28,4 +28,7 @@ const categorySchema = new Schema<ICategory>(
     { timestamps: true }
 );
 
+// Hot paths: vendor category list (find + sort by name), name-clash checks
+categorySchema.index({ vendorId: 1, name: 1 });
+
 export const Category = model<ICategory>('Category', categorySchema);
