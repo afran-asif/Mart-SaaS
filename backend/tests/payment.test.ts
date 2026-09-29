@@ -33,7 +33,8 @@ describe("payment initiate (money path)", () => {
         customerName: "C",
         customerEmail: "c@c.com",
         shippingAddress: "Road 1",
-        district: "ঢাকা",
+        district: "Dhaka",
+        thana: "Mirpur",
         phone: "01700000000",
         items: [{ product: product._id.toString(), quantity: 1, price: 1200 }],
         storeId: store._id.toString(),
@@ -56,13 +57,19 @@ describe("payment initiate (money path)", () => {
         expect(r.status).toBe(400);
     });
 
+    test("rejects wrong-district thana", async () => {
+        const r = await auth(request(app).post("/api/v1/payment/initiate")).send({ ...base(), totalAmount: 1270, thana: "Savar" });
+        expect(r.status).toBe(400);
+    });
+
     test("COD success saves district+charge and decrements stock", async () => {
         const r = await auth(request(app).post("/api/v1/payment/initiate")).send({ ...base(), totalAmount: 1270 });
         expect(r.status).toBe(200);
         expect(r.body.paymentMethod).toBe("COD");
 
         const order = await Order.findById(r.body.orderId).lean();
-        expect(order?.shippingDistrict).toBe("ঢাকা");
+        expect(order?.shippingDistrict).toBe("Dhaka");
+        expect(order?.thana).toBe("Mirpur");
         expect(order?.deliveryCharge).toBe(70);
         expect(order?.totalAmount).toBe(1270);
 

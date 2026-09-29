@@ -6,7 +6,7 @@ import { Product } from "../models/Product";
 import { decrypt } from "../utils/encryption";
 import { sendOrderConfirmationEmail } from "../utils/sendEmail";
 import { Coupon } from "../models/Coupon";
-import { getDeliveryCharge, BANGLADESH_DISTRICTS } from "../utils/deliveryCharges";
+import { getDeliveryCharge, BD_DISTRICTS, isValidThana } from "../utils/deliveryCharges";
 import { checkMonthlyOrderLimit, getEffectivePlan } from "../utils/plan";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
@@ -51,6 +51,7 @@ const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: T
             totalAmount: order.totalAmount,
             shippingAddress: order.shippingAddress,
             shippingDistrict: order.shippingDistrict,
+            thana: order.thana,
             paymentMethod: order.paymentMethod || "SSLCommerz",
             items: (order.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
                 const prod = item.product;
@@ -78,6 +79,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
             customerEmail,
             shippingAddress,
             district,
+            thana,
             phone,
             totalAmount,
             items,
@@ -87,15 +89,21 @@ export const initiatePayment = async (req: Request, res: Response) => {
             orderHost,
         } = req.body;
 
-        if (!customerName || !customerEmail || !shippingAddress || !district || !totalAmount || !items?.length || !storeId) {
+        if (!customerName || !customerEmail || !shippingAddress || !district || !thana || !totalAmount || !items?.length || !storeId) {
             await session.abortTransaction();
-            res.status(400).json({ message: "Please provide all required order fields including storeId and district." });
+            res.status(400).json({ message: "Please provide all required order fields including storeId, district and thana." });
             return;
         }
 
-        if (!BANGLADESH_DISTRICTS.includes(district as string)) {
+        if (!BD_DISTRICTS.includes(district as string)) {
             await session.abortTransaction();
             res.status(400).json({ message: "Invalid delivery district." });
+            return;
+        }
+
+        if (!isValidThana(district as string, thana as string)) {
+            await session.abortTransaction();
+            res.status(400).json({ message: "Invalid thana for the selected district." });
             return;
         }
 
@@ -190,6 +198,7 @@ export const initiatePayment = async (req: Request, res: Response) => {
                     customerEmail,
                     shippingAddress,
                     shippingDistrict: district,
+                    thana,
                     deliveryCharge,
                     orderHost: safeOrderHost,
                     phone,

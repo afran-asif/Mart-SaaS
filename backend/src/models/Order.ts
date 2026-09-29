@@ -8,6 +8,7 @@ export interface IOrder extends Document {
     phone?: string;
     shippingAddress: string;
     shippingDistrict?: string;
+    thana?: string;
     deliveryCharge?: number;
     orderHost?: string;
     totalAmount: number;
@@ -44,6 +45,7 @@ const OrderSchema: Schema = new Schema(
         phone: { type: String, trim: true },
         shippingAddress: { type: String, required: true },
         shippingDistrict: { type: String, trim: true },
+        thana: { type: String, trim: true },
         deliveryCharge: { type: Number, default: 0, min: 0 },
         orderHost: { type: String, trim: true },
         totalAmount: { type: Number, required: true, min: 0 },

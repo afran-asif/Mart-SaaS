@@ -8,6 +8,7 @@ interface OrderEmailData {
     totalAmount: number;
     shippingAddress: string;
     shippingDistrict?: string;
+    thana?: string;
     paymentMethod: string;
     items: Array<{ name: string; quantity: number; price: number }>;
 }
@@ -146,7 +147,7 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
             <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">ডেলিভারি ঠিকানা</p>
             <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
                 <tr>
-                    <td style="padding: 14px 16px; font-size: 14px; color: #374151; line-height: 1.6;">📍 ${data.shippingAddress}${data.shippingDistrict ? ` (${data.shippingDistrict})` : ""}</td>
+                    <td style="padding: 14px 16px; font-size: 14px; color: #374151; line-height: 1.6;">📍 ${data.shippingAddress}${data.thana ? `, ${data.thana}` : ""}${data.shippingDistrict ? `, ${data.shippingDistrict}` : ""}</td>
                 </tr>
             </table>
         </td>

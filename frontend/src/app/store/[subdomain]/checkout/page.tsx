@@ -10,7 +10,7 @@ import { trackInitiateCheckout, trackAddToCart } from "@/lib/tracking";
 import toast from "react-hot-toast";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
-import { BANGLADESH_DISTRICTS, getDeliveryCharge } from "@/lib/delivery";
+import { BD_DISTRICTS, BD_DISTRICT_THANAS, getDeliveryCharge } from "@/lib/delivery";
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -37,6 +37,7 @@ export default function CheckoutPage() {
         phone: "",
         shippingAddress: "",
         district: "",
+        thana: "",
     });
     const [ paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCommerz">("COD");
     const [couponCode, setCouponCode] = useState("");
@@ -85,8 +86,16 @@ export default function CheckoutPage() {
     }, [hydrated, checkoutItems, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        // জেলা বদলালে থানা reset (আগের জেলার থানা থাকবে না)
+        if (name === "district") {
+            setForm({ ...form, district: value, thana: "" });
+        } else {
+            setForm({ ...form, [name]: value });
+        }
     };
+
+    const thanaOptions = form.district ? BD_DISTRICT_THANAS[form.district] || [] : [];
 
     const discountedTotal = Math.max(checkoutTotal - couponDiscount, 0);
     const deliveryCharge = form.district ? getDeliveryCharge(form.district) : 0;
@@ -300,9 +309,32 @@ const res = await api.post("/payment/initiate", {
                             <option value="" disabled>
                                 আপনার জেলা নির্বাচন করুন
                             </option>
-                            {BANGLADESH_DISTRICTS.map((d) => (
+                            {BD_DISTRICTS.map((d) => (
                                 <option key={d} value={d}>
                                     {d}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#181410] mb-1.5">
+                            থানা / উপজেলা
+                        </label>
+                        <select
+                            name="thana"
+                            required
+                            value={form.thana}
+                            onChange={handleChange}
+                            disabled={!form.district}
+                            className="w-full px-4 py-2.5 rounded-xl border border-[#181410]/15 bg-white focus:outline-none focus:ring-2 focus:ring-[#F4501A] text-sm disabled:bg-gray-50"
+                        >
+                            <option value="" disabled>
+                                {form.district ? "আপনার থানা নির্বাচন করুন" : "আগে জেলা নির্বাচন করুন"}
+                            </option>
+                            {thanaOptions.map((t) => (
+                                <option key={t} value={t}>
+                                    {t}
                                 </option>
                             ))}
                         </select>

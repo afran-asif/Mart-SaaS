@@ -420,7 +420,7 @@ function OrderDetailRow({ order, t }: { order: Order; t: (key: string) => string
                 )}
                 <p>
                     <span className="font-semibold text-gray-800 mr-1">{t("dashboard.ordersPage.address")}:</span>
-                    {order.shippingDistrict ? `${order.shippingAddress}, ${order.shippingDistrict}` : order.shippingAddress}
+                    {[order.shippingAddress, order.thana, order.shippingDistrict].filter(Boolean).join(", ")}
                 </p>
                 {order.deliveryCharge ? (
                     <p>

@@ -19,6 +19,7 @@ export interface Order {
     phone?: string;
     shippingAddress: string;
     shippingDistrict?: string;
+    thana?: string;
     deliveryCharge?: number;
     totalAmount: number;
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
