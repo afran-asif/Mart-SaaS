@@ -40,8 +40,8 @@
         "description": "Easily upload products with multiple high-resolution images, real-time stock counters, price configurations, and category sorting."
       },
       {
-        "title": "Integrated SSLCommerz & COD",
-        "description": "Accept bKash, Nagad, debit/credit cards, or Cash on Delivery. Configure your own store credentials or use the unified engine."
+        "title": "Integrated COD & Online Payments",
+        "description": "Cash on Delivery for everyone, district-wise auto delivery charges, plus bKash/Nagad/cards via your own SSLCommerz gateway on Pro."
       },
       {
         "title": "Real-Time Vendor Analytics",
@@ -54,6 +54,18 @@
       {
         "title": "Multi-Tenant Data Isolation",
         "description": "Enterprise-grade architectural separation guarantees each vendor's products, orders, customers, and revenues remain completely isolated."
+      },
+      {
+        "title": "Custom Domain Support",
+        "description": "Connect your own domain (e.g. yourbrand.com) with automatic DNS verification. Your store, your brand — no Vendoo in the URL."
+      },
+      {
+        "title": "Coupons & Discount Codes",
+        "description": "Create percent or fixed discount campaigns with usage limits and expiry dates to boost sales during festivals and offers."
+      },
+      {
+        "title": "9 Designer Store Themes",
+        "description": "Pick from 9 professionally designed themes — from minimal to luxe gold — with matching navbars, heroes, and featured product sliders."
       }
     ]
   },
@@ -90,23 +102,29 @@
   "pricing": {
     "badge": "Transparent Pricing",
     "title": "Simple, Vendor-First Plans",
-    "subtitle": "Start completely free. Upgrade whenever you are ready to scale with custom domains and advanced tooling.",
+    "subtitle": "Start completely free — every new store gets a 14-day Pro trial. Upgrade whenever you are ready to scale.",
     "starterLabel": "Starter Vendor",
     "starterDesc": "Ideal for individuals and small shops launching their first online storefront.",
     "starterFree": "/ forever free",
     "starterFeature1": "1 Branded Subdomain (.vendoo.shop)",
-    "starterFeature2": "Unlimited Product Uploads",
-    "starterFeature3": "Cash on Delivery & SSLCommerz Integration",
-    "starterFeature4": "Real-Time Vendor Dashboard",
+    "starterFeature2": "Up to 20 products",
+    "starterFeature3": "Cash on Delivery (COD)",
+    "starterFeature4": "Auto district delivery charges",
+    "starterFeature5": "3 store themes",
+    "starterFeature6": "Real-time dashboard",
     "starterCta": "Get Started Free",
     "popular": "Most Popular",
     "proLabel": "Pro Merchant",
     "proMonth": "/ month",
-    "proDesc": "For established businesses needing custom payment credentials and dedicated support.",
+    "proDesc": "For growing businesses that want their own brand and marketing power.",
     "proFeature1": "Everything in Starter",
-    "proFeature2": "Use Your Own SSLCommerz Merchant Credentials",
-    "proFeature3": "Advanced Sales & Inventory Analytics",
-    "proFeature4": "Priority 24/7 Technical Support",
+    "proFeature2": "Custom domain (yourbrand.com)",
+    "proFeature3": "All 9 store themes",
+    "proFeature4": "Coupons & discount codes",
+    "proFeature5": "Marketing pixels (FB/Google/TikTok)",
+    "proFeature6": "Own SSLCommerz gateway",
+    "proFeature7": "Priority 24/7 support",
+      "proFeature8": "Up to 500 products",
     "proCta": "Launch Pro Store"
   },
   "faq": {
@@ -123,11 +141,19 @@
       },
       {
         "q": "What payment methods are supported?",
-        "a": "Vendoo supports Cash on Delivery (COD) as well as automated online payments via SSLCommerz (supporting bKash, Nagad, Rocket, Visa, Mastercard, and internet banking). Vendors can also configure their own SSLCommerz credentials in store settings."
+        "a": "Every store supports Cash on Delivery (COD) with automatic district-wise delivery charges. On the Pro plan you can also accept online payments (bKash, Nagad, cards) through your own SSLCommerz credentials."
       },
       {
         "q": "How do I manage my products and orders?",
         "a": "Once registered, you get full access to the Vendoo Vendor Dashboard. From there you can add, edit, or remove products, manage stock levels, view customer order details, and update shipping statuses."
+      },
+      {
+        "q": "Can I use my own domain name?",
+        "a": "Yes — on the Pro plan you can connect a custom domain like yourbrand.com. Add a DNS record, click verify in settings, and your store goes live on your own brand."
+      },
+      {
+        "q": "How does Pro billing work?",
+        "a": "Every new store starts with a free 14-day Pro trial. After that you can stay free forever (20 products, COD, subdomain) or upgrade to Pro for ৳499/month via bKash — custom domain, coupons, all themes, and unlimited everything."
       }
     ]
   },
@@ -332,7 +358,7 @@
       "copied": "Copied",
       "loading": "Loading store settings...",
       "domainTitle": "Custom Domain",
-      "domainDesc": "Connect your own domain (e.g. shop.yourbrand.com) to your store.",
+      "domainDesc": "Connect your own domain (e.g. yourbrand.com) to your store.",
       "domainNone": "Not set",
       "domainPending": "Pending",
       "domainVerified": "Verified",

@@ -284,6 +284,12 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
             return;
         }
 
+        // 💳 Pro শেষ হলে storefront-এ: pixels বন্ধ, pro theme → classic, online payment বন্ধ
+        // (products ও custom domain চালু থাকে — live দোকান ভাঙে না)
+        const tenantPlan = getEffectivePlan(store);
+        const tenantLimits = await getPlanLimits(tenantPlan);
+        const themeAllowed = !tenantLimits.themes.length || tenantLimits.themes.includes(store.theme);
+
         res.status(200).json({
             success: true,
             store: {
@@ -291,9 +297,9 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 storeName: store.storeName,
                 subdomain: store.subdomain,
                 logo: store.logo,
-                facebookPixelId: store.facebookPixelId,     
-                googleAnalyticsId: store.googleAnalyticsId,  
-                tiktokPixelId: store.tiktokPixelId,  
+                facebookPixelId: tenantLimits.pixels ? store.facebookPixelId : null,
+                googleAnalyticsId: tenantLimits.pixels ? store.googleAnalyticsId : null,
+                tiktokPixelId: tenantLimits.pixels ? store.tiktokPixelId : null,
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
@@ -301,11 +307,10 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,
                 heroImage: store.heroImage,
-                theme: store.theme,
-                // অনলাইন পেমেন্ট শুধু vendor নিজের SSLCommerz বসালেই (platform gateway এখন OFF)
-                onlinePaymentEnabled: !!(store.useOwnSSLCommerz && store.sslcommerzStoreId),
+                theme: themeAllowed ? store.theme : "classic",
+                onlinePaymentEnabled: tenantPlan === "pro" && !!store.useOwnSSLCommerz && !!store.sslcommerzStoreId,
                 // Pro-তে "Powered by Vendoo" badge লুকানো যাবে
-                plan: getEffectivePlan(store),
+                plan: tenantPlan,
             }
         });
     } catch (error) {

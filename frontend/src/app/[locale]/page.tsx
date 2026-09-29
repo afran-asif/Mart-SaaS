@@ -99,6 +99,33 @@ export default function LocalizedHomePage() {
       title: t("features.items.5.title"),
       description: t("features.items.5.description"),
     },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+        </svg>
+      ),
+      title: t("features.items.6.title"),
+      description: t("features.items.6.description"),
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+        </svg>
+      ),
+      title: t("features.items.7.title"),
+      description: t("features.items.7.description"),
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+      title: t("features.items.8.title"),
+      description: t("features.items.8.description"),
+    },
   ];
 
   const steps = [
@@ -135,6 +162,14 @@ export default function LocalizedHomePage() {
     {
       q: t("faq.items.3.q"),
       a: t("faq.items.3.a"),
+    },
+    {
+      q: t("faq.items.4.q"),
+      a: t("faq.items.4.a"),
+    },
+    {
+      q: t("faq.items.5.q"),
+      a: t("faq.items.5.a"),
     },
   ];
 
@@ -665,9 +700,10 @@ export default function LocalizedHomePage() {
           <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.starterLabel")}</span>
-              <div className="mt-4 flex items-baseline gap-1">
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
+                <span className="text-lg font-semibold text-gray-400 line-through">৳499</span>
                 <span className="text-4xl font-extrabold text-gray-900">৳0</span>
-                <span className="text-sm font-medium text-gray-500">{t("pricing.starterFree")}</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">100% OFF</span>
               </div>
               <p className="mt-3 text-xs text-gray-500">
                 {t("pricing.starterDesc")}
@@ -685,6 +721,12 @@ export default function LocalizedHomePage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature4")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature5")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature6")}
                 </li>
               </ul>
             </div>
@@ -705,10 +747,12 @@ export default function LocalizedHomePage() {
 
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-orange-100">{t("pricing.proLabel")}</span>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">৳999</span>
-                <span className="text-sm font-medium text-orange-100">{t("pricing.proMonth")}</span>
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
+                <span className="text-lg font-semibold text-orange-200/70 line-through">৳999</span>
+                <span className="text-4xl font-extrabold">৳499</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">50% OFF</span>
               </div>
+              <p className="mt-1 text-sm font-medium text-orange-100">{t("pricing.proMonth")}</p>
               <p className="mt-3 text-xs text-orange-100">
                 {t("pricing.proDesc")}
               </p>
@@ -718,6 +762,9 @@ export default function LocalizedHomePage() {
                   <span className="font-bold">✓</span> {t("pricing.proFeature1")}
                 </li>
                 <li className="flex items-center gap-2">
+                  <span className="font-bold">✓</span> {t("pricing.proFeature8")}
+                </li>
+                <li className="flex items-center gap-2">
                   <span className="font-bold">✓</span> {t("pricing.proFeature2")}
                 </li>
                 <li className="flex items-center gap-2">
@@ -725,6 +772,15 @@ export default function LocalizedHomePage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="font-bold">✓</span> {t("pricing.proFeature4")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="font-bold">✓</span> {t("pricing.proFeature5")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="font-bold">✓</span> {t("pricing.proFeature6")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="font-bold">✓</span> {t("pricing.proFeature7")}
                 </li>
               </ul>
             </div>

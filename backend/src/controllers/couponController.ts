@@ -3,7 +3,7 @@ import { Coupon } from "../models/Coupon";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
-import { requirePro } from "../utils/plan";
+import { requirePro, getEffectivePlan } from "../utils/plan";
 
 const getVendorStore = async (vendorId: string) => Store.findOne({ vendorId });
 
@@ -113,6 +113,11 @@ export const validateCoupon = async (req: TenantRequest, res: Response): Promise
         const subtotal = Number((req.query.subtotal as string) || (req.body as any)?.subtotal);
         if (!code) { res.status(400).json({ message: "Coupon code is required." }); return; }
         if (!req.storeId) { res.status(400).json({ message: "Store not found." }); return; }
+        // 💳 Pro শেষ হলে পুরনো কুপনও কাজ করবে না
+        if (req.store && getEffectivePlan(req.store) !== "pro") {
+            res.status(403).json({ message: "Coupons are a Pro feature.", proRequired: true });
+            return;
+        }
         const coupon = await Coupon.findOne({ storeId: req.storeId, code });
         if (!coupon) { res.status(404).json({ message: "Invalid coupon code." }); return; }
         if (!coupon.isActive) { res.status(400).json({ message: "Coupon is inactive." }); return; }

@@ -7,7 +7,7 @@ import { decrypt } from "../utils/encryption";
 import { sendOrderConfirmationEmail } from "../utils/sendEmail";
 import { Coupon } from "../models/Coupon";
 import { getDeliveryCharge, BANGLADESH_DISTRICTS } from "../utils/deliveryCharges";
-import { checkMonthlyOrderLimit } from "../utils/plan";
+import { checkMonthlyOrderLimit, getEffectivePlan } from "../utils/plan";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
 const calcCouponDiscount = (coupon: any, subtotal: number): number => {
@@ -143,8 +143,15 @@ export const initiatePayment = async (req: Request, res: Response) => {
                 ? orderHost.trim().toLowerCase()
                 : undefined;
 
-        // অনলাইন পেমেন্ট শুধু vendor নিজের SSLCommerz বসালেই (platform gateway এখন OFF)
-        if (paymentMethod !== "COD" && !(store.useOwnSSLCommerz && store.sslcommerzStoreId)) {
+        // অনলাইন পেমেন্ট শুধু Pro + vendor নিজের SSLCommerz থাকলে (platform gateway এখন OFF)
+        // Pro শেষ হলে পুরনো gateway দিয়েও online order যাবে না + পুরনো coupon-এ ছাড় মিলবে না
+        const effectivePlan = getEffectivePlan(store);
+        if (appliedCouponCode && effectivePlan !== "pro") {
+            await session.abortTransaction();
+            res.status(403).json({ message: "Coupons are a Pro feature.", proRequired: true });
+            return;
+        }
+        if (paymentMethod !== "COD" && !(effectivePlan === "pro" && store.useOwnSSLCommerz && store.sslcommerzStoreId)) {
             await session.abortTransaction();
             res.status(400).json({ message: "Online payment is not enabled for this store." });
             return;

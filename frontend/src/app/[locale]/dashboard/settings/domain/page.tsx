@@ -141,7 +141,7 @@ export default function DomainSettingsPage() {
                 {plan !== "pro" && (customDomainStatus === "none" || customDomainStatus === "failed") ? (
                     <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4 text-center">
                         <p className="text-sm font-bold text-gray-900">🔒 Custom domain is a Pro feature</p>
-                        <p className="text-xs text-gray-500 mt-1">Connect your own domain like shop.yourbrand.com</p>
+                        <p className="text-xs text-gray-500 mt-1">Connect your own domain like yourbrand.com</p>
                         <a
                             href={`/${language}/dashboard/billing`}
                             className="inline-block mt-3 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-colors"
