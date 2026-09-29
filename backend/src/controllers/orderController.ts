@@ -367,3 +367,48 @@ export const getVendorAnalytics = async (req: AuthenticatedRequest, res: Respons
         res.status(500).json({ message: error.message || "Failed to fetch analytics" });
     }
 };
+
+// 📦 Public order tracking — orderId + phone verify (customer-এর account লাগে না)
+// ভুল id বা ভুল phone — দুটোতেই একই 404 (enumeration রোধে)
+export const trackOrder = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const { orderId } = req.params as { orderId?: string };
+        const phone = ((req.query.phone as string) || "").trim();
+        if (!orderId || !mongoose.Types.ObjectId.isValid(orderId) || !phone) {
+            res.status(404).json({ message: "Order not found. Check your Order ID and phone number." });
+            return;
+        }
+
+        const order = await Order.findById(orderId)
+            .populate("storeId", "storeName")
+            .populate("items.product", "name");
+        const norm = (p?: string) => (p || "").replace(/\D/g, "").slice(-11);
+        if (!order || norm(order.phone) !== norm(phone) || !norm(phone)) {
+            res.status(404).json({ message: "Order not found. Check your Order ID and phone number." });
+            return;
+        }
+
+        res.status(200).json({
+            success: true,
+            order: {
+                id: order._id,
+                status: order.status,
+                paymentStatus: order.paymentStatus,
+                paymentMethod: order.paymentMethod,
+                totalAmount: order.totalAmount,
+                storeName: (order.storeId as any)?.storeName || "",
+                createdAt: order.createdAt,
+                updatedAt: order.updatedAt,
+                items: (order.items || []).map((item: any) => ({
+                    name: item.product && typeof item.product === "object" && "name" in item.product
+                        ? (item.product as { name: string }).name
+                        : "পণ্য",
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+            },
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed to track order" });
+    }
+};

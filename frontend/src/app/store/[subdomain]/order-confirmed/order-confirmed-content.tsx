@@ -74,13 +74,21 @@ export default function OrderConfirmedContent() {
                     </p>
                 )}
 
-                <div className="mt-6">
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
                     <a
                         href="/"
                         className="inline-block bg-[#F4501A] text-white px-8 py-3.5 rounded-xl text-sm font-medium hover:bg-[#D63F0F] transition-all shadow-lg shadow-[#F4501A]/25"
                     >
                         আরও কেনাকাটা করুন
                     </a>
+                    {orderId && (
+                        <a
+                            href={`/track?orderId=${encodeURIComponent(orderId)}`}
+                            className="inline-block border-2 border-[#0E3B2C] text-[#0E3B2C] px-8 py-3 rounded-xl text-sm font-medium hover:bg-[#0E3B2C] hover:text-white transition-all"
+                        >
+                            অর্ডার ট্র্যাক করুন
+                        </a>
+                    )}
                 </div>
             </div>
         </main>
