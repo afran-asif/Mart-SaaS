@@ -7,6 +7,7 @@ interface StorefrontHeaderProps {
     storeLogo?: string;
     brandColor?: string;
     theme?: string;
+    hideTrack?: boolean;
 }
 
 const themeHeader: Record<string, string> = {
@@ -45,7 +46,7 @@ const themeSubText: Record<string, string> = {
     urban: "text-gray-500",
 };
 
-export default function StorefrontHeader({ variant, storeName, storeLogo, brandColor, theme = "classic" }: StorefrontHeaderProps) {
+export default function StorefrontHeader({ variant, storeName, storeLogo, brandColor, theme = "classic", hideTrack = false }: StorefrontHeaderProps) {
     const headerBg = themeHeader[theme] || themeHeader.classic;
     const titleColor = themeText[theme] || themeText.classic;
     const subColor = themeSubText[theme] || themeSubText.classic;
@@ -92,7 +93,17 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
                     </Link>
                 )}
 
-                <CartIcon theme={theme} />
+                <div className="flex items-center gap-2 sm:gap-3">
+                    {!hideTrack && (
+                        <Link
+                            href="/track"
+                            className={`text-xs sm:text-sm font-medium transition-all underline-offset-4 hover:underline active:opacity-50 active:scale-95 touch-manipulation ${titleColor} hover:opacity-70`}
+                        >
+                            🚚 Track Order
+                        </Link>
+                    )}
+                    <CartIcon theme={theme} />
+                </div>
             </div>
         </header>
     );

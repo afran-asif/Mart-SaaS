@@ -1,11 +1,17 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
 export default function CartIcon({ theme = "classic" }: { theme?: string }) {
     const totalQuantity = useSelector((state: RootState) => state.cart.totalQuantity);
+    // localStorage থেকে cart restore হয় client-এ — SSR-এর সাথে মিল রাখতে mount-এর পর badge
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
     const isDark = theme === "bold" || theme === "luxe";
     const isLuxe = theme === "luxe";
     const stroke = isLuxe ? "#d4af37" : isDark ? "#ffffff" : "#181410";
@@ -32,7 +38,7 @@ export default function CartIcon({ theme = "classic" }: { theme?: string }) {
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
 
-            {totalQuantity > 0 && (
+            {mounted && totalQuantity > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 bg-[#F4501A] text-white text-[10px] font-['IBM_Plex_Mono'] font-medium w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center shadow-sm">
                     {totalQuantity}
                 </span>

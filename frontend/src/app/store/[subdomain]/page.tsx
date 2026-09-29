@@ -241,6 +241,18 @@ export default async function StorePage({
                 {renderGrid(products)}
             </main>
 
+            {/* Track order button (commented out)
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-2 flex justify-center">
+                <Link
+                    href="/track"
+                    className="bg-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:bg-gray-100 active:scale-95 active:bg-gray-100 transition-all touch-manipulation [-webkit-tap-highlight-color:transparent]"
+                    style={{ color: brand }}
+                >
+                    Track Your Order →
+                </Link>
+            </div>
+            */}
+
             {/* Footer strip */}
             <footer className={`border-t mt-4 ${isDark ? "border-white/10" : "border-[#C6A15B]/30"}`}>
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
