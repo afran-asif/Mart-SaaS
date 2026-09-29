@@ -36,8 +36,9 @@ app.use(cookieParser());
 app.use(helmet());
 
 // 🚦 Rate limiting — brute-force ও flood ঠেকাতে
-// NOTE: backend সরাসরি চলে (সামনে কোনো proxy নেই), তাই trust proxy OFF —
-// ভবিষ্যতে Cloudflare/nginx-এর পেছনে গেলে app.set("trust proxy", 1) লাগবে।
+// trust proxy loopback-only: সরাসরি চললে socket IP, Cloudflare Tunnel-এ চললে
+// cloudflared-এর X-Forwarded-For থেকে আসল client IP (spoof-safe, শুধু localhost trust করে)
+app.set("trust proxy", "loopback");
 const tooManyMsg = { message: "Too many requests. Please try again later." };
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 150, standardHeaders: true, legacyHeaders: false, message: tooManyMsg });
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false, message: tooManyMsg });
