@@ -1,13 +1,9 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ClassicTheme } from "./themes/ClassicTheme";
-import { MinimalTheme } from "./themes/MinimalTheme";
-import { BoldTheme } from "./themes/BoldTheme";
-import { ElegantTheme } from "./themes/ElegantTheme";
-import { VibrantTheme } from "./themes/VibrantTheme";
-import { RetroTheme } from "./themes/RetroTheme";
-import { LuxeTheme } from "./themes/LuxeTheme";
-import { PastelTheme } from "./themes/PastelTheme";
-import { UrbanTheme } from "./themes/UrbanTheme";
+import { api } from "@/services/api";
+import StoreGrid from "./StoreGrid";
 
 interface Product {
     _id: string;
@@ -24,44 +20,86 @@ interface Category {
     productCount: number;
 }
 
-interface StoreGridProps {
-    products: Product[];
-    theme: string;
-    brand: string;
-}
-
-export function StoreGrid({ products, theme, brand }: StoreGridProps) {
-    switch (theme) {
-        case "minimal": return <MinimalTheme products={products} brand={brand} />;
-        case "bold": return <BoldTheme products={products} brand={brand} />;
-        case "elegant": return <ElegantTheme products={products} brand={brand} />;
-        case "vibrant": return <VibrantTheme products={products} brand={brand} />;
-        case "retro": return <RetroTheme products={products} brand={brand} />;
-        case "luxe": return <LuxeTheme products={products} brand={brand} />;
-        case "pastel": return <PastelTheme products={products} brand={brand} />;
-        case "urban": return <UrbanTheme products={products} brand={brand} />;
-        default: return <ClassicTheme products={products} brand={brand} />;
-    }
-}
-
 interface StoreCollectionProps {
-    products: Product[];
+    initialProducts: Product[];
+    total: number;
     categories: Category[];
     theme: string;
     brand: string;
     title?: string;
     activeCategory?: string | null;
+    /** load-more fetch-এ category filter (category page-এর জন্য) */
+    category?: string | null;
 }
 
-export default function StoreCollection({ products, categories, theme, brand, title, activeCategory = null }: StoreCollectionProps) {
+const PAGE_SIZE = 24;
+
+export default function StoreCollection({
+    initialProducts,
+    total,
+    categories,
+    theme,
+    brand,
+    title,
+    activeCategory = null,
+    category = null,
+}: StoreCollectionProps) {
+    // page-wise batches — নতুন batch আলাদা wrapper-এ, entry animation-সহ
+    const [pages, setPages] = useState<Product[][]>([initialProducts]);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const sentinelRef = useRef<HTMLDivElement>(null);
     const isDark = theme === "bold" || theme === "luxe";
     const isLuxe = theme === "luxe";
+
+    const loadedCount = pages.reduce((n, p) => n + p.length, 0);
+    const hasMore = loadedCount < total;
+
+    const pageRef = useRef(1);
+    const loadingRef = useRef(false);
+
+    const loadMore = useCallback(async () => {
+        if (loadingRef.current) return;
+        loadingRef.current = true;
+        setLoadingMore(true);
+        try {
+            const nextPage = pageRef.current + 1;
+            const params: Record<string, string | number> = { page: nextPage, limit: PAGE_SIZE };
+            if (category) params.category = category;
+            const res = await api.get("/tenant/products", { params });
+            const next = res.data.products || [];
+            if (next.length > 0) {
+                setPages((prev) => [...prev, next]);
+                pageRef.current = nextPage;
+            }
+        } catch {
+            /* silent — scroll করলে আবার চেষ্টা হবে */
+        } finally {
+            loadingRef.current = false;
+            setLoadingMore(false);
+        }
+    }, [category]);
+
+    // Infinite scroll — sentinel viewport-এ এলে auto-load
+    useEffect(() => {
+        const el = sentinelRef.current;
+        if (!el || !hasMore) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    loadMore();
+                }
+            },
+            { rootMargin: "400px" }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [loadMore, hasMore, loadedCount]);
 
     return (
         <>
             <div className="mb-7 sm:mb-9">
                 <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]/70" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>
-                    Curated for you · {products.length} {products.length === 1 ? "item" : "items"}
+                    Curated for you · {total} {total === 1 ? "item" : "items"}
                 </p>
                 <div className="flex items-end justify-between gap-4">
                     <h2 className={`font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold tracking-tight ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
@@ -109,21 +147,52 @@ export default function StoreCollection({ products, categories, theme, brand, ti
                 )}
             </div>
 
-            {products.length === 0 && activeCategory ? (
-                <div className="py-20 text-center">
-                    <p className={`font-['Fraunces',serif] text-2xl font-semibold mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
-                        এই ক্যাটাগরিতে কিছু নেই
-                    </p>
-                    <Link
-                        href="/#collection"
-                        className="text-sm font-semibold hover:underline underline-offset-4"
-                        style={{ color: brand }}
-                    >
-                        সব প্রোডাক্ট দেখুন →
-                    </Link>
-                </div>
+            {loadedCount === 0 ? (
+                activeCategory ? (
+                    <div className="py-20 text-center">
+                        <p className={`font-['Fraunces',serif] text-2xl font-semibold mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
+                            এই ক্যাটাগরিতে কিছু নেই
+                        </p>
+                        <Link
+                            href="/#collection"
+                            className="text-sm font-semibold hover:underline underline-offset-4"
+                            style={{ color: brand }}
+                        >
+                            সব প্রোডাক্ট দেখুন →
+                        </Link>
+                    </div>
+                ) : (
+                    <StoreGrid products={[]} theme={theme} brand={brand} />
+                )
             ) : (
-                <StoreGrid products={products} theme={theme} brand={brand} />
+                <>
+                    {pages.map((batch, i) => (
+                        <div key={i} className={i === 0 ? undefined : "animate-reveal mt-4 sm:mt-7"}>
+                            <StoreGrid products={batch} theme={theme} brand={brand} />
+                        </div>
+                    ))}
+
+                    {/* Sentinel — নিচে গেলেই auto-load + shimmer */}
+                    {hasMore && (
+                        <div ref={sentinelRef} className="mt-4 sm:mt-7">
+                            {loadingMore ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-7">
+                                    {[0, 1, 2, 3].map((s) => (
+                                        <div key={s} className="rounded-2xl overflow-hidden border border-[#181410]/10">
+                                            <div className="aspect-[4/5] bg-gradient-to-br from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
+                                            <div className="p-3.5 sm:p-4 space-y-2">
+                                                <div className="h-4 rounded bg-gray-200 animate-pulse w-3/4" />
+                                                <div className="h-4 rounded bg-gray-200 animate-pulse w-1/3" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="h-4" />
+                            )}
+                        </div>
+                    )}
+                </>
             )}
         </>
     );

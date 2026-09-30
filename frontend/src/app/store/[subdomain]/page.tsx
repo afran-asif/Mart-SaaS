@@ -81,12 +81,16 @@ export async function generateMetadata({
 async function getStoreData(subdomain: string) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-    const [storeRes, productsRes, categoriesRes] = await Promise.all([
+    const [storeRes, productsRes, featuredRes, categoriesRes] = await Promise.all([
         fetch(`${baseUrl}/tenant/store`, {
             headers: { "X-Tenant-Subdomain": subdomain },
             cache: "no-store",
         }),
-        fetch(`${baseUrl}/tenant/products`, {
+        fetch(`${baseUrl}/tenant/products?page=1&limit=24`, {
+            headers: { "X-Tenant-Subdomain": subdomain },
+            cache: "no-store",
+        }),
+        fetch(`${baseUrl}/tenant/products?featured=true`, {
             headers: { "X-Tenant-Subdomain": subdomain },
             cache: "no-store",
         }),
@@ -102,6 +106,10 @@ async function getStoreData(subdomain: string) {
 
     const storeData = await storeRes.json();
     const productsData = await productsRes.json();
+    let featured: Product[] = [];
+    try {
+        if (featuredRes.ok) featured = (await featuredRes.json()).products || [];
+    } catch { /* optional */ }
     let categories: { name: string; productCount: number }[] = [];
     try {
         if (categoriesRes.ok) {
@@ -113,6 +121,8 @@ async function getStoreData(subdomain: string) {
     return {
         store: storeData.store as Store,
         products: productsData.products as Product[],
+        total: productsData.total ?? productsData.products?.length ?? 0,
+        featured,
         categories,
     };
 }
@@ -141,10 +151,9 @@ export default async function StorePage({
         );
     }
 
-    const { store, products, categories } = data;
+    const { store, products, total, featured, categories } = data;
     const brand = store.brandColor || "#F4501A";
     const hasHero = !!(store.heroTitle || store.heroSubtitle || store.heroImage);
-    const featured = products.filter((p) => p.featured);
     const theme = (store.theme as string) || "classic";
     const isDark = theme === "bold" || theme === "luxe";
     const isLuxe = theme === "luxe";
@@ -216,7 +225,7 @@ export default async function StorePage({
 
 {/* Product Grid + Category filter */}
             <main id="collection" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-                <StoreCollection products={products} categories={categories} theme={theme} brand={brand} />
+                <StoreCollection initialProducts={products} total={total} categories={categories} theme={theme} brand={brand} />
             </main>
 
             {/* Track order button (commented out)

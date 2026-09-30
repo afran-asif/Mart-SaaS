@@ -19,31 +19,29 @@ interface Product {
 
 async function getCategoryData(subdomain: string, slug: string) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+    const name = decodeURIComponent(slug);
 
     const [storeRes, productsRes, categoriesRes] = await Promise.all([
         fetch(`${baseUrl}/tenant/store`, { headers: { "X-Tenant-Subdomain": subdomain } }),
-        fetch(`${baseUrl}/tenant/products`, { headers: { "X-Tenant-Subdomain": subdomain } }),
+        fetch(`${baseUrl}/tenant/products?category=${encodeURIComponent(name)}&page=1&limit=24`, { headers: { "X-Tenant-Subdomain": subdomain } }),
         fetch(`${baseUrl}/tenant/categories`, { headers: { "X-Tenant-Subdomain": subdomain } }),
     ]);
 
     if (!storeRes.ok || !productsRes.ok) return null;
 
     const store = (await storeRes.json()).store;
-    const products = (await productsRes.json()).products as Product[];
+    const productsData = await productsRes.json();
+    const products = productsData.products as Product[];
+    const total = productsData.total ?? products.length;
     let categories: { name: string; productCount: number }[] = [];
     try {
         if (categoriesRes.ok) categories = (await categoriesRes.json()).categories || [];
     } catch { /* optional */ }
 
-    const name = decodeURIComponent(slug);
     const match = categories.find((c) => c.name.toLowerCase() === name.toLowerCase());
-    if (!match) return null;
+    if (!match && products.length === 0) return null;
 
-    const filtered = products.filter(
-        (p) => (p.category || "General").toLowerCase() === match.name.toLowerCase()
-    );
-
-    return { store, products: filtered, categories, categoryName: match.name };
+    return { store, products, total, categories, categoryName: match ? match.name : name };
 }
 
 export async function generateMetadata({
@@ -69,7 +67,7 @@ export default async function CategoryPage({
     const data = await getCategoryData(subdomain, slug);
     if (!data) notFound();
 
-    const { store, products, categories, categoryName } = data;
+    const { store, products, total, categories, categoryName } = data;
     const brand = store.brandColor || "#F4501A";
     const theme = store.theme || "classic";
     const bg = themeBgMap[theme] || themeBgMap.classic;
@@ -95,12 +93,14 @@ export default async function CategoryPage({
                 </nav>
 
                 <StoreCollection
-                    products={products}
+                    initialProducts={products}
+                    total={total}
                     categories={categories}
                     theme={theme}
                     brand={brand}
                     title={categoryName}
                     activeCategory={categoryName}
+                    category={categoryName}
                 />
             </main>
 

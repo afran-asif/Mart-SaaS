@@ -244,12 +244,40 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
     try {
         const storeId = req.storeId;
 
-        const products = await Product.find({ storeId });
+        const filter: Record<string, unknown> = { storeId };
+        // optional filters — ?category= & ?featured=true
+        if (req.query.category) {
+            const esc = (req.query.category as string).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            filter.category = { $regex: new RegExp(`^${esc}$`, "i") };
+        }
+        if (req.query.featured === "true") {
+            filter.featured = true;
+        }
 
+        // pagination — কোনো param না দিলে সব (sitemap/backward-compat)
+        const hasPage = !!(req.query.page || req.query.limit);
+        if (!hasPage && !req.query.category && req.query.featured !== "true") {
+            const products = await Product.find({ storeId }).sort({ createdAt: -1 });
+            res.status(200).json({ success: true, count: products.length, products });
+            return;
+        }
+
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || (hasPage ? 24 : 100)));
+        const [total, products] = await Promise.all([
+            Product.countDocuments(filter),
+            Product.find(filter)
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit),
+        ]);
         res.status(200).json({
             success: true,
             count: products.length,
-            products
+            total,
+            page,
+            pages: Math.max(1, Math.ceil(total / limit)),
+            products,
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
