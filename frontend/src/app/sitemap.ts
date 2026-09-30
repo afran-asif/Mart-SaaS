@@ -61,6 +61,24 @@ async function fetchStoreProducts(subdomain: string): Promise<TenantProduct[]> {
     }
 }
 
+async function fetchStoreCategories(subdomain: string): Promise<string[]> {
+    try {
+        const res = await fetch(`${apiBase}/tenant/categories`, {
+            headers: { "X-Tenant-Subdomain": subdomain },
+            next: { revalidate: 86400 },
+        });
+
+        if (!res.ok) {
+            return [];
+        }
+
+        const data = await res.json();
+        return ((data.categories as { name: string }[]) || []).map((c) => c.name);
+    } catch {
+        return [];
+    }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const now = new Date();
 
@@ -135,6 +153,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 lastModified: product.updatedAt ? new Date(product.updatedAt) : now,
                 changeFrequency: "weekly",
                 priority: 0.6,
+            });
+        }
+
+        const categories = await fetchStoreCategories(store.subdomain);
+
+        for (const name of categories) {
+            storeEntries.push({
+                url: `${base}/category/${encodeURIComponent(name)}`,
+                lastModified: store.updatedAt ? new Date(store.updatedAt) : now,
+                changeFrequency: "weekly",
+                priority: 0.7,
             });
         }
     }
