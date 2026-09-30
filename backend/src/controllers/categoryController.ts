@@ -3,6 +3,7 @@ import { Category } from "../models/Category";
 import { Product } from "../models/Product";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { TenantRequest } from "../middlewares/tenantMiddleware";
 
 const escRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -51,6 +52,30 @@ export const getCategories = async (req: AuthenticatedRequest, res: Response): P
         );
 
         res.status(200).json({ success: true, categories: categoriesWithCount });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// 🌐 Storefront-এর জন্য public categories (product count সহ, খালিগুলো বাদ)
+export const getTenantCategories = async (req: TenantRequest, res: Response): Promise<void> => {
+    try {
+        const storeId = req.storeId;
+        if (!storeId) {
+            res.status(400).json({ message: "Store not found." });
+            return;
+        }
+        const categories = await Category.find({ storeId }).sort({ name: 1 });
+        const withCount = await Promise.all(
+            categories.map(async (c) => ({
+                name: c.name,
+                productCount: await Product.countDocuments({
+                    storeId,
+                    category: { $regex: new RegExp(`^${escRegex(c.name)}$`, "i") },
+                }),
+            }))
+        );
+        res.status(200).json({ success: true, categories: withCount.filter((c) => c.productCount > 0) });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }

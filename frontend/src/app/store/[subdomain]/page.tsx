@@ -3,15 +3,7 @@ import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreSocialLinks from "@/components/storefront/StoreSocialLinks";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ClassicTheme } from "@/components/storefront/themes/ClassicTheme";
-import { MinimalTheme } from "@/components/storefront/themes/MinimalTheme";
-import { BoldTheme } from "@/components/storefront/themes/BoldTheme";
-import { ElegantTheme } from "@/components/storefront/themes/ElegantTheme";
-import { VibrantTheme } from "@/components/storefront/themes/VibrantTheme";
-import { RetroTheme } from "@/components/storefront/themes/RetroTheme";
-import { LuxeTheme } from "@/components/storefront/themes/LuxeTheme";
-import { PastelTheme } from "@/components/storefront/themes/PastelTheme";
-import { UrbanTheme } from "@/components/storefront/themes/UrbanTheme";
+import StoreCollection from "@/components/storefront/StoreCollection";
 import FeaturedSlider from "@/components/storefront/FeaturedSlider";
 
 interface Product {
@@ -89,12 +81,16 @@ export async function generateMetadata({
 async function getStoreData(subdomain: string) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-    const [storeRes, productsRes] = await Promise.all([
+    const [storeRes, productsRes, categoriesRes] = await Promise.all([
         fetch(`${baseUrl}/tenant/store`, {
             headers: { "X-Tenant-Subdomain": subdomain },
             cache: "no-store",
         }),
         fetch(`${baseUrl}/tenant/products`, {
+            headers: { "X-Tenant-Subdomain": subdomain },
+            cache: "no-store",
+        }),
+        fetch(`${baseUrl}/tenant/categories`, {
             headers: { "X-Tenant-Subdomain": subdomain },
             cache: "no-store",
         }),
@@ -106,10 +102,18 @@ async function getStoreData(subdomain: string) {
 
     const storeData = await storeRes.json();
     const productsData = await productsRes.json();
+    let categories: { name: string; productCount: number }[] = [];
+    try {
+        if (categoriesRes.ok) {
+            const categoriesData = await categoriesRes.json();
+            categories = categoriesData.categories || [];
+        }
+    } catch { /* categories optional */ }
 
     return {
         store: storeData.store as Store,
         products: productsData.products as Product[],
+        categories,
     };
 }
 
@@ -137,7 +141,7 @@ export default async function StorePage({
         );
     }
 
-    const { store, products } = data;
+    const { store, products, categories } = data;
     const brand = store.brandColor || "#F4501A";
     const hasHero = !!(store.heroTitle || store.heroSubtitle || store.heroImage);
     const featured = products.filter((p) => p.featured);
@@ -154,20 +158,6 @@ export default async function StorePage({
         luxe: "bg-[#0a0a0a]",
         pastel: "bg-[#fdf2f8]",
         urban: "bg-[#f3f4f6]",
-    };
-
-    const renderGrid = (items: Product[]) => {
-        switch (theme) {
-            case "minimal": return <MinimalTheme products={items} brand={brand} />;
-            case "bold": return <BoldTheme products={items} brand={brand} />;
-            case "elegant": return <ElegantTheme products={items} brand={brand} />;
-            case "vibrant": return <VibrantTheme products={items} brand={brand} />;
-            case "retro": return <RetroTheme products={items} brand={brand} />;
-            case "luxe": return <LuxeTheme products={items} brand={brand} />;
-            case "pastel": return <PastelTheme products={items} brand={brand} />;
-            case "urban": return <UrbanTheme products={items} brand={brand} />;
-            default: return <ClassicTheme products={items} brand={brand} />;
-        }
     };
 
     return (
@@ -224,21 +214,9 @@ export default async function StorePage({
                 </section>
             )}
 
-            {/* Product Grid */}
+{/* Product Grid + Category filter */}
             <main id="collection" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-                <div className="mb-7 sm:mb-9">
-                    <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]/70" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>
-                        Curated for you · {products.length} {products.length === 1 ? "item" : "items"}
-                    </p>
-                    <div className="flex items-end justify-between gap-4">
-                        <h2 className={`font-['Fraunces',serif] text-3xl sm:text-4xl font-semibold tracking-tight ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
-                            Shop the collection
-                        </h2>
-                        <span className="hidden sm:block h-px flex-1 mb-3 bg-gradient-to-r from-[#C6A15B]/60 to-transparent" />
-                    </div>
-                </div>
-
-                {renderGrid(products)}
+                <StoreCollection products={products} categories={categories} theme={theme} brand={brand} />
             </main>
 
             {/* Track order button (commented out)
