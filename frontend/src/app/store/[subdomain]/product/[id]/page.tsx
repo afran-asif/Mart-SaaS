@@ -3,6 +3,7 @@ import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import ProductGallery from "@/components/storefront/ProductGallery";
 import TrackViewContent from "@/components/storefront/TrackViewContent";
+import FeaturedSlider from "@/components/storefront/FeaturedSlider";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 import type { Metadata } from "next";
 
@@ -66,6 +67,20 @@ async function getStoreTheme(subdomain: string): Promise<{ theme?: string | null
     } catch { return {}; }
 }
 
+// একই ক্যাটাগরির আরো products (নিজেকে বাদে, সর্বোচ্চ ৮টা)
+async function getRelated(subdomain: string, category: string, excludeId: string): Promise<Product[]> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+    try {
+        const res = await fetch(
+            `${baseUrl}/tenant/products?category=${encodeURIComponent(category || "General")}&limit=9`,
+            { headers: { "X-Tenant-Subdomain": subdomain }, cache: "no-store" }
+        );
+        if (!res.ok) return [];
+        const data = await res.json();
+        return ((data.products || []) as Product[]).filter((p) => p._id !== excludeId).slice(0, 8);
+    } catch { return []; }
+}
+
 export default async function ProductDetailPage({
     params,
 }: {
@@ -101,6 +116,8 @@ export default async function ProductDetailPage({
     const isDark = isDarkTheme(theme);
     const isLuxe = isLuxeTheme(theme);
     const bg = themeBgMap[theme] || themeBgMap.classic;
+    const brand = storeInfo.brandColor || "#F4501A";
+    const related = await getRelated(subdomain, product.category || "General", product._id);
 
     return (
         <div className={`min-h-screen ${bg}`}>
@@ -185,6 +202,19 @@ export default async function ProductDetailPage({
                         )}
                     </div>
                 </div>
+
+                {/* Related products — একই ক্যাটাগরির আরো */}
+                {related.length > 0 && (
+                    <section className="mt-12 sm:mt-16">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="w-1 h-6 rounded-full" style={{ background: brand }} />
+                            <h3 className={`font-['Fraunces',serif] text-xl sm:text-2xl font-semibold ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
+                                একই ক্যাটাগরির আরো
+                            </h3>
+                        </div>
+                        <FeaturedSlider products={related} brand={brand} showBadge={false} />
+                    </section>
+                )}
             </main>
         </div>
     );

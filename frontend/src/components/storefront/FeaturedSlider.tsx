@@ -5,7 +5,7 @@ import { useRef } from "react";
 
 interface Product { _id: string; name: string; price: number; images: string[]; stock: number; }
 
-export default function FeaturedSlider({ products, brand }: { products: Product[]; brand: string }) {
+export default function FeaturedSlider({ products, brand, showBadge = true }: { products: Product[]; brand: string; showBadge?: boolean }) {
     const ref = useRef<HTMLDivElement>(null);
 
     const scroll = (dir: "left" | "right") => {
@@ -29,7 +29,7 @@ export default function FeaturedSlider({ products, brand }: { products: Product[
                         {out ? (
                             <div className="absolute top-3 left-3 bg-black/70 text-white text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full backdrop-blur">Sold out</div>
                         ) : (
-                            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-black text-[11px] font-bold px-2.5 py-1 rounded-full">★ Featured</div>
+                            showBadge && <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-black text-[11px] font-bold px-2.5 py-1 rounded-full">★ Featured</div>
                         )}
                         <div className="absolute bottom-0 left-0 right-0 p-4">
                             <h3 className="font-['Fraunces',serif] text-white font-semibold text-base leading-tight truncate drop-shadow">{p.name}</h3>
@@ -85,7 +85,7 @@ export default function FeaturedSlider({ products, brand }: { products: Product[
                                         Sold out
                                     </div>
                                 )}
-                                {!out && (
+                                {!out && showBadge && (
                                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-black text-[11px] font-bold px-2.5 py-1 rounded-full">
                                         ★ Featured
                                     </div>
