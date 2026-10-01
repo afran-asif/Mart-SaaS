@@ -109,14 +109,13 @@ export default async function CategoryPage({
                 storeName={store.storeName}
                 storeLogo={store.logo}
                 brandColor={brand}
-                tagline={store.heroSubtitle || ""}
+                tagline={store.heroSubtitle || "Buy your best cloth from here"}
                 theme={theme}
                 facebookUrl={store.facebookUrl}
                 instagramUrl={store.instagramUrl}
                 whatsappNumber={store.whatsappNumber}
                 phone={store.whatsappNumber}
                 plan={store.plan}
-                categories={categories.map((c) => c.name)}
             />
         </div>
     );
