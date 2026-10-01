@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreCollection from "@/components/storefront/StoreCollection";
+import StorefrontFooter from "@/components/storefront/StorefrontFooter";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 
 export const revalidate = 60;
@@ -84,7 +85,7 @@ export default async function CategoryPage({
                 theme={theme}
             />
 
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 {/* Breadcrumb */}
                 <nav className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase mb-6 ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
                     <Link href="/" className="hover:underline underline-offset-4">Home</Link>
@@ -104,21 +105,19 @@ export default async function CategoryPage({
                 />
             </main>
 
-            <footer className={`border-t mt-4 ${isDark ? "border-white/10" : "border-[#C6A15B]/30"}`}>
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <Link
-                        href="/"
-                        className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase underline-offset-4 hover:underline ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/70" : "text-[#0E3B2C]"}`}
-                    >
-                        ← Back to {store.storeName}
-                    </Link>
-                    {store.plan !== "pro" && (
-                        <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
-                            Powered by Vendoo
-                        </p>
-                    )}
-                </div>
-            </footer>
+            <StorefrontFooter
+                storeName={store.storeName}
+                storeLogo={store.logo}
+                brandColor={brand}
+                tagline={store.heroSubtitle || ""}
+                theme={theme}
+                facebookUrl={store.facebookUrl}
+                instagramUrl={store.instagramUrl}
+                whatsappNumber={store.whatsappNumber}
+                phone={store.whatsappNumber}
+                plan={store.plan}
+                categories={categories.map((c) => c.name)}
+            />
         </div>
     );
 }

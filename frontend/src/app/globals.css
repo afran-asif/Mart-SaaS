@@ -9,6 +9,15 @@
     color: #fffdf7;
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
 /* Review form expand */
 @keyframes expand-in {
     from {

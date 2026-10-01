@@ -3,6 +3,7 @@ import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import ProductGallery from "@/components/storefront/ProductGallery";
 import ProductReviews from "@/components/storefront/ProductReviews";
+import StorefrontFooter from "@/components/storefront/StorefrontFooter";
 import TrackViewContent from "@/components/storefront/TrackViewContent";
 import FeaturedSlider from "@/components/storefront/FeaturedSlider";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
@@ -55,7 +56,16 @@ async function getProduct(subdomain: string, id: string): Promise<Product | null
     return data.product as Product;
 }
 
-async function getStoreTheme(subdomain: string): Promise<{ theme?: string | null; brandColor?: string | null }> {
+async function getStoreTheme(subdomain: string): Promise<{
+    theme?: string | null;
+    brandColor?: string | null;
+    storeName?: string;
+    logo?: string | null;
+    facebookUrl?: string | null;
+    instagramUrl?: string | null;
+    whatsappNumber?: string | null;
+    plan?: string;
+}> {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
     try {
         const res = await fetch(`${baseUrl}/tenant/store`, {
@@ -64,7 +74,16 @@ async function getStoreTheme(subdomain: string): Promise<{ theme?: string | null
         });
         if (!res.ok) return {};
         const data = await res.json();
-        return { theme: data.store?.theme, brandColor: data.store?.brandColor };
+        return {
+            theme: data.store?.theme,
+            brandColor: data.store?.brandColor,
+            storeName: data.store?.storeName,
+            logo: data.store?.logo,
+            facebookUrl: data.store?.facebookUrl,
+            instagramUrl: data.store?.instagramUrl,
+            whatsappNumber: data.store?.whatsappNumber,
+            plan: data.store?.plan,
+        };
     } catch { return {}; }
 }
 
@@ -134,7 +153,7 @@ export default async function ProductDetailPage({
                 }}
             />
 
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
                     {/* বাম পাশ — ছবি (click + swipe gallery) */}
                     <ProductGallery images={product.images} name={product.name} outOfStock={outOfStock} />
@@ -220,6 +239,17 @@ export default async function ProductDetailPage({
                 {/* Reviews */}
                 <ProductReviews productId={product._id} theme={theme} />
             </main>
+            <StorefrontFooter
+                storeName={storeInfo.storeName}
+                storeLogo={storeInfo.logo}
+                brandColor={brand}
+                theme={theme}
+                facebookUrl={storeInfo.facebookUrl}
+                instagramUrl={storeInfo.instagramUrl}
+                whatsappNumber={storeInfo.whatsappNumber}
+                phone={storeInfo.whatsappNumber}
+                plan={storeInfo.plan}
+            />
         </div>
     );
 }

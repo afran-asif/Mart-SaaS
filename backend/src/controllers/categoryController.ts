@@ -58,7 +58,7 @@ export const getCategories = async (req: AuthenticatedRequest, res: Response): P
     }
 };
 
-// 🌐 Storefront-এর জন্য public categories (product count সহ, খালিগুলো বাদ) — 5 min cache
+// 🌐 Storefront-এর জন্য public categories (product count + thumbnail সহ, খালিগুলো বাদ) — 5 min cache
 export const getTenantCategories = async (req: TenantRequest, res: Response): Promise<void> => {
     try {
         const storeId = req.storeId;
@@ -74,13 +74,20 @@ export const getTenantCategories = async (req: TenantRequest, res: Response): Pr
         }
         const categories = await Category.find({ storeId }).sort({ name: 1 });
         const withCount = await Promise.all(
-            categories.map(async (c) => ({
-                name: c.name,
-                productCount: await Product.countDocuments({
+            categories.map(async (c) => {
+                const productCount = await Product.countDocuments({
                     storeId,
                     category: { $regex: new RegExp(`^${escRegex(c.name)}$`, "i") },
-                }),
-            }))
+                });
+                // প্রথম প্রোডাক্টের ছবি thumbnail হিসেবে ব্যবহার
+                const firstProduct = await Product.findOne({
+                    storeId,
+                    category: { $regex: new RegExp(`^${escRegex(c.name)}$`, "i") },
+                    images: { $exists: true, $not: { $size: 0 } },
+                }).select("images").lean();
+                const thumbnail = firstProduct?.images?.[0] || null;
+                return { name: c.name, productCount, thumbnail };
+            })
         );
         const visible = withCount.filter((c) => c.productCount > 0);
         await cacheSet(key, visible, TTL.TENANT_CATEGORIES);

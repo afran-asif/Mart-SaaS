@@ -1,10 +1,13 @@
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreSocialLinks from "@/components/storefront/StoreSocialLinks";
+import StorefrontFooter from "@/components/storefront/StorefrontFooter";
+import ShopByCategory from "@/components/storefront/ShopByCategory";
 import Link from "next/link";
 import type { Metadata } from "next";
 import StoreCollection from "@/components/storefront/StoreCollection";
 import FeaturedSlider from "@/components/storefront/FeaturedSlider";
+
 
 interface Product {
     _id: string;
@@ -110,7 +113,7 @@ async function getStoreData(subdomain: string) {
     try {
         if (featuredRes.ok) featured = (await featuredRes.json()).products || [];
     } catch { /* optional */ }
-    let categories: { name: string; productCount: number }[] = [];
+    let categories: { name: string; productCount: number; thumbnail?: string | null }[] = [];
     try {
         if (categoriesRes.ok) {
             const categoriesData = await categoriesRes.json();
@@ -176,7 +179,7 @@ export default async function StorePage({
 
             {/* Hero */}
             {hasHero && (
-                <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
                     <div
                         className="relative overflow-hidden rounded-2xl border border-[#181410]/10 flex flex-col sm:flex-row"
                         style={{ background: store.heroImage ? undefined : brand }}
@@ -211,9 +214,14 @@ export default async function StorePage({
                 </section>
             )}
 
+            {/* Shop By Category */}
+            {categories.length > 0 && (
+                <ShopByCategory categories={categories} brand={brand} theme={theme} />
+            )}
+
             {/* Featured */}
             {featured.length > 0 && (
-                <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10">
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10">
                     <div className="flex items-center gap-3 mb-4">
                         <span className="w-1 h-6 rounded-full" style={{ background: brand }} />
                         <h3 className={`font-['Fraunces',serif] text-xl sm:text-2xl font-semibold ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>Best Picks</h3>
@@ -224,12 +232,12 @@ export default async function StorePage({
             )}
 
 {/* Product Grid + Category filter */}
-            <main id="collection" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main id="collection" className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <StoreCollection initialProducts={products} total={total} categories={categories} theme={theme} brand={brand} />
             </main>
 
             {/* Track order button (commented out)
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-2 flex justify-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-2 flex justify-center">
                 <Link
                     href="/track"
                     className="bg-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:bg-gray-100 active:scale-95 active:bg-gray-100 transition-all touch-manipulation [-webkit-tap-highlight-color:transparent]"
@@ -240,26 +248,20 @@ export default async function StorePage({
             </div>
             */}
 
-            {/* Footer strip */}
-            <footer className={`border-t mt-4 ${isDark ? "border-white/10" : "border-[#C6A15B]/30"}`}>
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex flex-col items-center sm:items-start gap-2">
-                        <p className={`font-['Fraunces',serif] text-lg ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>{store.storeName}</p>
-                        <div className="flex items-center justify-center sm:justify-start">
-                            <StoreSocialLinks
-                                facebookUrl={store.facebookUrl}
-                                instagramUrl={store.instagramUrl}
-                                whatsappNumber={store.whatsappNumber}
-                            />
-                        </div>
-                    </div>
-                    {store.plan !== "pro" && (
-                        <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
-                            Powered by Vendoo
-                        </p>
-                    )}
-                </div>
-            </footer>
+            {/* Footer */}
+            <StorefrontFooter
+                storeName={store.storeName}
+                storeLogo={store.logo}
+                brandColor={brand}
+                tagline={store.heroSubtitle || ""}
+                theme={theme}
+                facebookUrl={store.facebookUrl}
+                instagramUrl={store.instagramUrl}
+                whatsappNumber={store.whatsappNumber}
+                phone={store.whatsappNumber}
+                plan={store.plan}
+                categories={categories.map((c) => c.name)}
+            />
         </div>
     );
 }
