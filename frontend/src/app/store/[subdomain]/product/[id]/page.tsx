@@ -2,6 +2,7 @@ import AddToCartButton from "@/components/storefront/AddToCartButton";
 import CartIcon from "@/components/storefront/CartIcon";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import ProductGallery from "@/components/storefront/ProductGallery";
+import ProductReviews from "@/components/storefront/ProductReviews";
 import TrackViewContent from "@/components/storefront/TrackViewContent";
 import FeaturedSlider from "@/components/storefront/FeaturedSlider";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
@@ -215,6 +216,9 @@ export default async function ProductDetailPage({
                         <FeaturedSlider products={related} brand={brand} showBadge={false} />
                     </section>
                 )}
+
+                {/* Reviews */}
+                <ProductReviews productId={product._id} theme={theme} />
             </main>
         </div>
     );

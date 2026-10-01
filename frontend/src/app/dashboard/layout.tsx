@@ -55,6 +55,7 @@ const menuItems = [
         { nameKey: "dashboard.orders", path: "/dashboard/orders" },
         { nameKey: "dashboard.customers", path: "/dashboard/customers" },
         { nameKey: "dashboard.coupons", path: "/dashboard/coupons" },
+        { nameKey: "dashboard.reviews", path: "/dashboard/reviews" },
         { nameKey: "dashboard.billing", path: "/dashboard/billing" },
         ...(user?.role === "super-admin" ? [{ nameKey: "dashboard.admin", path: "/dashboard/admin" }] : []),
         {

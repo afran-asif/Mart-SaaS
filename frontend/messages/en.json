@@ -258,6 +258,7 @@
     "categories": "Categories",
     "customers": "Customers",
     "coupons": "Coupons",
+    "reviews": "Reviews",
     "billing": "Billing",
     "admin": "Admin",
     "settingsTabs": {
@@ -511,6 +512,22 @@
       "statusRejected": "Rejected",
       "rejectReason": "Reason",
       "history": "Payment History"
+    },
+    "reviewsPage": {
+      "title": "Reviews",
+      "subtitle": "What customers say about your products.",
+      "loading": "Loading reviews...",
+      "empty": "No reviews yet.",
+      "customer": "Customer",
+      "product": "Product",
+      "rating": "Rating",
+      "review": "Review",
+      "actions": "Actions",
+      "hide": "Hide",
+      "show": "Show",
+      "delete": "Delete",
+      "deleted": "Review deleted.",
+      "deleteConfirm": "Delete this review?"
     },
     "socialPage": {
       "title": "Social Media",

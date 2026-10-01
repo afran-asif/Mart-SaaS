@@ -258,6 +258,7 @@
     "categories": "ক্যাটাগরি",
     "customers": "কাস্টমার",
     "coupons": "কুপন",
+    "reviews": "রিভিউ",
     "billing": "বিলিং",
     "admin": "অ্যাডমিন",
     "settingsTabs": {
@@ -511,6 +512,22 @@
       "statusRejected": "বাতিল",
       "rejectReason": "কারণ",
       "history": "পেমেন্ট হিস্ট্রি"
+    },
+    "reviewsPage": {
+      "title": "রিভিউ",
+      "subtitle": "আপনার পণ্য নিয়ে গ্রাহকরা কী বলছেন।",
+      "loading": "রিভিউ লোড হচ্ছে...",
+      "empty": "এখনো কোনো রিভিউ নেই।",
+      "customer": "গ্রাহক",
+      "product": "পণ্য",
+      "rating": "রেটিং",
+      "review": "রিভিউ",
+      "actions": "অ্যাকশন",
+      "hide": "লুকান",
+      "show": "দেখান",
+      "delete": "মুছুন",
+      "deleted": "রিভিউ মুছে ফেলা হয়েছে।",
+      "deleteConfirm": "এই রিভিউটি মুছে ফেলবেন?"
     },
     "socialPage": {
       "title": "সোশ্যাল মিডিয়া",
