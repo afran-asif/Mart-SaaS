@@ -4,6 +4,7 @@ import { Plan } from "../models/Plan";
 import { Subscription } from "../models/Subscription";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { getEffectivePlan, getUsage } from "../utils/plan";
+import { cacheDelTenantStore } from "../utils/cache";
 
 const SUBSCRIPTION_DAYS = 30;
 
@@ -160,6 +161,7 @@ export const approveSubscription = async (req: AuthenticatedRequest, res: Respon
         store.plan = "pro";
         store.planExpiresAt = periodEnd;
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
 
         sub.status = "active";
         sub.periodStart = now;

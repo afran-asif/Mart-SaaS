@@ -5,6 +5,7 @@ import { TenantRequest } from "../middlewares/tenantMiddleware";
 import { encrypt } from "../utils/encryption";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
 import { getEffectivePlan, getPlanLimits } from "../utils/plan";
+import { cacheDelTenantStore } from "../utils/cache";
 
 export const getAllActiveStores = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -151,6 +152,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         }
 
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
 
         if (oldLogoToDelete) {
             deleteFromCloudinary(oldLogoToDelete);

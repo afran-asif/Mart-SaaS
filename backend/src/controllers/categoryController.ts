@@ -4,6 +4,7 @@ import { Product } from "../models/Product";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
+import { cacheGet, cacheSet, cacheDel, cacheKeys, TTL } from "../utils/cache";
 
 const escRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -57,12 +58,18 @@ export const getCategories = async (req: AuthenticatedRequest, res: Response): P
     }
 };
 
-// 🌐 Storefront-এর জন্য public categories (product count সহ, খালিগুলো বাদ)
+// 🌐 Storefront-এর জন্য public categories (product count সহ, খালিগুলো বাদ) — 5 min cache
 export const getTenantCategories = async (req: TenantRequest, res: Response): Promise<void> => {
     try {
         const storeId = req.storeId;
         if (!storeId) {
             res.status(400).json({ message: "Store not found." });
+            return;
+        }
+        const key = cacheKeys.tenantCategories(storeId);
+        const cached = await cacheGet<any[]>(key);
+        if (cached) {
+            res.status(200).json({ success: true, categories: cached });
             return;
         }
         const categories = await Category.find({ storeId }).sort({ name: 1 });
@@ -75,10 +82,22 @@ export const getTenantCategories = async (req: TenantRequest, res: Response): Pr
                 }),
             }))
         );
-        res.status(200).json({ success: true, categories: withCount.filter((c) => c.productCount > 0) });
+        const visible = withCount.filter((c) => c.productCount > 0);
+        await cacheSet(key, visible, TTL.TENANT_CATEGORIES);
+        res.status(200).json({ success: true, categories: visible });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
+};
+
+// category বদলালে storefront cache মুছে ফেলা
+const bustCategoryCache = async (vendorId: string): Promise<void> => {
+    try {
+        const store = await Store.findOne({ vendorId }).select("_id").lean();
+        if (store) {
+            await cacheDel(cacheKeys.tenantCategories((store._id as unknown as { toString(): string }).toString()));
+        }
+    } catch { /* ignore */ }
 };
 
 // ➕ নতুন category তৈরি
@@ -113,6 +132,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response): 
         }
 
         const category = await Category.create({ vendorId, storeId: store._id, name: cleanName });
+        await bustCategoryCache(vendorId);
 
         res.status(201).json({ success: true, message: "Category created successfully", category });
     } catch (error) {
@@ -163,6 +183,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response): 
             { vendorId, category: { $regex: new RegExp(`^${escRegex(oldName)}$`, "i") } },
             { $set: { category: cleanName } }
         );
+        await bustCategoryCache(vendorId);
 
         res.status(200).json({ success: true, message: "Category updated successfully", category });
     } catch (error) {
@@ -186,6 +207,7 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response): 
             { vendorId, category: { $regex: new RegExp(`^${escRegex(category.name)}$`, "i") } },
             { $set: { category: "General" } }
         );
+        await bustCategoryCache(vendorId);
 
         res.status(200).json({
             success: true,

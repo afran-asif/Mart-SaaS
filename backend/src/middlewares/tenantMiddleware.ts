@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Store } from "../models/Store";
+import { cacheGet, cacheSet, cacheKeys, TTL } from "../utils/cache";
 
 export interface TenantRequest extends Request {
     storeId?: string;
@@ -16,6 +17,20 @@ const isCustomDomainIdentifier = (id: string): boolean => {
     return !(id === BASE_HOST || id.endsWith(`.${BASE_HOST}`));
 };
 
+// store resolution with Redis cache (miss → DB → cache 5 min)
+const resolveStore = async (filter: Record<string, unknown>, identifier: string): Promise<any> => {
+    const key = cacheKeys.tenantStore(identifier);
+    const cached = await cacheGet<any>(key);
+    if (cached) {
+        return Store.hydrate(cached);
+    }
+    const store = await Store.findOne(filter);
+    if (store) {
+        await cacheSet(key, store.toObject(), TTL.TENANT_STORE);
+    }
+    return store;
+};
+
 export const tenantResolver = async (req: TenantRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
         const identifier = (req.headers["x-tenant-subdomain"] as string || "")
@@ -29,8 +44,8 @@ export const tenantResolver = async (req: TenantRequest, res: Response, next: Ne
         }
 
         const store = isCustomDomainIdentifier(identifier)
-            ? await Store.findOne({ customDomain: identifier, customDomainStatus: "verified", status: "active" })
-            : await Store.findOne({ subdomain: identifier, status: "active" });
+            ? await resolveStore({ customDomain: identifier, customDomainStatus: "verified", status: "active" }, identifier)
+            : await resolveStore({ subdomain: identifier, status: "active" }, identifier);
 
         if (!store) {
             res.status(404).json({ message: "Requested store or tenant not found or inactive"});

@@ -6,6 +6,7 @@ import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { addDomainToVercel, removeDomainFromVercel } from "../utils/vercel";
 import { refreshCustomDomainCache } from "../utils/customDomainCache";
 import { requirePro } from "../utils/plan";
+import { cacheDelTenantStore } from "../utils/cache";
 
 const DNS_NAME_PATTERN =
     /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))+$/;
@@ -99,6 +100,7 @@ export const requestCustomDomain = async (req: AuthenticatedRequest, res: Respon
         store.customDomainStatus = "pending";
         store.customDomainVerificationCode = verificationCode;
         await store.save();
+        await cacheDelTenantStore(store.subdomain, hostname);
 
         res.status(200).json({
             success: true,
@@ -134,6 +136,7 @@ export const verifyCustomDomain = async (req: AuthenticatedRequest, res: Respons
             store.customDomainStatus = "verified";
             await store.save();
             await refreshCustomDomainCache();
+            await cacheDelTenantStore(store.subdomain, store.customDomain);
 
             // Vercel-এ domain auto-add (non-blocking — fail হলেও verify সফল থাকবে)
 // fail হলে platform owner backend log-এ দেখবে, vendor-কে raw error দেখানো হবে না
@@ -154,6 +157,7 @@ export const verifyCustomDomain = async (req: AuthenticatedRequest, res: Respons
 
         store.customDomainStatus = "failed";
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
         res.status(400).json({
             success: false,
             message:
@@ -184,6 +188,7 @@ export const removeCustomDomain = async (req: AuthenticatedRequest, res: Respons
         store.customDomainVerificationCode = null;
         await store.save();
         await refreshCustomDomainCache();
+        await cacheDelTenantStore(store.subdomain, domainToRemove);
 
         // Vercel থেকেও domain সরানো (non-blocking)
         let vercelMessage: string | undefined;

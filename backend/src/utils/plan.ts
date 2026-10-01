@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { Plan, DEFAULT_PLANS } from "../models/Plan";
 import { Product } from "../models/Product";
 import Order from "../models/Order";
+import { cacheGet, cacheSet, cacheKeys, TTL } from "./cache";
 
 export type PlanSlug = "free" | "pro";
 
@@ -22,10 +23,12 @@ export const getEffectivePlan = (store: StoreLike): PlanSlug => {
 };
 
 export const getPlanLimits = async (plan: PlanSlug) => {
+    const cached = await cacheGet<any>(cacheKeys.plan(plan));
+    if (cached) return cached;
     const found = await Plan.findOne({ slug: plan }).lean();
-    if (found) return found;
-    const fallback = DEFAULT_PLANS.find((p) => p.slug === plan);
-    return fallback!;
+    const limits = found || DEFAULT_PLANS.find((p) => p.slug === plan)!;
+    await cacheSet(cacheKeys.plan(plan), limits, TTL.PLAN);
+    return limits;
 };
 
 // 403 পাঠিয়ে pro-gate — true মানে pro আছে (এগোতে পারো)

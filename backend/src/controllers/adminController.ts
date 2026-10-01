@@ -8,6 +8,7 @@ import Order from "../models/Order";
 import { Product } from "../models/Product";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { getEffectivePlan } from "../utils/plan";
+import { cacheDelTenantStore } from "../utils/cache";
 
 // GET /admin/stores — সব store + vendor + plan + counts
 export const listStores = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -79,6 +80,7 @@ export const setStorePlan = async (req: AuthenticatedRequest, res: Response): Pr
         }
         store.plan = plan as "free" | "pro";
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
         res.status(200).json({ success: true, plan: store.plan, planExpiresAt: store.planExpiresAt });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -100,6 +102,7 @@ export const setStoreStatus = async (req: AuthenticatedRequest, res: Response): 
         }
         store.status = status as "active" | "suspended";
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
         res.status(200).json({ success: true, status: store.status });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
