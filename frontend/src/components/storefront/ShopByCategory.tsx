@@ -24,7 +24,6 @@ export default function ShopByCategory({
     theme = "classic",
 }: ShopByCategoryProps) {
     const [startIndex, setStartIndex] = useState(0);
-    const [paused, setPaused] = useState(false);
     const [wide, setWide] = useState(false);
 
     const isDark = isDarkTheme(theme);
@@ -40,19 +39,19 @@ export default function ShopByCategory({
         return () => mq.removeEventListener("change", update);
     }, []);
 
-    const K = Math.min(n, wide ? 5 : 3);
+    const K = Math.min(n, 3);
     const center = Math.floor(K / 2);
     const rotating = n > K;
 
-    // একটা একটা করে left-এ ঘোরা, loop
+    // একটা একটা করে left-এ ঘোরা, loop — hover/touch-এও থামে না
     useEffect(() => {
-        if (!rotating || paused) return;
+        if (!rotating) return;
         if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         const id = setInterval(() => {
             setStartIndex((s) => (s + 1) % n);
         }, STEP_MS);
         return () => clearInterval(id);
-    }, [n, rotating, paused]);
+    }, [n, rotating]);
 
     if (n === 0) return null;
 
@@ -62,8 +61,8 @@ export default function ShopByCategory({
             className={`flex flex-col items-center gap-2 group ${extra || ""}`}
         >
             {/* Image card */}
-            <div
-                className={`w-[88px] h-[88px] sm:w-[100px] sm:h-[100px] rounded-2xl overflow-hidden border transition-all duration-200 group-hover:shadow-lg group-hover:scale-[1.04] active:scale-95 ${
+<div
+                    className={`w-[88px] h-[88px] sm:w-[128px] sm:h-[128px] rounded-2xl overflow-hidden border transition-all duration-200 group-hover:shadow-lg group-hover:scale-[1.04] active:scale-95 ${
                     isDark
                         ? "border-white/10 bg-white/5"
                         : "border-gray-200 bg-gray-50"
@@ -88,8 +87,8 @@ export default function ShopByCategory({
             </div>
 
             {/* Category name */}
-            <span
-                className={`text-xs sm:text-[13px] font-medium text-center max-w-[88px] sm:max-w-[100px] leading-snug truncate ${
+<span
+                    className={`text-xs sm:text-[13px] font-medium text-center max-w-[88px] sm:max-w-[128px] leading-snug truncate ${
                     isLuxe
                         ? "text-[#d4af37]"
                         : isDark
@@ -122,13 +121,7 @@ export default function ShopByCategory({
                     </div>
                 ) : (
                     /* Coverflow — same DOM slide করে, loop-এ teleport invisible */
-                    <div
-                        className="relative mx-auto h-[140px] sm:h-[156px] max-w-full overflow-hidden"
-                        onMouseEnter={() => setPaused(true)}
-                        onMouseLeave={() => setPaused(false)}
-                        onTouchStart={() => setPaused(true)}
-                        onTouchEnd={() => setPaused(false)}
-                    >
+                    <div className="relative mx-auto h-[140px] sm:h-[184px] max-w-full overflow-hidden">
                         {categories.map((cat, i) => {
                             const rel = (((i - startIndex) % n) + n) % n;
                             let off: number;
@@ -145,8 +138,8 @@ export default function ShopByCategory({
                             const style: React.CSSProperties = {
                                 position: "absolute",
                                 left: "50%",
-                                top: 0,
-                                transform: `translateX(calc(-50% + ${off * (wide ? 124 : 100)}px)) scale(${hidden ? 0.74 : abs === 0 ? 1.08 : abs === 1 ? 0.9 : 0.74})`,
+                                top: "50%",
+                                transform: `translate(calc(-50% + ${off * (wide ? 144 : 100)}px), -50%) scale(${hidden ? 0.74 : abs === 0 ? 1.05 : abs === 1 ? 0.9 : 0.74})`,
                                 opacity: hidden ? 0 : abs === 0 ? 1 : abs === 1 ? 0.85 : 0.55,
                                 filter: hidden || abs !== 0 ? "grayscale(0.45)" : "grayscale(0)",
                                 zIndex: hidden ? 0 : 10 - abs,

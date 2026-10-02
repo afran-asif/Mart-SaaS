@@ -56,6 +56,9 @@ export async function generateMetadata({
     return {
         title: `${data.categoryName} — ${data.store.storeName}`,
         description: `${data.store.storeName}-এর ${data.categoryName} কালেকশন থেকে কেনাকাটা করুন।`,
+        icons: {
+            icon: data.store.logo || "/favicon.ico",
+        },
     };
 }
 
@@ -85,7 +88,7 @@ export default async function CategoryPage({
                 theme={theme}
             />
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 {/* Breadcrumb */}
                 <nav className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase mb-6 ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
                     <Link href="/" className="hover:underline underline-offset-4">Home</Link>

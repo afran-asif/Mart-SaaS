@@ -64,6 +64,10 @@ export async function generateMetadata({
         metadataBase: new URL(siteUrl),
         title,
         description,
+        // vendor store logo browser tab-এ (না থাকলে default favicon)
+        icons: {
+            icon: store.logo || "/favicon.ico",
+        },
         openGraph: {
             type: "website",
             url: storeUrl,
@@ -179,9 +183,9 @@ export default async function StorePage({
 
             {/* Hero */}
             {hasHero && (
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
+                <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
                     <div
-                        className="relative overflow-hidden rounded-2xl border border-[#181410]/10 flex flex-col sm:flex-row"
+                        className="relative overflow-hidden rounded-2xl border border-[#181410]/10 flex flex-col sm:flex-row min-h-[320px] sm:min-h-[450px] lg:min-h-[600px]"
                         style={{ background: store.heroImage ? undefined : brand }}
                     >
                         {store.heroImage ? (
@@ -221,7 +225,7 @@ export default async function StorePage({
 
             {/* Featured */}
             {featured.length > 0 && (
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-10">
+                <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-8 sm:pt-10">
                     <div className="flex items-center gap-3 mb-4">
                         <span className="w-1 h-6 rounded-full" style={{ background: brand }} />
                         <h3 className={`font-['Fraunces',serif] text-xl sm:text-2xl font-semibold ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>Best Picks</h3>
@@ -232,12 +236,12 @@ export default async function StorePage({
             )}
 
 {/* Product Grid + Category filter */}
-            <main id="collection" className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main id="collection" className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <StoreCollection initialProducts={products} total={total} categories={categories} theme={theme} brand={brand} moreHref="/products" moreLabel="More products →" />
             </main>
 
             {/* Track order button (commented out)
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-2 flex justify-center">
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pb-2 flex justify-center">
                 <Link
                     href="/track"
                     className="bg-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:bg-gray-100 active:scale-95 active:bg-gray-100 transition-all touch-manipulation [-webkit-tap-highlight-color:transparent]"

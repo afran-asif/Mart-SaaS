@@ -31,9 +31,14 @@ export async function generateMetadata({
         return { title: "Product Not Found" };
     }
 
+    const storeInfo = await getStoreTheme(subdomain);
+
     return {
         title: `${product.name} - ৳${product.price}`,
         description: product.description?.slice(0, 150) || `${product.name} কিনুন সেরা দামে`,
+        icons: {
+            icon: storeInfo.logo || "/favicon.ico",
+        },
         openGraph: {
             title: product.name,
             description: product.description?.slice(0, 150),
@@ -153,7 +158,7 @@ export default async function ProductDetailPage({
                 }}
             />
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
                     {/* বাম পাশ — ছবি (click + swipe gallery) */}
                     <ProductGallery images={product.images} name={product.name} outOfStock={outOfStock} />
