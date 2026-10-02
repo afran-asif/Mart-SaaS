@@ -33,6 +33,8 @@ interface StoreCollectionProps {
     /** দিলে infinite-scroll-এর বদলে "More" link button (home-এর জন্য) */
     moreHref?: string;
     moreLabel?: string;
+    /** 🔎 search term — load-more fetch-এও পাঠানো হয় */
+    search?: string | null;
 }
 
 const PAGE_SIZE = 24;
@@ -48,6 +50,7 @@ export default function StoreCollection({
     category = null,
     moreHref,
     moreLabel,
+    search = null,
 }: StoreCollectionProps) {
     // page-wise batches — নতুন batch আলাদা wrapper-এ, entry animation-সহ
     const [pages, setPages] = useState<Product[][]>([initialProducts]);
@@ -70,6 +73,7 @@ export default function StoreCollection({
             const nextPage = pageRef.current + 1;
             const params: Record<string, string | number> = { page: nextPage, limit: PAGE_SIZE };
             if (category) params.category = category;
+            if (search) params.search = search;
             const res = await api.get("/tenant/products", { params });
             const next = res.data.products || [];
             if (next.length > 0) {
@@ -82,7 +86,7 @@ export default function StoreCollection({
             loadingRef.current = false;
             setLoadingMore(false);
         }
-    }, [category]);
+    }, [category, search]);
 
     // Infinite scroll — sentinel viewport-এ এলে auto-load (moreHref থাকলে link mode)
     useEffect(() => {
@@ -154,17 +158,17 @@ export default function StoreCollection({
             </div>
 
             {loadedCount === 0 ? (
-                activeCategory ? (
+                search || activeCategory ? (
                     <div className="py-20 text-center">
                         <p className={`font-['Fraunces',serif] text-2xl font-semibold mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>
-                            এই ক্যাটাগরিতে কিছু নেই
+                            {search ? `"${search}" এর সাথে কোনো প্রোডাক্ট পাওয়া যায়নি` : "এই ক্যাটাগরিতে কিছু নেই"}
                         </p>
                         <Link
-                            href="/#collection"
+                            href={search ? "/products" : "/#collection"}
                             className="text-sm font-semibold hover:underline underline-offset-4"
                             style={{ color: brand }}
                         >
-                            সব প্রোডাক্ট দেখুন →
+                            {search ? "সব প্রোডাক্ট দেখুন →" : "সব প্রোডাক্ট দেখুন →"}
                         </Link>
                     </div>
                 ) : (

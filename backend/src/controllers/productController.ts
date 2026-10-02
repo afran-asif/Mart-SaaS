@@ -254,10 +254,21 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
         if (req.query.featured === "true") {
             filter.featured = true;
         }
+        // 🔎 search — product name-তে (case-insensitive, escaped)
+        if (req.query.search) {
+            const esc = (req.query.search as string).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            if (esc) filter.name = { $regex: esc, $options: "i" };
+        }
 
         // pagination — কোনো param না দিলে সব (sitemap/backward-compat)
         const hasPage = !!(req.query.page || req.query.limit);
-        if (!hasPage && !req.query.category && req.query.featured !== "true" && req.query.sort !== "random") {
+        if (
+            !hasPage &&
+            !req.query.category &&
+            req.query.featured !== "true" &&
+            req.query.sort !== "random" &&
+            !req.query.search
+        ) {
             const products = await Product.find({ storeId }).sort({ createdAt: -1 });
             res.status(200).json({ success: true, count: products.length, products });
             return;
@@ -271,6 +282,7 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
                 storeId: new mongoose.Types.ObjectId(storeId as string),
             };
             if (filter.category) matchStage.category = filter.category;
+            if (filter.name) matchStage.name = filter.name;
             const [total, products] = await Promise.all([
                 Product.countDocuments(filter),
                 Product.aggregate([{ $match: matchStage }, { $sample: { size } }]),

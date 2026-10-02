@@ -75,4 +75,17 @@ describe("tenant products pagination", () => {
             expect(r.body.products.length).toBeGreaterThan(0);
         }
     });
+
+    test("search filters by name (case-insensitive)", async () => {
+        const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ search: "p1", page: 1, limit: 24 });
+        expect(r.status).toBe(200);
+        expect(r.body.total).toBe(11); // P1, P10..P19
+        expect(r.body.products.every((p: any) => p.name.match(/P1/))).toBe(true);
+    });
+
+    test("search without page returns all matches (not bare all)", async () => {
+        const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ search: "p2" });
+        expect(r.status).toBe(200);
+        expect(r.body.products).toHaveLength(11); // P2, P20..P29
+    });
 });

@@ -1,4 +1,5 @@
 import CartIcon from "./CartIcon";
+import StorefrontSearch from "./StorefrontSearch";
 import Link from "next/link";
 
 interface StorefrontHeaderProps {
@@ -52,57 +53,69 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
     const subColor = themeSubText[theme] || themeSubText.classic;
     return (
         <header className={`sticky top-0 z-30 backdrop-blur-md border-b ${headerBg}`}>
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-                {variant === "home" ? (
-                    <div className="flex items-center gap-3 sm:gap-4">
-                        {storeLogo ? (
-                            <img
-                                src={storeLogo}
-                                alt={storeName}
-                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg object-cover ring-1 ring-gray-200 shadow-sm"
-                            />
-                        ) : (
-                            <div
-                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-[#FFFDF7] font-['Fraunces',serif] font-semibold text-lg ring-1 ring-gray-200 shadow-sm"
-                                style={{ background: brandColor || "#0E3B2C" }}
-                            >
-                                {storeName?.charAt(0).toUpperCase()}
-                            </div>
-                        )}
-                        <div className="pb-1">
-                            <h1 className={`font-['Fraunces',serif] font-semibold text-lg sm:text-xl leading-tight tracking-tight mt-0.5 ${titleColor}`}>
-                                {storeName}
-                            </h1>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className="relative flex w-1.5 h-1.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1F9D55] opacity-60" />
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#1F9D55]" />
-                                </span>
-                                <span className={`text-xs ${subColor}`}>
-                                    Active
-                                </span>
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 sm:py-4">
+                <div className="flex items-center justify-between gap-2 sm:gap-4">
+                    {variant === "home" ? (
+                        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                            {storeLogo ? (
+                                <img
+                                    src={storeLogo}
+                                    alt={storeName}
+                                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg object-cover ring-1 ring-gray-200 shadow-sm"
+                                />
+                            ) : (
+                                <div
+                                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-[#FFFDF7] font-['Fraunces',serif] font-semibold text-lg ring-1 ring-gray-200 shadow-sm"
+                                    style={{ background: brandColor || "#0E3B2C" }}
+                                >
+                                    {storeName?.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <div className="pb-1">
+                                <h1 className={`font-['Fraunces',serif] font-semibold text-lg sm:text-xl leading-tight tracking-tight mt-0.5 ${titleColor}`}>
+                                    {storeName}
+                                </h1>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    <span className="relative flex w-1.5 h-1.5">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1F9D55] opacity-60" />
+                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#1F9D55]" />
+                                    </span>
+                                    <span className={`text-xs ${subColor}`}>
+                                        Active
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <Link
-                        href="/"
-                        className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors underline-offset-4 hover:underline ${titleColor} hover:opacity-70`}
-                    >
-                        ← দোকানে ফিরে যান
-                    </Link>
-                )}
-
-                <div className="flex items-center gap-2 sm:gap-3">
-                    {!hideTrack && (
+                    ) : (
                         <Link
-                            href="/track"
-                            className={`text-xs sm:text-sm font-medium transition-all underline-offset-4 hover:underline active:opacity-50 active:scale-95 touch-manipulation ${titleColor} hover:opacity-70`}
+                            href="/"
+                            className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors underline-offset-4 hover:underline shrink-0 ${titleColor} hover:opacity-70`}
                         >
-                            🚚 Track Order
+                            ← দোকানে ফিরে যান
                         </Link>
                     )}
-                    <CartIcon theme={theme} />
+
+                    {/* PC-তে মাঝে সার্চ বার */}
+                    <div className="hidden md:block flex-1 max-w-md mx-auto">
+                        <StorefrontSearch theme={theme} />
+                    </div>
+
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        {!hideTrack && (
+                            <Link
+                                href="/track"
+                                className={`text-xs sm:text-sm font-medium transition-all underline-offset-4 hover:underline active:opacity-50 active:scale-95 touch-manipulation ${titleColor} hover:opacity-70`}
+                            >
+                                🚚 Track Order
+                            </Link>
+                        )}
+                        <CartIcon theme={theme} />
+                    </div>
+                </div>
+
+                {/* Mobile-তে সার্চ বার — পুরো width */}
+                <div className="md:hidden mt-3">
+                    <StorefrontSearch theme={theme} />
                 </div>
             </div>
         </header>

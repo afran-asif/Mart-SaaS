@@ -16,12 +16,15 @@ interface Product {
     category?: string;
 }
 
-async function getProductsData(subdomain: string) {
+async function getProductsData(subdomain: string, search?: string) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+
+    const qs = new URLSearchParams({ page: "1", limit: "24" });
+    if (search) qs.set("search", search);
 
     const [storeRes, productsRes, categoriesRes] = await Promise.all([
         fetch(`${baseUrl}/tenant/store`, { headers: { "X-Tenant-Subdomain": subdomain } }),
-        fetch(`${baseUrl}/tenant/products?page=1&limit=24`, { headers: { "X-Tenant-Subdomain": subdomain } }),
+        fetch(`${baseUrl}/tenant/products?${qs.toString()}`, { headers: { "X-Tenant-Subdomain": subdomain } }),
         fetch(`${baseUrl}/tenant/categories`, { headers: { "X-Tenant-Subdomain": subdomain } }),
     ]);
 
@@ -55,11 +58,15 @@ export async function generateMetadata({
 
 export default async function AllProductsPage({
     params,
+    searchParams,
 }: {
     params: Promise<{ subdomain: string }>;
+    searchParams: Promise<{ q?: string }>;
 }) {
     const { subdomain } = await params;
-    const data = await getProductsData(subdomain);
+    const { q } = await searchParams;
+    const search = q?.trim() || undefined;
+    const data = await getProductsData(subdomain, search);
     if (!data) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#FFFDF7]">
@@ -96,16 +103,20 @@ export default async function AllProductsPage({
                 <nav className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase mb-6 ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
                     <Link href="/" className="hover:underline underline-offset-4">Home</Link>
                     <span className="mx-2">/</span>
-                    <span className={isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}>All Products</span>
+                    <span className={isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}>
+                        {search ? `Search: "${search}"` : "All Products"}
+                    </span>
                 </nav>
 
                 <StoreCollection
+                    key={search || "all"}
                     initialProducts={products}
                     total={total}
                     categories={categories}
                     theme={theme}
                     brand={brand}
-                    title="All Products"
+                    title={search ? `Results for "${search}"` : "All Products"}
+                    search={search}
                 />
             </main>
 
