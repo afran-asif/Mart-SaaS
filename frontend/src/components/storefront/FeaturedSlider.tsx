@@ -5,8 +5,10 @@ import { useRef } from "react";
 
 interface Product { _id: string; name: string; price: number; images: string[]; stock: number; }
 
-export default function FeaturedSlider({ products, brand, showBadge = true }: { products: Product[]; brand: string; showBadge?: boolean }) {
+export default function FeaturedSlider({ products, brand, showBadge = true, gold = false }: { products: Product[]; brand: string; showBadge?: boolean; gold?: boolean }) {
     const ref = useRef<HTMLDivElement>(null);
+    const titleCls = gold ? "text-[#d4af37]" : "text-white";
+    const priceCls = gold ? "text-[#d4af37]/90" : "text-white/90";
 
     const scroll = (dir: "left" | "right") => {
         if (!ref.current) return;
@@ -32,8 +34,8 @@ export default function FeaturedSlider({ products, brand, showBadge = true }: { 
                             showBadge && <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-black text-[11px] font-bold px-2.5 py-1 rounded-full">★ Featured</div>
                         )}
                         <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <h3 className="font-['Fraunces',serif] text-white font-semibold text-base leading-tight truncate drop-shadow">{p.name}</h3>
-                            <p className="text-white/90 text-sm font-medium mt-1">৳{p.price}</p>
+                            <h3 className={`font-['Fraunces',serif] font-semibold text-base leading-tight truncate drop-shadow ${titleCls}`}>{p.name}</h3>
+                            <p className={`text-sm font-medium mt-1 ${priceCls}`}>৳{p.price}</p>
                         </div>
                     </div>
                 </Link>
@@ -91,10 +93,10 @@ export default function FeaturedSlider({ products, brand, showBadge = true }: { 
                                     </div>
                                 )}
                                 <div className="absolute bottom-0 left-0 right-0 p-4">
-                                    <h3 className="font-['Fraunces',serif] text-white font-semibold text-base leading-tight truncate drop-shadow">
+                                    <h3 className={`font-['Fraunces',serif] font-semibold text-base leading-tight truncate drop-shadow ${titleCls}`}>
                                         {p.name}
                                     </h3>
-                                    <p className="text-white/90 text-sm font-medium mt-1">৳{p.price}</p>
+                                    <p className={`text-sm font-medium mt-1 ${priceCls}`}>৳{p.price}</p>
                                 </div>
                             </div>
                         </Link>

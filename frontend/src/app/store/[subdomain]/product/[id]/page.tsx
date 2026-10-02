@@ -237,7 +237,7 @@ export default async function ProductDetailPage({
                                 একই ক্যাটাগরির আরো
                             </h3>
                         </div>
-                        <FeaturedSlider products={related} brand={brand} showBadge={false} />
+                        <FeaturedSlider products={related} brand={brand} showBadge={false} gold={isLuxe} />
                     </section>
                 )}
 

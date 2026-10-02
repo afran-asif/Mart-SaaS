@@ -195,10 +195,7 @@ export default function StorefrontFooter({
 
                     {/* Column 2: Quick Links */}
                     <div>
-                        <h4
-                            className="font-semibold text-sm sm:text-base mb-4 tracking-tight"
-                            style={{ color: brand }}
-                        >
+                        <h4 className="font-semibold text-sm sm:text-base mb-4 tracking-tight text-[#d4af37]">
                             Quick Links
                             <span className="block w-8 h-0.5 rounded-full mt-1.5" style={{ background: "#F4501A" }} />
                         </h4>
@@ -232,10 +229,7 @@ export default function StorefrontFooter({
 
                     {/* Column 3: More Links */}
                     <div>
-                        <h4
-                            className="font-semibold text-sm sm:text-base mb-4 tracking-tight"
-                            style={{ color: brand }}
-                        >
+                        <h4 className="font-semibold text-sm sm:text-base mb-4 tracking-tight text-[#d4af37]">
                             More Links
                             <span className="block w-8 h-0.5 rounded-full mt-1.5" style={{ background: "#F4501A" }} />
                         </h4>
@@ -270,10 +264,7 @@ export default function StorefrontFooter({
 
                     {/* Column 4: Contact Info */}
                     <div>
-                        <h4
-                            className="font-semibold text-sm sm:text-base mb-4 tracking-tight"
-                            style={{ color: brand }}
-                        >
+                        <h4 className="font-semibold text-sm sm:text-base mb-4 tracking-tight text-[#d4af37]">
                             Contact Info
                             <span className="block w-8 h-0.5 rounded-full mt-1.5" style={{ background: "#F4501A" }} />
                         </h4>
@@ -349,10 +340,7 @@ export default function StorefrontFooter({
 
                     {/* Column 5: Stay Connected (Newsletter) */}
                     <div>
-                        <h4
-                            className="font-semibold text-sm sm:text-base mb-4 tracking-tight"
-                            style={{ color: brand }}
-                        >
+                        <h4 className="font-semibold text-sm sm:text-base mb-4 tracking-tight text-[#d4af37]">
                             Stay Connected
                             <span className="block w-8 h-0.5 rounded-full mt-1.5" style={{ background: "#F4501A" }} />
                         </h4>
@@ -436,7 +424,7 @@ export default function StorefrontFooter({
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src="/favicon.ico" alt="Vendoo" className="w-4 h-4 rounded" />
-                            <span className={isDark ? "text-white" : "text-gray-900"}>Vendoo</span>
+                            <span className="text-[#d4af37]">Vendoo</span>
                         </a>
                     </div>
                 </div>

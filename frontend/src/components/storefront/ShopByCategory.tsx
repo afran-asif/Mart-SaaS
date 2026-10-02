@@ -106,8 +106,8 @@ export default function ShopByCategory({
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 {/* Section heading */}
                 <h2
-                    className="text-center text-xl sm:text-2xl font-bold mb-6 sm:mb-8 tracking-tight"
-                    style={{ color: brand }}
+                    className={`text-center text-xl sm:text-2xl font-bold mb-6 sm:mb-8 tracking-tight ${isLuxe ? "text-[#d4af37]" : ""}`}
+                    style={isLuxe ? undefined : { color: brand }}
                 >
                     Shop By Category
                 </h2>

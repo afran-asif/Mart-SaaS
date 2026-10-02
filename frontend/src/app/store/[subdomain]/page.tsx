@@ -181,11 +181,11 @@ export default async function StorePage({
             {/* Header — শপ ব্যানার */}
             <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} brandColor={brand} theme={theme} />
 
-            {/* Hero */}
+            {/* Hero — full width edge-to-edge, image full height */}
             {hasHero && (
-                <section className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
+                <section className="w-full">
                     <div
-                        className="relative overflow-hidden rounded-2xl border border-[#181410]/10 flex flex-col sm:flex-row min-h-[320px] sm:min-h-[450px] lg:min-h-[600px]"
+                        className="relative overflow-hidden flex flex-col sm:flex-row min-h-[320px] sm:min-h-[450px] lg:min-h-[600px]"
                         style={{ background: store.heroImage ? undefined : brand }}
                     >
                         {store.heroImage ? (
@@ -197,12 +197,12 @@ export default async function StorePage({
                         ) : null}
                         <div className={`relative z-[1] flex-1 p-6 sm:p-8 lg:p-10 flex flex-col justify-center ${isLuxe ? "text-black" : "text-white"}`}>
                             {store.heroTitle && (
-                                <h2 className={`font-['Fraunces',serif] text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight leading-tight ${isLuxe ? "text-black" : "text-white"}`}>
+                                <h2 className={`font-['Fraunces',serif] text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight leading-tight ${isLuxe ? "text-[#d4af37]" : "text-white"}`}>
                                     {store.heroTitle}
                                 </h2>
                             )}
                             {store.heroSubtitle && (
-                                <p className={`mt-2 sm:mt-3 text-sm sm:text-base leading-relaxed max-w-xl ${isLuxe ? "text-black/80" : "text-white/90"}`}>
+                                <p className={`mt-2 sm:mt-3 text-sm sm:text-base leading-relaxed max-w-xl ${isLuxe ? "text-[#d4af37]/90" : "text-white/90"}`}>
                                     {store.heroSubtitle}
                                 </p>
                             )}
@@ -231,7 +231,7 @@ export default async function StorePage({
                         <h3 className={`font-['Fraunces',serif] text-xl sm:text-2xl font-semibold ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white" : "text-[#181410]"}`}>Best Picks</h3>
                         <span className={`text-xs font-['IBM_Plex_Mono'] tracking-widest uppercase ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>★ {featured.length}</span>
                     </div>
-                    <FeaturedSlider products={featured} brand={brand} />
+                    <FeaturedSlider products={featured} brand={brand} gold={isLuxe} />
                 </section>
             )}
 
