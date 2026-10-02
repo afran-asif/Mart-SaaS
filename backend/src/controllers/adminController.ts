@@ -9,6 +9,7 @@ import { Product } from "../models/Product";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { getEffectivePlan } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
+import { Review } from "../models/Review";
 
 // GET /admin/stores — সব store + vendor + plan + counts
 export const listStores = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -162,6 +163,44 @@ export const impersonateVendor = async (req: AuthenticatedRequest, res: Response
         res.status(200).json({
             success: true,
             url: `${baseUrl}/api/v1/auth/impersonate/cb/${rawToken}`,
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// GET /admin/notifications — unified alerts feed
+export const getNotificationsFeed = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const now = new Date();
+        const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const [pendingSubs, expiringPros, recentReviews] = await Promise.all([
+            Subscription.find({ status: "pending" })
+                .populate("storeId", "storeName subdomain")
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .lean(),
+            Store.find({ plan: "pro", planExpiresAt: { $lte: weekLater } })
+                .select("storeName subdomain planExpiresAt")
+                .sort({ planExpiresAt: 1 })
+                .limit(10)
+                .lean(),
+            Review.find({})
+                .populate("storeId", "storeName subdomain")
+                .populate("productId", "name")
+                .sort({ createdAt: -1 })
+                .limit(10)
+                .select("customerName rating comment verifiedBuyer createdAt storeId productId")
+                .lean(),
+        ]);
+        const pendingCount = await Subscription.countDocuments({ status: "pending" });
+        res.status(200).json({
+            success: true,
+            alerts: {
+                pendingSubs: { count: pendingCount, latest: pendingSubs },
+                expiringPros: { count: expiringPros.length, list: expiringPros },
+                recentReviews: { count: recentReviews.length, list: recentReviews },
+            },
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });

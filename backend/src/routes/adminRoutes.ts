@@ -5,6 +5,7 @@ import {
     setStoreStatus,
     listAllOrders,
     getPlatformStats,
+    getNotificationsFeed,
     impersonateVendor,
 } from "../controllers/adminController";
 import { protect, authorize } from "../middlewares/authMiddleware";
@@ -18,6 +19,7 @@ router.patch("/stores/:id/plan", setStorePlan);
 router.patch("/stores/:id/status", setStoreStatus);
 router.get("/orders", listAllOrders);
 router.get("/stats", getPlatformStats);
+router.get("/notifications", getNotificationsFeed);
 router.post("/stores/:id/impersonate", impersonateVendor);
 
 export default router;

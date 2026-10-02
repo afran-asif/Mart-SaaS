@@ -17,6 +17,84 @@ const validTransitions: Record<string, string[]> = {
     Delivered: [],   // terminal — কোথাও যেতে পারবে না
     Cancelled: [],   // terminal — কোথাও যেতে পারবে না
 };
+// 🔔 Topbar bell — pending orders count (lightweight)
+export const getPendingCount = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const storeId = await getVendorStoreId(req.user._id.toString());
+        if (!storeId) {
+            res.status(200).json({ success: true, count: 0 });
+            return;
+        }
+        const count = await Order.countDocuments({ storeId, status: "Pending" });
+        res.status(200).json({ success: true, count });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed to fetch count" });
+    }
+};
+
+// 🔔 Notifications — unseen pending orders preview (latest 8)
+export const getNotifications = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const storeId = await getVendorStoreId(req.user._id.toString());
+        if (!storeId) {
+            res.status(200).json({ success: true, count: 0, orders: [] });
+            return;
+        }
+        const filter = { storeId, status: "Pending", vendorSeen: { $ne: true } };
+        const [count, orders] = await Promise.all([
+            Order.countDocuments(filter),
+            Order.find(filter)
+                .sort({ createdAt: -1 })
+                .limit(8)
+                .select("customerName totalAmount paymentMethod createdAt")
+                .lean(),
+        ]);
+        res.status(200).json({ success: true, count, orders });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed to fetch notifications" });
+    }
+};
+
+// 👁️ Single notification seen
+export const markOrderSeen = async (req: AuthenticatedRequest, res: Response) => {    try {
+        const storeId = await getVendorStoreId(req.user._id.toString());
+        if (!storeId) {
+            res.status(404).json({ message: "Store not found for this vendor." });
+            return;
+        }
+        const order = await Order.findOneAndUpdate(
+            { _id: req.params.id, storeId },
+            { $set: { vendorSeen: true } },
+            { new: true }
+        ).select("_id");
+        if (!order) {
+            res.status(404).json({ message: "Order not found." });
+            return;
+        }
+        res.status(200).json({ success: true });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed" });
+    }
+};
+
+// 👁️✅ All notifications seen
+export const markAllSeen = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const storeId = await getVendorStoreId(req.user._id.toString());
+        if (!storeId) {
+            res.status(200).json({ success: true, marked: 0 });
+            return;
+        }
+        const result = await Order.updateMany(
+            { storeId, status: "Pending", vendorSeen: { $ne: true } },
+            { $set: { vendorSeen: true } }
+        );
+        res.status(200).json({ success: true, marked: result.modifiedCount || 0 });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Failed" });
+    }
+};
+
 //Fetch only this vendor's orders (with pagination + filters)
 export const getVendorOrders = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -185,6 +263,7 @@ export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response
         }
 
         order.status = status;
+        order.vendorSeen = true; // action নেওয়া মানেই দেখা হয়েছে
         await order.save({ session });
 
         await session.commitTransaction();

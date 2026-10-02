@@ -45,8 +45,7 @@ export interface OrdersQuery {
     page?: number;
     limit?: number;
     status?: string;
-    search?: string;
-}
+    search?: string;}
 
 export interface PaginatedOrders {
     orders: Order[];
@@ -85,4 +84,51 @@ export const createOrder = async (orderData: CreateOrderPayload) => {
 export const updateOrderStatusApi = async (orderId: string, status: string) => {
     const response = await api.patch(`/orders/${orderId}/status`, { status });
     return response.data;
+};
+
+// 🔔 Pending orders count (topbar bell)
+export const getPendingOrderCount = async (): Promise<number> => {
+    try {
+        const response = await api.get("/orders/pending-count");
+        return response.data.count || 0;
+    } catch {
+        return 0;
+    }
+};
+
+export interface OrderNotification {
+    _id: string;
+    customerName: string;
+    totalAmount: number;
+    paymentMethod: string;
+    createdAt: string;
+}
+
+// 🔔 Unseen order notifications preview
+export const getOrderNotifications = async (): Promise<{ count: number; orders: OrderNotification[] }> => {
+    try {
+        const response = await api.get("/orders/notifications");
+        return { count: response.data.count || 0, orders: response.data.orders || [] };
+    } catch {
+        return { count: 0, orders: [] };
+    }
+};
+
+// 👁️ Mark single notification seen
+export const markOrderSeen = async (id: string) => {
+    try {
+        await api.patch(`/orders/${id}/seen`);
+    } catch {
+        // silent
+    }
+};
+
+// 👁️✅ Mark all notifications seen
+export const markAllSeen = async (): Promise<number> => {
+    try {
+        const response = await api.patch("/orders/seen-all");
+        return response.data.marked || 0;
+    } catch {
+        return 0;
+    }
 };

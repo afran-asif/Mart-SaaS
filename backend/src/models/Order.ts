@@ -25,6 +25,7 @@ export interface IOrder extends Document {
     }>;
     emailSent?: boolean;
     vendorNotified?: boolean;
+    vendorSeen?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -83,6 +84,10 @@ const OrderSchema: Schema = new Schema(
             default: false,
         },
         vendorNotified: {
+            type: Boolean,
+            default: false,
+        },
+        vendorSeen: {
             type: Boolean,
             default: false,
         },

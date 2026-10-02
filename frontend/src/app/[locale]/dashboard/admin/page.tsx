@@ -8,14 +8,15 @@ import {
     listSubRequests, approveSubRequest, rejectSubRequest, SubRequest,
     getPlatformStats, PlatformStats, listAdminStores, AdminStore,
     setAdminStorePlan, setAdminStoreStatus, listAdminOrders, impersonateStore,
+    getAdminAlerts, AdminAlerts,
 } from "@/services/adminService";
 
-type MainTab = "requests" | "stores" | "orders";
+type MainTab = "alerts" | "requests" | "stores" | "orders";
 
 export default function LocalizedAdminPage() {
     const { t } = useTranslation();
     const { user } = useSelector((state: any) => state.auth);
-    const [mainTab, setMainTab] = useState<MainTab>("requests");
+    const [mainTab, setMainTab] = useState<MainTab>("alerts");
 
     // requests
     const [requests, setRequests] = useState<SubRequest[]>([]);
@@ -29,6 +30,7 @@ export default function LocalizedAdminPage() {
     const [orderTotal, setOrderTotal] = useState(0);
     // stats
     const [stats, setStats] = useState<PlatformStats | null>(null);
+    const [alerts, setAlerts] = useState<AdminAlerts | null>(null);
 
     const [loading, setLoading] = useState(true);
     const [acting, setActing] = useState<string | null>(null);
@@ -38,17 +40,19 @@ export default function LocalizedAdminPage() {
     const fetchAll = useCallback(async () => {
         setLoading(true);
         try {
-            const [s, r, st, o] = await Promise.all([
+            const [s, r, st, o, a] = await Promise.all([
                 getPlatformStats(),
                 listSubRequests(reqTab),
                 listAdminStores(search),
                 listAdminOrders(orderPage),
+                getAdminAlerts(),
             ]);
             setStats(s);
             setRequests(r);
             setStores(st);
             setOrders(o.orders);
             setOrderTotal(o.total);
+            setAlerts(a);
         } catch (error: any) {
             toast.error(error.message || "Failed to load admin data.");
         } finally {
@@ -175,8 +179,8 @@ export default function LocalizedAdminPage() {
             </div>
 
             {/* Main tabs */}
-            <div className="flex gap-2">
-                {(["requests", "stores", "orders"] as MainTab[]).map((m) => (
+            <div className="flex gap-2 overflow-x-auto">
+                {(["alerts", "requests", "stores", "orders"] as MainTab[]).map((m) => (
                     <button
                         key={m}
                         onClick={() => setMainTab(m)}
@@ -193,6 +197,82 @@ export default function LocalizedAdminPage() {
                 <p className="text-gray-600 p-4 bg-white rounded-2xl border border-gray-100">{t("dashboard.adminPage.loading")}</p>
             ) : (
                 <>
+                    {/* ALERTS */}
+                    {mainTab === "alerts" && (
+                        <div className="space-y-4">
+                            {/* Pending subscriptions */}
+                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-sm font-bold text-gray-900">{t("dashboard.adminPage.alertSubs")}</h3>
+                                    {alerts && alerts.pendingSubs.count > 0 && (
+                                        <button onClick={() => setMainTab("requests")} className="text-[11px] font-bold text-orange-600 hover:underline">
+                                            {t("dashboard.adminPage.review")} →
+                                        </button>
+                                    )}
+                                </div>
+                                {!alerts || alerts.pendingSubs.latest.length === 0 ? (
+                                    <p className="text-xs text-gray-400">{t("dashboard.adminPage.allClear")}</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {alerts.pendingSubs.latest.map((r: any) => (
+                                            <div key={r._id} className="flex items-center justify-between gap-2 text-sm bg-amber-50/60 border border-amber-100 rounded-xl px-3 py-2">
+                                                <span className="font-semibold text-gray-800 truncate">
+                                                    {(r.storeId as any)?.storeName || ""} <span className="font-mono font-normal text-gray-500">({(r.storeId as any)?.subdomain || ""})</span>
+                                                </span>
+                                                <span className="font-mono font-bold text-orange-600 shrink-0">৳{r.amount}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Expiring pro */}
+                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                                <h3 className="text-sm font-bold text-gray-900 mb-3">{t("dashboard.adminPage.alertExpiring")}</h3>
+                                {!alerts || alerts.expiringPros.list.length === 0 ? (
+                                    <p className="text-xs text-gray-400">{t("dashboard.adminPage.allClear")}</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {alerts.expiringPros.list.map((s: any) => {
+                                            const expired = s.planExpiresAt && new Date(s.planExpiresAt) < new Date();
+                                            return (
+                                                <div key={s._id} className={`flex items-center justify-between gap-2 text-sm border rounded-xl px-3 py-2 ${expired ? "bg-red-50/60 border-red-100" : "bg-gray-50 border-gray-100"}`}>
+                                                    <span className="font-semibold text-gray-800 truncate">{s.storeName} <span className="font-mono font-normal text-gray-500">({s.subdomain})</span></span>
+                                                    <span className={`text-xs font-semibold shrink-0 ${expired ? "text-red-600" : "text-amber-700"}`}>
+                                                        {expired ? t("dashboard.adminPage.expired") : new Date(s.planExpiresAt).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Recent reviews */}
+                            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                                <h3 className="text-sm font-bold text-gray-900 mb-3">{t("dashboard.adminPage.alertReviews")}</h3>
+                                {!alerts || alerts.recentReviews.list.length === 0 ? (
+                                    <p className="text-xs text-gray-400">{t("dashboard.adminPage.allClear")}</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {alerts.recentReviews.list.map((r: any) => (
+                                            <div key={r._id} className="text-sm bg-gray-50 border border-gray-100 rounded-xl px-3 py-2">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="font-semibold text-gray-800 truncate">{r.customerName}</span>
+                                                    <span className="text-amber-500 text-xs shrink-0">{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
+                                                </div>
+                                                <p className="text-xs text-gray-500 truncate mt-0.5">
+                                                    {(r.productId as any)?.name || ""} · {(r.storeId as any)?.subdomain || ""}
+                                                </p>
+                                                {r.comment && <p className="text-xs text-gray-600 mt-1 truncate">{r.comment}</p>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* REQUESTS */}
                     {mainTab === "requests" && (
                         <div className="space-y-4">

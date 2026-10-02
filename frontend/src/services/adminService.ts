@@ -88,3 +88,14 @@ export const impersonateStore = async (id: string): Promise<string> => {
     const res = await api.post(`/admin/stores/${id}/impersonate`);
     return res.data.url as string;
 };
+
+export interface AdminAlerts {
+    pendingSubs: { count: number; latest: any[] };
+    expiringPros: { count: number; list: any[] };
+    recentReviews: { count: number; list: any[] };
+}
+
+export const getAdminAlerts = async (): Promise<AdminAlerts> => {
+    const res = await api.get("/admin/notifications");
+    return res.data.alerts as AdminAlerts;
+};
