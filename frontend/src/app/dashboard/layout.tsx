@@ -120,7 +120,11 @@ const menuItems = [
             >
                 <div className="p-6 flex flex-col min-h-0 flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold text-orange-600">Vendoo</h2>
+                        <div className="flex items-center gap-2">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="/favicon.ico" alt="Vendoo" className="w-8 h-8 rounded-lg shadow-md shadow-orange-500/20" />
+                            <h2 className="text-2xl font-bold text-orange-600">Vendoo</h2>
+                        </div>
                         {/* Close button (mobile only) */}
                         <button
                             className="lg:hidden text-gray-400 hover:text-gray-700 text-2xl leading-none"
@@ -129,7 +133,6 @@ const menuItems = [
                             ×
                         </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{t("dashboard.shop")}: {store?.storeName || "My Store"}</p>
 
                     <nav className="mt-8 space-y-2 overflow-y-auto min-h-0 flex-1 pr-1">
                         {menuItems.map((item: any) => {
@@ -201,9 +204,20 @@ const menuItems = [
                                 </Link>
                             );
                         })}
-                    </nav>
+</nav>
                 </div>
 
+                <div className="p-4 border-t border-gray-200 shrink-0">
+                    <div className="flex items-center gap-3 px-2">
+                        <span className="w-9 h-9 rounded-lg bg-orange-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                            {(user?.name || user?.email || "V").charAt(0).toUpperCase()}
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-800 truncate">{user?.name || t("dashboard.vendor")}</p>
+                            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                        </div>
+                    </div>
+                </div>
             </aside>
 
             {/* Main content area */}

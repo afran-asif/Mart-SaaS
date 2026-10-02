@@ -59,27 +59,27 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
                             <img
                                 src={storeLogo}
                                 alt={storeName}
-                                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-[#0E3B2C] ring-offset-2 ring-offset-[#FFFDF7]"
+                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg object-cover ring-1 ring-gray-200 shadow-sm"
                             />
                         ) : (
                             <div
-                                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#FFFDF7] font-['Fraunces',serif] font-semibold text-xl"
+                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center text-[#FFFDF7] font-['Fraunces',serif] font-semibold text-lg ring-1 ring-gray-200 shadow-sm"
                                 style={{ background: brandColor || "#0E3B2C" }}
                             >
                                 {storeName?.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <div>
-                            <h1 className={`font-['Fraunces',serif] font-semibold text-xl sm:text-2xl leading-tight tracking-tight ${titleColor}`}>
+                        <div className="pb-1">
+                            <h1 className={`font-['Fraunces',serif] font-semibold text-lg sm:text-xl leading-tight tracking-tight mt-0.5 ${titleColor}`}>
                                 {storeName}
                             </h1>
-                            <div className="flex items-center gap-1.5 mt-1">
+                            <div className="flex items-center gap-1.5 mt-0.5">
                                 <span className="relative flex w-1.5 h-1.5">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1F9D55] opacity-60" />
                                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#1F9D55]" />
                                 </span>
-                                <span className={`font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.14em] ${subColor}`}>
-                                    Open now
+                                <span className={`text-xs ${subColor}`}>
+                                    Active
                                 </span>
                             </div>
                         </div>

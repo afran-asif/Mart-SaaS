@@ -10,18 +10,6 @@ import { getOrderNotifications, markOrderSeen, markAllSeen, OrderNotification } 
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
-const TITLE_KEYS: Array<{ match: string; key: string }> = [
-    { match: "/settings", key: "dashboard.storeSettings" },
-    { match: "/products", key: "dashboard.myProducts" },
-    { match: "/categories", key: "dashboard.categories" },
-    { match: "/orders", key: "dashboard.orders" },
-    { match: "/customers", key: "dashboard.customers" },
-    { match: "/coupons", key: "dashboard.coupons" },
-    { match: "/reviews", key: "dashboard.reviews" },
-    { match: "/billing", key: "dashboard.billing" },
-    { match: "/admin", key: "dashboard.admin" },
-];
-
 export default function DashboardTopbar({
     onMenuClick,
     basePath,
@@ -36,14 +24,11 @@ export default function DashboardTopbar({
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const { user, store } = useSelector((state: any) => state.auth);
-    const [pending, setPending] = useState(0);
-    const [notifs, setNotifs] = useState<OrderNotification[]>([]);
+    const [pending, setPending] = useState(0);    const [notifs, setNotifs] = useState<OrderNotification[]>([]);
     const [bellOpen, setBellOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLDivElement>(null);
-
-    const titleKey = TITLE_KEYS.find((m) => pathname.includes(m.match))?.key || "dashboard.overview";
 
     useEffect(() => {
         let cancelled = false;
@@ -121,11 +106,23 @@ export default function DashboardTopbar({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <h1 className="text-base sm:text-lg font-bold text-gray-900 truncate">{t(titleKey)}</h1>
-                <span
-                    className={`w-2 h-2 rounded-full shrink-0 ${store?.status === "suspended" ? "bg-red-500" : "bg-green-500"}`}
-                    title={store?.status || "active"}
-                />
+                <h1 className="flex items-center gap-2 min-w-0">
+                    {(store as any)?.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={(store as any).logo}
+                            alt={store?.storeName || ""}
+                            className="w-7 h-7 rounded-lg object-cover ring-1 ring-gray-200 shrink-0"
+                        />
+                    ) : (
+                        <span className="w-7 h-7 rounded-lg bg-orange-600 text-white font-bold text-xs flex items-center justify-center shrink-0 ring-1 ring-orange-700/30">
+                            {(store?.storeName || user?.name || "S").charAt(0).toUpperCase()}
+                        </span>
+                    )}
+                    <span className="text-sm sm:text-base font-bold text-gray-900">
+                        {store?.storeName || user?.name || ""}
+                    </span>
+                </h1>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-3">
@@ -213,6 +210,13 @@ export default function DashboardTopbar({
                                     <p className="text-xs text-orange-600 font-medium truncate mt-0.5">{store.storeName}</p>
                                 )}
                             </div>
+                            <Link
+                                href={`${basePath}/profile`}
+                                onClick={() => setMenuOpen(false)}
+                                className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                                {t("dashboard.profile")}
+                            </Link>
                             <Link
                                 href={`${basePath}/billing`}
                                 onClick={() => setMenuOpen(false)}

@@ -271,6 +271,7 @@
     },
     "storeSettings": "স্টোর সেটিংস",
     "signOut": "সাইন আউট",
+    "profile": "প্রোফাইল",
     "pendingOrders": "পেন্ডিং অর্ডার",
     "newNotifications": "নতুন অর্ডার",
     "markAllSeen": "সব দেখা হয়েছে",
@@ -518,6 +519,25 @@
       "statusRejected": "বাতিল",
       "rejectReason": "কারণ",
       "history": "পেমেন্ট হিস্ট্রি"
+    },
+    "profilePage": {
+      "title": "প্রোফাইল",
+      "subtitle": "আপনার ব্যক্তিগত অ্যাকাউন্ট তথ্য।",
+      "loading": "প্রোফাইল লোড হচ্ছে...",
+      "fullName": "পুরো নাম",
+      "email": "ইমেইল",
+      "emailLocked": "ইমেইল আপনার লগইন পরিচয়, বদলানো যায় না।",
+      "save": "সেভ করুন",
+      "nameRequired": "নাম দিতে হবে।",
+      "profileUpdated": "প্রোফাইল আপডেট হয়েছে।",
+      "changePassword": "পাসওয়ার্ড বদলান",
+      "currentPassword": "বর্তমান পাসওয়ার্ড",
+      "newPassword": "নতুন পাসওয়ার্ড",
+      "confirmPassword": "নতুন পাসওয়ার্ড নিশ্চিত করুন",
+      "updatePassword": "পাসওয়ার্ড আপডেট",
+      "mismatch": "নতুন পাসওয়ার্ড মিলছে না।",
+      "minLength": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।",
+      "passwordChanged": "পাসওয়ার্ড বদলে গেছে।"
     },
     "reviewsPage": {
       "title": "রিভিউ",

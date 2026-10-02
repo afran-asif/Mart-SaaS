@@ -24,6 +24,16 @@ export const fetchMe = async () => {
     return response.data;
 }
 
+export const updateProfile = async (name: string) => {
+    const response = await api.put("/auth/profile", { name });
+    return response.data;
+}
+
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+    const response = await api.put("/auth/change-password", { currentPassword, newPassword });
+    return response.data;
+}
+
 export const verifyEmailToken = async (token: string) => {
     const response = await api.get(`/auth/verify-email/${token}`);
     return response.data;

@@ -44,6 +44,61 @@ export const logoutUser = async (_req: Request, res: Response): Promise<void> =>
     res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
+// ✏️ Personal info update (name only — email login identity, বদলানো যায় না)
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = await User.findById((req as any).user._id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        const { name } = req.body as { name?: string };
+        if (!name?.trim()) {
+            res.status(400).json({ message: 'Name is required' });
+            return;
+        }
+        user.name = name.trim().slice(0, 60);
+        await user.save();
+        res.status(200).json({
+            success: true,
+            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// 🔑 Password change (current verify + min 8)
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = await User.findById((req as any).user._id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        const { currentPassword, newPassword } = req.body as { currentPassword?: string; newPassword?: string };
+        if (!currentPassword || !newPassword) {
+            res.status(400).json({ message: 'Current and new password are required' });
+            return;
+        }
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            res.status(400).json({ message: 'Current password is incorrect' });
+            return;
+        }
+        if (newPassword.length < 8) {
+            res.status(400).json({ message: 'Password must be at least 8 characters long' });
+            return;
+        }
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+        res.status(200).json({ success: true, message: 'Password changed successfully' });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
 export const getMe = async (req: Request, res: Response): Promise<void> => {
     try {
         const user = (req as any).user;
@@ -64,8 +119,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
 };
 
 // GET /auth/impersonate/cb/:token — one-time link → vendor session cookie + dashboard redirect
-export const impersonateCallback = async (req: Request, res: Response): Promise<void> => {
-    try {
+export const impersonateCallback = async (req: Request, res: Response): Promise<void> => {    try {
         const rawToken = (req.params.token as string) || "";
         const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
         const entry = await ImpersonationLog.findOne({
