@@ -76,7 +76,7 @@ export default async function CategoryPage({
     const isLuxe = isLuxeTheme(theme);
 
     return (
-        <div className={`min-h-screen ${bg}`}>
+        <div className={`min-h-screen overflow-x-clip ${bg}`}>
             <StorefrontHeader
                 variant="home"
                 storeName={store.storeName}

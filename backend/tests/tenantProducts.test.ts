@@ -61,4 +61,18 @@ describe("tenant products pagination", () => {
         expect(r.status).toBe(200);
         expect(r.body.total).toBe(3);
     });
+
+    test("random sort returns sample with total", async () => {
+        const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ sort: "random", limit: 12 });
+        expect(r.status).toBe(200);
+        expect(r.body.products.length).toBeLessThanOrEqual(12);
+        expect(r.body.total).toBe(30);
+    });
+
+    test("random sort never returns empty when products exist ($match cast regression)", async () => {
+        for (let i = 0; i < 3; i++) {
+            const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ sort: "random", limit: 12 });
+            expect(r.body.products.length).toBeGreaterThan(0);
+        }
+    });
 });

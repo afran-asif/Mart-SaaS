@@ -89,7 +89,7 @@ async function getStoreData(subdomain: string) {
             headers: { "X-Tenant-Subdomain": subdomain },
             cache: "no-store",
         }),
-        fetch(`${baseUrl}/tenant/products?page=1&limit=24`, {
+        fetch(`${baseUrl}/tenant/products?sort=random&limit=12`, {
             headers: { "X-Tenant-Subdomain": subdomain },
             cache: "no-store",
         }),
@@ -173,7 +173,7 @@ export default async function StorePage({
     };
 
     return (
-        <div className={`min-h-screen ${themeBg[theme] || themeBg.classic}`}>
+        <div className={`min-h-screen overflow-x-clip ${themeBg[theme] || themeBg.classic}`}>
             {/* Header — শপ ব্যানার */}
             <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} brandColor={brand} theme={theme} />
 
@@ -233,7 +233,7 @@ export default async function StorePage({
 
 {/* Product Grid + Category filter */}
             <main id="collection" className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-                <StoreCollection initialProducts={products} total={total} categories={categories} theme={theme} brand={brand} />
+                <StoreCollection initialProducts={products} total={total} categories={categories} theme={theme} brand={brand} moreHref="/products" moreLabel="More products →" />
             </main>
 
             {/* Track order button (commented out)

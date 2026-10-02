@@ -123,7 +123,7 @@ export default function ShopByCategory({
                 ) : (
                     /* Coverflow — same DOM slide করে, loop-এ teleport invisible */
                     <div
-                        className="relative mx-auto h-[140px] sm:h-[156px] max-w-full"
+                        className="relative mx-auto h-[140px] sm:h-[156px] max-w-full overflow-hidden"
                         onMouseEnter={() => setPaused(true)}
                         onMouseLeave={() => setPaused(false)}
                         onTouchStart={() => setPaused(true)}

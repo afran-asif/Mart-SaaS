@@ -30,6 +30,9 @@ interface StoreCollectionProps {
     activeCategory?: string | null;
     /** load-more fetch-এ category filter (category page-এর জন্য) */
     category?: string | null;
+    /** দিলে infinite-scroll-এর বদলে "More" link button (home-এর জন্য) */
+    moreHref?: string;
+    moreLabel?: string;
 }
 
 const PAGE_SIZE = 24;
@@ -43,6 +46,8 @@ export default function StoreCollection({
     title,
     activeCategory = null,
     category = null,
+    moreHref,
+    moreLabel,
 }: StoreCollectionProps) {
     // page-wise batches — নতুন batch আলাদা wrapper-এ, entry animation-সহ
     const [pages, setPages] = useState<Product[][]>([initialProducts]);
@@ -79,8 +84,9 @@ export default function StoreCollection({
         }
     }, [category]);
 
-    // Infinite scroll — sentinel viewport-এ এলে auto-load
+    // Infinite scroll — sentinel viewport-এ এলে auto-load (moreHref থাকলে link mode)
     useEffect(() => {
+        if (moreHref) return;
         const el = sentinelRef.current;
         if (!el || !hasMore) return;
         const observer = new IntersectionObserver(
@@ -93,7 +99,7 @@ export default function StoreCollection({
         );
         observer.observe(el);
         return () => observer.disconnect();
-    }, [loadMore, hasMore, loadedCount]);
+    }, [loadMore, hasMore, loadedCount, moreHref]);
 
     return (
         <>
@@ -173,7 +179,7 @@ export default function StoreCollection({
                     ))}
 
                     {/* Sentinel — নিচে গেলেই auto-load + shimmer */}
-                    {hasMore && (
+                    {hasMore && !moreHref && (
                         <div ref={sentinelRef} className="mt-4 sm:mt-7">
                             {loadingMore ? (
                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-7">
@@ -190,6 +196,19 @@ export default function StoreCollection({
                             ) : (
                                 <div className="h-4" />
                             )}
+                        </div>
+                    )}
+
+                    {/* More-link mode (home) */}
+                    {moreHref && (
+                        <div className="flex justify-center mt-8 sm:mt-10">
+                            <Link
+                                href={moreHref}
+                                className="px-8 py-3 rounded-xl text-sm font-bold shadow-md transition-all active:scale-95 touch-manipulation"
+                                style={{ background: brand, color: "#fff" }}
+                            >
+                                {moreLabel || "More products →"}
+                            </Link>
                         </div>
                     )}
                 </>

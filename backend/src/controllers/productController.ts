@@ -1,5 +1,6 @@
 // src/controllers/productController.ts
 import { Response } from "express";
+import mongoose from "mongoose";
 import { Product } from "../models/Product";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
@@ -256,9 +257,25 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
 
         // pagination — কোনো param না দিলে সব (sitemap/backward-compat)
         const hasPage = !!(req.query.page || req.query.limit);
-        if (!hasPage && !req.query.category && req.query.featured !== "true") {
+        if (!hasPage && !req.query.category && req.query.featured !== "true" && req.query.sort !== "random") {
             const products = await Product.find({ storeId }).sort({ createdAt: -1 });
             res.status(200).json({ success: true, count: products.length, products });
+            return;
+        }
+
+        // 🎲 random picks (storefront home) — $sample
+        // NOTE: aggregation-এ auto-cast হয় না, storeId ObjectId-তে convert must
+        if (req.query.sort === "random") {
+            const size = Math.min(24, Math.max(1, parseInt(req.query.limit as string) || 12));
+            const matchStage: Record<string, unknown> = {
+                storeId: new mongoose.Types.ObjectId(storeId as string),
+            };
+            if (filter.category) matchStage.category = filter.category;
+            const [total, products] = await Promise.all([
+                Product.countDocuments(filter),
+                Product.aggregate([{ $match: matchStage }, { $sample: { size } }]),
+            ]);
+            res.status(200).json({ success: true, count: products.length, total, products });
             return;
         }
 
