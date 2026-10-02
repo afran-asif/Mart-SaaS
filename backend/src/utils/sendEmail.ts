@@ -207,6 +207,130 @@ const getResend = (): Resend | null => {
     return new Resend(apiKey);
 };
 
+interface VendorAlertData {
+    vendorEmail: string;
+    vendorName: string;
+    orderId: string;
+    storeName: string;
+    customerName: string;
+    phone?: string;
+    totalAmount: number;
+    paymentMethod: string;
+    items: Array<{ name: string; quantity: number; price: number }>;
+}
+
+// 🔔 Vendor-কে নতুন অর্ডারের alert
+export const sendNewOrderAlertEmail = async (data: VendorAlertData) => {
+    try {
+        const resend = getResend();
+        if (!resend) return;
+
+        const itemRows = data.items
+            .map(
+                (item) => `
+                <tr>
+                    <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #1a1a1a;">${item.name} × ${item.quantity}</td>
+                    <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #1a1a1a; text-align: right;">৳${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>`
+            )
+            .join("");
+
+        const html = `
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>নতুন অর্ডার</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+    <tr>
+        <td style="background: linear-gradient(135deg, #0E3B2C 0%, #1a5c46 100%); padding: 32px 40px; text-align: center;">
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1.5px;">🔔 নতুন অর্ডার এসেছে</p>
+            <h1 style="margin: 0; font-size: 24px; color: #ffffff; font-weight: 700;">${data.storeName}</h1>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 0 40px;">
+            <p style="margin: 0; font-size: 15px; color: #374151;">প্রিয় <strong>${data.vendorName}</strong>,</p>
+            <p style="margin: 10px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.7;">আপনার স্টোরে একটি নতুন অর্ডার এসেছে। দ্রুত প্রসেস করুন!</p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 0 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="48%" valign="top" style="background-color: #f9fafb; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e7eb;">
+                        <p style="margin: 0 0 4px 0; font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">অর্ডার আইডি</p>
+                        <p style="margin: 0; font-family: 'Courier New', Courier, monospace; font-size: 11px; font-weight: 700; color: #111827; word-break: break-all;">${data.orderId}</p>
+                    </td>
+                    <td width="4%"></td>
+                    <td width="48%" valign="top" style="background-color: #f9fafb; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e7eb;">
+                        <p style="margin: 0 0 4px 0; font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px;">সর্বমোট</p>
+                        <p style="margin: 0; font-size: 20px; font-weight: 800; color: #0E3B2C;">৳${data.totalAmount.toFixed(2)}</p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 0 40px;">
+            <p style="margin: 0 0 12px 0; font-size: 12px; font-weight: 700; color: #111827; text-transform: uppercase; letter-spacing: 0.5px;">গ্রাহক ও পণ্য</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                <tbody>
+                    <tr>
+                        <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #374151;">👤 ${data.customerName}${data.phone ? ` (${data.phone})` : ""}</td>
+                        <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 12px; color: #6b7280; text-align: right;">${data.paymentMethod === "COD" ? "COD" : "Online Paid"}</td>
+                    </tr>
+                    ${itemRows}
+                </tbody>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 36px 40px; text-align: center;">
+            <p style="margin: 0 0 6px 0; font-size: 14px; color: #374151; font-weight: 600;">ড্যাশবোর্ডে গিয়ে অর্ডারটি প্রসেস করুন।</p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+        </td>
+    </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+        const response = await resend.emails.send({
+            from: "Vendoo <noreply@vendoo.shop>",
+            to: data.vendorEmail,
+            subject: `🔔 নতুন অর্ডার — ${data.storeName} (৳${data.totalAmount.toFixed(2)})`,
+            html,
+        });
+
+        if (response.error) {
+            console.error("❌ [RESEND API ERROR]:", {
+                message: response.error.message,
+                name: response.error.name,
+                to: data.vendorEmail,
+            });
+            throw new Error(response.error.message);
+        } else {
+            console.log("✅ [RESEND SUCCESS] Vendor alert sent to", data.vendorEmail, "ID:", response.data?.id);
+        }
+    } catch (error) {
+        console.error("❌ [EMAIL EXCEPTION]:", error);
+        throw error;
+    }
+};
+
 export const sendVerificationEmail = async (data: { to: string; name: string; verifyUrl: string }) => {
     try {
         const resend = getResend();

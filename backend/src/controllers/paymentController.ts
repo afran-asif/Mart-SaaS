@@ -4,7 +4,8 @@ import Order from "../models/Order";
 import { Store } from "../models/Store";
 import { Product } from "../models/Product";
 import { decrypt } from "../utils/encryption";
-import { sendOrderConfirmationEmail } from "../utils/sendEmail";
+import { sendOrderConfirmationEmail, sendNewOrderAlertEmail } from "../utils/sendEmail";
+import { User } from "../models/User";
 import { Coupon } from "../models/Coupon";
 import { getDeliveryCharge, BD_DISTRICTS, isValidThana } from "../utils/deliveryCharges";
 import { checkMonthlyOrderLimit, getEffectivePlan } from "../utils/plan";
@@ -37,32 +38,59 @@ const redirectBase = (order: { orderHost?: string } | null, subdomain: string): 
 const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: Types.ObjectId | string) => {
     try {
         const order = await Order.findById(orderId).populate("items.product", "name");
-        if (!order || order.emailSent) {
+        if (!order) {
             return;
         }
 
         const store = await Store.findById(storeId);
 
-        await sendOrderConfirmationEmail({
-            customerEmail: order.customerEmail,
-            customerName: order.customerName,
-            orderId: order._id.toString(),
-            storeName: store?.storeName || "Vendoo",
-            totalAmount: order.totalAmount,
-            shippingAddress: order.shippingAddress,
-            shippingDistrict: order.shippingDistrict,
-            thana: order.thana,
-            paymentMethod: order.paymentMethod || "SSLCommerz",
-            items: (order.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
-                const prod = item.product;
-                const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
-                return { name, quantity: item.quantity, price: item.price };
-            }),
-        });
+        if (!order.emailSent) {
+            await sendOrderConfirmationEmail({
+                customerEmail: order.customerEmail,
+                customerName: order.customerName,
+                orderId: order._id.toString(),
+                storeName: store?.storeName || "Vendoo",
+                totalAmount: order.totalAmount,
+                shippingAddress: order.shippingAddress,
+                shippingDistrict: order.shippingDistrict,
+                thana: order.thana,
+                paymentMethod: order.paymentMethod || "SSLCommerz",
+                items: (order.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
+                    const prod = item.product;
+                    const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
+                    return { name, quantity: item.quantity, price: item.price };
+                }),
+            });
 
-        order.emailSent = true;
-        await order.save();
-        console.log(`✅ [EMAIL SUCCESS] Order confirmation email dispatched and saved for order ${order._id}`);
+            order.emailSent = true;
+            await order.save();
+            console.log(`✅ [EMAIL SUCCESS] Order confirmation email dispatched and saved for order ${order._id}`);
+        }
+
+        // 🔔 Vendor new-order alert (store flag ON থাকলে, একবারই)
+        if (!order.vendorNotified && (store as any)?.emailNotifications?.newOrderAlert !== false) {
+            const vendor = await User.findById(order.vendorId).select("email name");
+            if (vendor?.email) {
+                await sendNewOrderAlertEmail({
+                    vendorEmail: vendor.email,
+                    vendorName: vendor.name || "Vendor",
+                    orderId: order._id.toString(),
+                    storeName: store?.storeName || "Vendoo",
+                    customerName: order.customerName,
+                    phone: order.phone || undefined,
+                    totalAmount: order.totalAmount,
+                    paymentMethod: order.paymentMethod || "SSLCommerz",
+                    items: (order.items || []).map((item: { product: Types.ObjectId | { _id: Types.ObjectId; name: string }; quantity: number; price: number }) => {
+                        const prod = item.product;
+                        const name = prod && typeof prod === "object" && "name" in prod ? (prod as { name: string }).name : "পণ্য";
+                        return { name, quantity: item.quantity, price: item.price };
+                    }),
+                });
+                order.vendorNotified = true;
+                await order.save();
+                console.log(`✅ [EMAIL SUCCESS] Vendor alert dispatched for order ${order._id}`);
+            }
+        }
     } catch (error) {
         console.error("❌ [EMAIL ERROR] Failed to send order confirmation email:", error);
     }

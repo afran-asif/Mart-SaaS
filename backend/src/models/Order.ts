@@ -24,6 +24,7 @@ export interface IOrder extends Document {
         price: number;
     }>;
     emailSent?: boolean;
+    vendorNotified?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -78,6 +79,10 @@ const OrderSchema: Schema = new Schema(
         couponCode: { type: String, default: null, trim: true, uppercase: true },
         discountAmount: { type: Number, default: 0, min: 0 },
         emailSent: {
+            type: Boolean,
+            default: false,
+        },
+        vendorNotified: {
             type: Boolean,
             default: false,
         },

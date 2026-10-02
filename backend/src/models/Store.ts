@@ -27,6 +27,9 @@ export interface IStore extends Document {
     customDomainVerificationCode?: string | null;
     plan?: "free" | "pro";
     planExpiresAt?: Date | null;
+    emailNotifications?: {
+        newOrderAlert?: boolean;
+    };
 }
 
 const storeSchema = new Schema<IStore>(
@@ -153,6 +156,9 @@ theme: {
         planExpiresAt: {
             type: Date,
             default: null,
+        },
+        emailNotifications: {
+            newOrderAlert: { type: Boolean, default: true },
         },
     },
     { timestamps: true }
