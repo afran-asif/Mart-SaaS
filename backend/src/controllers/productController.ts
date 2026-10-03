@@ -286,11 +286,20 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
 
         // pagination — কোনো param না দিলে সব (sitemap/backward-compat)
         const hasPage = !!(req.query.page || req.query.limit);
+        const sortParam = req.query.sort as string | undefined;
+        // price sort — ?sort=price-asc | price-desc | newest (default)
+        const priceSort: Record<string, 1 | -1> =
+            sortParam === "price-asc"
+                ? { price: 1 }
+                : sortParam === "price-desc"
+                ? { price: -1 }
+                : { createdAt: -1 };
         if (
             !hasPage &&
             !req.query.category &&
             req.query.featured !== "true" &&
             req.query.sort !== "random" &&
+            !sortParam &&
             !req.query.search
         ) {
             const products = await Product.find({ storeId }).sort({ createdAt: -1 });
@@ -320,7 +329,7 @@ export const getTenantProducts = async (req: TenantRequest, res: Response): Prom
         const [total, products] = await Promise.all([
             Product.countDocuments(filter),
             Product.find(filter)
-                .sort({ createdAt: -1 })
+                .sort(priceSort)
                 .skip((page - 1) * limit)
                 .limit(limit),
         ]);

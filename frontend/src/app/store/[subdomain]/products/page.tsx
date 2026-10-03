@@ -99,7 +99,7 @@ export default async function AllProductsPage({
                 theme={theme}
             />
 
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <nav className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase mb-6 ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
                     <Link href="/" className="hover:underline underline-offset-4">Home</Link>
                     <span className="mx-2">/</span>
@@ -117,11 +117,12 @@ export default async function AllProductsPage({
                     brand={brand}
                     title={search ? `Results for "${search}"` : "All Products"}
                     search={search}
+                    controls
                 />
             </main>
 
             <footer className={`border-t mt-4 ${isDark ? "border-white/10" : "border-[#C6A15B]/30"}`}>
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <Link
                         href="/"
                         className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase underline-offset-4 hover:underline ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/70" : "text-[#0E3B2C]"}`}

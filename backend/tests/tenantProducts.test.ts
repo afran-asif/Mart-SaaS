@@ -88,4 +88,26 @@ describe("tenant products pagination", () => {
         expect(r.status).toBe(200);
         expect(r.body.products).toHaveLength(11); // P2, P20..P29
     });
+
+    test("price-asc sorts low → high", async () => {
+        const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ sort: "price-asc", page: 1, limit: 30 });
+        expect(r.status).toBe(200);
+        const prices = r.body.products.map((p: any) => p.price);
+        expect(prices).toEqual([...prices].sort((a, b) => a - b));
+        expect(prices[0]).toBe(100);
+    });
+
+    test("price-desc sorts high → low", async () => {
+        const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ sort: "price-desc", page: 1, limit: 30 });
+        expect(r.status).toBe(200);
+        const prices = r.body.products.map((p: any) => p.price);
+        expect(prices).toEqual([...prices].sort((a, b) => b - a));
+        expect(prices[0]).toBe(129);
+    });
+
+    test("price sort works without page params (sort bypasses bare-all)", async () => {
+        const r = await tenant(request(app).get("/api/v1/tenant/products")).query({ sort: "price-desc" });
+        expect(r.status).toBe(200);
+        expect(r.body.products[0].price).toBe(129);
+    });
 });

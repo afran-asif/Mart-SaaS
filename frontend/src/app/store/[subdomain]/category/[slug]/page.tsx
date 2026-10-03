@@ -105,6 +105,7 @@ export default async function CategoryPage({
                     title={categoryName}
                     activeCategory={categoryName}
                     category={categoryName}
+                    controls
                 />
             </main>
 
