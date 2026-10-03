@@ -35,7 +35,7 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
         if (req.files && Array.isArray(req.files) && req.files.length > 0) {
             // প্রতিটি ফাইল Cloudinary-তে প্যারালেলে আপলোড করা হচ্ছে
             const uploadPromises = (req.files as Express.Multer.File[]).map((file) =>
-                uploadToCloudinary(file.path)
+                uploadToCloudinary(file.path, "vendoo-products", [{ width: 900, crop: "limit", quality: "auto", fetch_format: "auto" }])
             );
             productImages = await Promise.all(uploadPromises);
         }
@@ -160,7 +160,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
         // Upload new files to Cloudinary if provided
         if (req.files && Array.isArray(req.files) && req.files.length > 0) {
             const uploadPromises = (req.files as Express.Multer.File[]).map((file) =>
-                uploadToCloudinary(file.path)
+                uploadToCloudinary(file.path, "vendoo-products", [{ width: 900, crop: "limit", quality: "auto", fetch_format: "auto" }])
             );
             const newUploadedImages = await Promise.all(uploadPromises);
             finalImages = [...finalImages, ...newUploadedImages];

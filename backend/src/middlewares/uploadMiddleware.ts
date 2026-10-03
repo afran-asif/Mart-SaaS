@@ -50,7 +50,8 @@ export const upload = multer({
 export const deleteFromCloudinary = async (imageUrl: string | null | undefined): Promise<void> => {
     try {
         if (!imageUrl || !imageUrl.includes("res.cloudinary.com")) return;
-        const match = imageUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/);
+        // transform flags ও যাই থাকুক, শেষ /v<N>/ এর পরের অংশই public_id (folder সহ)
+        const match = imageUrl.match(/\/v\d+\/(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/);
         if (!match) return;
         await cloudinary.uploader.destroy(match[1]);
     } catch (error) {
@@ -58,10 +59,15 @@ export const deleteFromCloudinary = async (imageUrl: string | null | undefined):
     }
 };
 // 🚀 Cloudinary-তে ফাইল আপলোড করার হেল্পার ফাংশন
-export const uploadToCloudinary = async (localFilePath: string): Promise<string> => {
+export const uploadToCloudinary = async (
+    localFilePath: string,
+    folder = "vendoo-products",
+    transformation: { width?: number; crop?: string; quality?: string; fetch_format?: string }[] = []
+): Promise<string> => {
     try {
         const result = await cloudinary.uploader.upload(localFilePath, {
-            folder: "vendoo-products", // ক্লাউডিনারিতে এই ফোল্ডারে ইমেজ সেভ হবে
+            folder,
+            ...(transformation.length ? { transformation } : {}),
         });
 
         // 🧹 ক্লাউডিনারিতে আপলোড সফল হলে লোকাল সার্ভারের ফাইলটি ডিলিট করে দেওয়া হচ্ছে

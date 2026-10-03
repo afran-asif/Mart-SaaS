@@ -207,10 +207,11 @@ export const uploadHeroImage = async (req: AuthenticatedRequest, res: Response):
             res.status(404).json({ message: "Store not found for this vendor" });
             return;
         }
-        const heroUrl = await uploadToCloudinary(file.path);
+        const heroUrl = await uploadToCloudinary(file.path, "vendoo-store", [{ width: 1920, crop: "limit", quality: "auto", fetch_format: "auto" }]);
         const oldHero = store.heroImage;
         store.heroImage = heroUrl;
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
         if (oldHero && oldHero !== heroUrl) {
             deleteFromCloudinary(oldHero);
         }
@@ -248,10 +249,11 @@ export const uploadStoreLogo = async (req: AuthenticatedRequest, res: Response):
             return;
         }
 
-        const logoUrl = await uploadToCloudinary(file.path);
+        const logoUrl = await uploadToCloudinary(file.path, "vendoo-store", [{ width: 400, crop: "limit", quality: "auto", fetch_format: "auto" }]);
         const oldLogo = store.logo;
         store.logo = logoUrl;
         await store.save();
+        await cacheDelTenantStore(store.subdomain, store.customDomain);
 
         // পুরনো logo Cloudinary থেকে auto-delete (orphan জমবে না)
         if (oldLogo && oldLogo !== logoUrl) {
