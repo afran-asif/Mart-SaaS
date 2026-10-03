@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { createProduct } from "@/services/productService";
 import { useCategories } from "@/hooks/useCategories";
 import ImageUploader from "./ImageUploader";
+import SizePicker from "./SizePicker";
 
 interface AddProductModalProps {
     isOpen: boolean;
@@ -27,6 +28,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
     const { categories } = useCategories();
     const [formLoading, setFormLoading] = useState(false);
     const [form, setForm] = useState(INITIAL_FORM);
+    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
@@ -47,6 +49,7 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
     const resetForm = () => {
         imagePreviews.forEach((url) => URL.revokeObjectURL(url));
         setForm(INITIAL_FORM);
+        setSelectedSizes([]);
         setSelectedFiles([]);
         setImagePreviews([]);
     };
@@ -85,6 +88,9 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
             formData.append("stock", form.stock);
             formData.append("category", form.category);
             formData.append("description", form.description.trim());
+            if (selectedSizes.length > 0) {
+                formData.append("sizes", JSON.stringify(selectedSizes));
+            }
             selectedFiles.forEach((file) => formData.append("images", file));
 
             await createProduct(formData);
@@ -164,6 +170,9 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-sm text-gray-900 resize-none"
                         />
                     </div>
+
+                    {/* Sizes */}
+                    <SizePicker selected={selectedSizes} onChange={setSelectedSizes} />
 
                     {/* Image Uploader */}
                     <ImageUploader

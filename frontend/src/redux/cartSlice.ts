@@ -8,6 +8,8 @@ export interface CartItem {
     images?: string[];
     quantity: number;
     stock?: number;
+    size?: string;
+    lineId?: string;
 }
 
 interface CartState {
@@ -50,16 +52,20 @@ const saveCartToStorage = (items: CartItem[]) => {
     }
 };
 
+// Helper — product+size মিলিয়ে line key (same product-এর দুই size আলাদা line)
+export const getLineId = (productId: string, size?: string) => `${productId}__${size || ""}`;
+
 const cartSlice = createSlice({
     name: "cart",
     initialState,
     reducers: {
         addToCart: (
             state,
-            action: PayloadAction<{ product: any; quantity?: number }>
+            action: PayloadAction<{ product: any; quantity?: number; size?: string }>
         ) => {
-            const { product, quantity = 1 } = action.payload;
-            const existingItem = state.items.find((item) => item._id === product._id);
+            const { product, quantity = 1, size } = action.payload;
+            const lineId = getLineId(product._id, size);
+            const existingItem = state.items.find((item) => item.lineId === lineId || (!item.lineId && item._id === product._id));
 
             const image =
                 product.images && product.images.length > 0
@@ -70,6 +76,8 @@ const cartSlice = createSlice({
                 const maxStock = product.stock ?? existingItem.stock ?? 999;
                 const newQuantity = existingItem.quantity + quantity;
                 existingItem.quantity = Math.min(newQuantity, maxStock);
+                existingItem.size = size || existingItem.size;
+                existingItem.lineId = lineId;
             } else {
                 state.items.push({
                     _id: product._id,
@@ -79,6 +87,8 @@ const cartSlice = createSlice({
                     images: product.images,
                     quantity: Math.min(quantity, product.stock ?? 999),
                     stock: product.stock,
+                    size: size || undefined,
+                    lineId,
                 });
             }
 
@@ -95,7 +105,7 @@ const cartSlice = createSlice({
 
         decreaseQuantity: (state, action: PayloadAction<string>) => {
             const id = action.payload;
-            const existingItem = state.items.find((item) => item._id === id);
+            const existingItem = state.items.find((item) => item.lineId === id || item._id === id);
 
             // Quantity 1-এর নিচে নামবে না — remove করতে হলে removeFromCart ব্যবহার করো
             if (existingItem && existingItem.quantity > 1) {
@@ -109,9 +119,10 @@ const cartSlice = createSlice({
         },
 
         removeFromCart: (state, action: PayloadAction<string>) => {
-            state.items = state.items.filter((item) => item._id !== action.payload);
+            const id = action.payload;
+            state.items = state.items.filter((item) => item.lineId !== id && item._id !== id);
             if (state.selectedIds !== null) {
-                state.selectedIds = state.selectedIds.filter((id) => id !== action.payload);
+                state.selectedIds = state.selectedIds.filter((pid) => pid !== id);
             }
             const totals = calculateTotals(state.items);
             state.totalQuantity = totals.totalQuantity;
@@ -162,6 +173,7 @@ const cartSlice = createSlice({
                 images: product.images,
                 quantity: 1,
                 stock: product.stock,
+                size: product.size || undefined,
             };
         },
 

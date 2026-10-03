@@ -388,6 +388,7 @@ function OrderDetailRow({ order, t }: { order: Order; t: (key: string) => string
                                 <div>
                                     <p className="text-xs font-semibold text-gray-900">{item.product?.name || "Product"}</p>
                                     <p className="text-[11px] text-gray-500">Qty: {item.quantity} × ৳{item.price.toFixed(2)}</p>
+                                    {item.size && <p className="text-[11px] font-medium text-orange-600 mt-0.5">Size: {item.size}</p>}
                                 </div>
                             </div>
                             <p className="text-xs font-bold text-gray-900 ml-2">

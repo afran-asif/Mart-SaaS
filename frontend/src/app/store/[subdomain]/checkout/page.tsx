@@ -131,7 +131,7 @@ export default function CheckoutPage() {
         if (isBuyNow) {
             dispatch(updateBuyNowQuantity(item.quantity + 1));
         } else {
-            dispatch(addToCart({ product: item, quantity: 1 }));
+            dispatch(addToCart({ product: item, quantity: 1, size: item.size }));
             trackAddToCart({ id: item._id, name: item.name, price: item.price }, 1);
         }
     };
@@ -158,6 +158,7 @@ export default function CheckoutPage() {
                 product: item._id,
                 quantity: item.quantity,
                 price: item.price,
+                ...(item.size ? { size: item.size } : {}),
             }));
 
             const trackingItems = checkoutItems.map((item) => ({
@@ -365,7 +366,7 @@ const res = await api.post("/payment/initiate", {
                         {/* Item list with images */}
                         <div className="flex flex-col gap-3 mb-3">
                             {checkoutItems.map((item) => (
-                                <div key={item._id} className="flex items-center gap-3">
+                                <div key={item.lineId || item._id} className="flex items-center gap-3">
                                     <div className="w-12 h-12 rounded-md overflow-hidden bg-[#F4EEE2] flex-shrink-0">
                                         <img
                                             src={item.image || (item.images && item.images[0]) || "/placeholder.png"}
@@ -374,7 +375,10 @@ const res = await api.post("/payment/initiate", {
                                         />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm text-[#181410] truncate">{item.name}</p>
+                                        <p className="text-sm text-[#181410] truncate">
+                                            {item.name}
+                                            {item.size && <span className="text-[#0E3B2C]/70"> · {item.size}</span>}
+                                        </p>
                                         <div className="flex items-center gap-1 bg-[#F4EEE2] rounded-full p-0.5 mt-1.5 w-fit">
                                             <button
                                                 type="button"

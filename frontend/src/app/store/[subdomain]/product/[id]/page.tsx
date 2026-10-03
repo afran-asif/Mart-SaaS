@@ -17,6 +17,7 @@ interface Product {
     category: string;
     images: string[];
     stock: number;
+    sizes?: string[];
 }
 
 export async function generateMetadata({
@@ -210,7 +211,7 @@ export default async function ProductDetailPage({
                             )}
                         </div>
 
-                        <AddToCartButton product={product} theme={theme} />
+                        <AddToCartButton product={product} theme={theme} sizes={product.sizes || []} />
 
                         {/* Trust badges */}
                         {!outOfStock && (

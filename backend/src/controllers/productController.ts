@@ -9,10 +9,32 @@ import { uploadToCloudinary } from "../middlewares/uploadMiddleware";
 import { checkProductLimit, getEffectivePlan } from "../utils/plan";
 
 // 📤 ১. নতুন প্রোডাক্ট তৈরি করা (Multer ফাইল সাপোর্টসহ)
+// FormData থেকে sizes বের করা — JSON string অথবা comma-repeated
+const normalizeSizes = (raw: unknown): string[] => {
+    if (raw === undefined || raw === null || raw === "") return [];
+    let arr: unknown[] = typeof raw === "string" ? raw.split(",") : Array.isArray(raw) ? raw : [];
+    if (typeof raw === "string") {
+        const trimmed = raw.trim();
+        if (trimmed.startsWith("[")) {
+            try {
+                const parsed = JSON.parse(trimmed);
+                arr = Array.isArray(parsed) ? parsed : [];
+            } catch {
+                arr = [];
+            }
+        }
+    }
+    return arr
+        .map((s) => String(s).trim())
+        .filter((s) => s.length > 0)
+        .slice(0, 15);
+};
+
 export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         // FormData থেকে পাঠানো ফিল্ডগুলো রিসিভ করা হচ্ছে
         const { name, price, description, category, stock, featured } = req.body;
+        const sizes = normalizeSizes(req.body.sizes);
         const vendorId = req.user._id;
 
         // ভেন্ডরের স্টোর খুঁজে বের করা
@@ -50,6 +72,7 @@ export const createProduct = async (req: AuthenticatedRequest, res: Response): P
             images: productImages,      // লোকাল ইমেজের ইউআরএল অ্যারেতে সেট হলো
             stock: Number(stock),        // নাম্বারে কাস্ট করা হলো
             featured: featured === "true" || featured === true,
+            sizes,
         });
 
         const savedProduct = await newProduct.save();
@@ -137,6 +160,7 @@ export const updateProduct = async (req: AuthenticatedRequest, res: Response): P
         if (category !== undefined) updateData.category = category;
         if (description !== undefined) updateData.description = description;
         if (featured !== undefined) updateData.featured = featured === "true" || featured === true;
+        if (req.body.sizes !== undefined) updateData.sizes = normalizeSizes(req.body.sizes);
 
         // Image Handling
         let finalImages: string[] = [];

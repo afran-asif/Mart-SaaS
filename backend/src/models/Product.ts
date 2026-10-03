@@ -10,6 +10,7 @@ export interface IProduct extends Document {
     images: string[];
     stock: number;
     featured: boolean;
+    sizes: string[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -58,6 +59,10 @@ const productSchema = new Schema<IProduct>(
         featured: {
             type: Boolean,
             default: false,
+        },
+        sizes: {
+            type: [String],
+            default: [],
         },
     },
     {

@@ -22,6 +22,7 @@ export interface IOrder extends Document {
         product: Types.ObjectId | { _id: Types.ObjectId; name: string };
         quantity: number;
         price: number;
+        size?: string;
     }>;
     emailSent?: boolean;
     vendorNotified?: boolean;
@@ -61,6 +62,7 @@ const OrderSchema: Schema = new Schema(
                 product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
                 quantity: { type: Number, required: true, min: 1 },
                 price: { type: Number, required: true, min: 0 },
+                size: { type: String, trim: true, default: null },
             },
         ],
         paymentStatus: {

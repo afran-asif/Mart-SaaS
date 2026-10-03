@@ -7,6 +7,7 @@ import { updateProductApi } from "@/services/productService";
 import { Product } from "@/types/product";
 import { useCategories } from "@/hooks/useCategories";
 import ImageUploader from "./ImageUploader";
+import SizePicker from "./SizePicker";
 
 interface EditProductModalProps {
     isOpen: boolean;
@@ -32,6 +33,7 @@ export default function EditProductModal({
         category: "General",
         description: "",
     });
+    const [editSizes, setEditSizes] = useState<string[]>([]);
 
     // Existing remote images and newly selected files
     const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -53,6 +55,7 @@ export default function EditProductModal({
                 category: product.category || "General",
                 description: product.description,
             });
+            setEditSizes(product.sizes || []);
 
             // Initialize existing images array from product
             const currentImages = product.images && product.images.length > 0
@@ -119,6 +122,7 @@ export default function EditProductModal({
             formData.append("category", editForm.category);
             formData.append("description", editForm.description.trim());
             formData.append("existingImages", JSON.stringify(existingImages));
+            formData.append("sizes", JSON.stringify(editSizes));
 
             newFiles.forEach((file) => {
                 formData.append("images", file);
@@ -207,6 +211,9 @@ export default function EditProductModal({
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-sm text-gray-900 resize-none"
                         />
                     </div>
+
+                    {/* Sizes */}
+                    <SizePicker selected={editSizes} onChange={setEditSizes} />
 
                     {/* Image Uploader */}
                     <ImageUploader

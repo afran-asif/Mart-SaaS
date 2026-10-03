@@ -15,7 +15,7 @@ interface TrackedOrder {
     storeName: string;
     createdAt: string;
     updatedAt: string;
-    items: Array<{ name: string; quantity: number; price: number }>;
+    items: Array<{ name: string; quantity: number; price: number; size?: string }>;
 }
 
 const STEPS = ["Pending", "Processing", "Delivered"];
@@ -159,7 +159,7 @@ function TrackContent() {
                         <div className="mt-4 pt-3 border-t border-[#181410]/10 flex flex-col gap-1.5">
                             {order.items.map((item, i) => (
                                 <div key={i} className="flex justify-between text-sm">
-                                    <span className="text-[#181410]">{item.name} × {item.quantity}</span>
+                                    <span className="text-[#181410]">{item.name}{item.size ? ` · ${item.size}` : ""} × {item.quantity}</span>
                                     <span className="font-['IBM_Plex_Mono'] text-[#0E3B2C]">৳{item.price * item.quantity}</span>
                                 </div>
                             ))}

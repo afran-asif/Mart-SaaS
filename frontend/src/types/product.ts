@@ -10,4 +10,5 @@ export interface Product {
     images: string[];
     image?: string;
     featured?: boolean;
+    sizes?: string[];
 }

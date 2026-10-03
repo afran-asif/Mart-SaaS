@@ -47,7 +47,7 @@ export default function CartPage() {
     const allSelected = items.length > 0 && selectedItems.length === items.length;
 
     const handleIncrease = (item: (typeof items)[number]) => {
-        dispatch(addToCart({ product: item, quantity: 1 }));
+        dispatch(addToCart({ product: item, quantity: 1, size: item.size }));
         trackAddToCart({ id: item._id, name: item.name, price: item.price }, 1);
     };
 
@@ -118,7 +118,7 @@ export default function CartPage() {
                         <div className="lg:col-span-2 flex flex-col gap-4">
                             {items.map((item) => (
                                 <div
-                                    key={item._id}
+                                    key={item.lineId || item._id}
                                     className="flex gap-4 bg-white rounded-2xl border border-[#181410]/10 p-4 shadow-[0_10px_30px_-18px_rgba(24,20,16,0.3)] hover:shadow-[0_16px_36px_-18px_rgba(24,20,16,0.35)] transition-shadow"
                                 >
                                     <input
@@ -138,11 +138,18 @@ export default function CartPage() {
 
                                     <div className="flex-1 min-w-0 flex flex-col">
                                         <div className="flex items-start justify-between gap-2">
-                                            <h3 className="font-['Fraunces',serif] font-medium text-[15px] sm:text-base text-[#181410] truncate leading-snug">
-                                                {item.name}
-                                            </h3>
+                                            <div className="min-w-0">
+                                                <h3 className="font-['Fraunces',serif] font-medium text-[15px] sm:text-base text-[#181410] truncate leading-snug">
+                                                    {item.name}
+                                                </h3>
+                                                {item.size && (
+                                                    <span className="inline-block mt-1 text-[11px] font-semibold text-[#0E3B2C] bg-[#0E3B2C]/5 border border-[#0E3B2C]/15 rounded-full px-2.5 py-0.5">
+                                                        Size: {item.size}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <button
-                                                onClick={() => handleRemove(item._id)}
+                                                onClick={() => handleRemove(item.lineId || item._id)}
                                                 className="text-[#75705F] hover:text-red-600 text-xs flex-shrink-0 underline underline-offset-2 transition-colors"
                                                 aria-label="সরিয়ে ফেলুন"
                                             >
@@ -158,7 +165,7 @@ export default function CartPage() {
                                         <div className="flex items-center gap-3 mt-auto pt-3">
                                             <div className="flex items-center gap-1 bg-[#F4EEE2] rounded-full p-1">
                                                 <button
-                                                    onClick={() => handleDecrease(item._id)}
+                                                    onClick={() => handleDecrease(item.lineId || item._id)}
                                                     disabled={item.quantity <= 1}
                                                     className="w-7 h-7 rounded-full bg-white border border-[#181410]/10 flex items-center justify-center text-[#181410] hover:border-[#C6A15B] transition-colors text-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[#181410]/10"
                                                     aria-label="কমান"
