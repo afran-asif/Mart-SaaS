@@ -28,6 +28,7 @@ export interface IStore extends Document {
     customDomain?: string | null;
     customDomainStatus?: "none" | "pending" | "verified" | "failed";
     customDomainVerificationCode?: string | null;
+    customDomainFailedChecks?: number;
     plan?: "free" | "pro";
     planExpiresAt?: Date | null;
     emailNotifications?: {
@@ -166,6 +167,10 @@ theme: {
         customDomainVerificationCode: {
             type: String,
             default: null,
+        },
+        customDomainFailedChecks: {
+            type: Number,
+            default: 0,
         },
         plan: {
             type: String,

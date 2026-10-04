@@ -1,12 +1,12 @@
 import { Response } from "express";
 import { randomBytes } from "crypto";
-import dns from "dns";
 import { Store } from "../models/Store";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { addDomainToVercel, removeDomainFromVercel } from "../utils/vercel";
 import { refreshCustomDomainCache } from "../utils/customDomainCache";
 import { requirePro } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
+import { checkTxtVerification } from "../utils/dnsVerify";
 
 const DNS_NAME_PATTERN =
     /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))+$/;
@@ -40,20 +40,6 @@ const normalizeDomain = (raw: string): string => {
     // trailing slash বাদ
     value = value.replace(/\/+$/, "");
     return value;
-};
-
-const checkTxtVerification = (domain: string, code: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-        dns.resolveTxt(domain, (err, records) => {
-            if (err) {
-                resolve(false);
-                return;
-            }
-            const flat = records.flat().map((v) => v.trim());
-            const expected = `vendoo-verify=${code}`;
-            resolve(flat.includes(expected));
-        });
-    });
 };
 
 // ১) কাস্টম ডোমেইন রিকোয়েস্ট — ফরম্যাট চেক + কোড জেনারেট + pending সেভ
@@ -99,6 +85,7 @@ export const requestCustomDomain = async (req: AuthenticatedRequest, res: Respon
         store.customDomain = hostname;
         store.customDomainStatus = "pending";
         store.customDomainVerificationCode = verificationCode;
+        store.customDomainFailedChecks = 0;
         await store.save();
         await cacheDelTenantStore(store.subdomain, hostname);
 
@@ -134,6 +121,7 @@ export const verifyCustomDomain = async (req: AuthenticatedRequest, res: Respons
 
         if (verified) {
             store.customDomainStatus = "verified";
+            store.customDomainFailedChecks = 0;
             await store.save();
             await refreshCustomDomainCache();
             await cacheDelTenantStore(store.subdomain, store.customDomain);

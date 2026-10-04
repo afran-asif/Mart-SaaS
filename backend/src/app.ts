@@ -23,6 +23,7 @@ import subscriptionRoutes from './routes/subscriptionRoutes';
 import adminRoutes from './routes/adminRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
+import { reverifyCustomDomains } from "./jobs/reverifyCustomDomains";
 import { originCheck } from "./middlewares/originCheck";
 import { seedPlans } from "./models/Plan";
 
@@ -96,6 +97,21 @@ const startServer = async () => {
     await seedPlans();
     await refreshCustomDomainCache();
     setInterval(refreshCustomDomainCache, 5 * 60 * 1000);
+
+    // 🔁 Custom domain ownership re-check — প্রতিদিন একবার (প্রথম run boot-এর ৫ মিনিট পর)
+    // TXT পরপর ৩ দিন missing থাকলে domain revoke হয় (expired/takeover সুরক্ষা)
+    if (process.env.DISABLE_DOMAIN_REVERIFY !== "1") {
+        const runReverify = async () => {
+            try {
+                const summary = await reverifyCustomDomains();
+                console.log(`[REVERIFY] done: ${JSON.stringify(summary)}`);
+            } catch (error) {
+                console.error(`[REVERIFY] failed: ${(error as Error).message}`);
+            }
+        };
+        setTimeout(runReverify, 5 * 60 * 1000);
+        setInterval(runReverify, 24 * 60 * 60 * 1000);
+    }
     
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on port ${PORT}`);
