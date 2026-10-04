@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import "./instrument";
 import { validateEnv } from "./config/env";
 validateEnv();
 
-import express, { Application, Request, Response } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
@@ -24,6 +25,7 @@ import adminRoutes from './routes/adminRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
 import { reverifyCustomDomains } from "./jobs/reverifyCustomDomains";
+import * as Sentry from "@sentry/node";
 import { originCheck } from "./middlewares/originCheck";
 import { seedPlans } from "./models/Plan";
 
@@ -90,6 +92,13 @@ app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/v1/payment", paymentRoutes);
+
+// 🐞 Sentry — ধরা না-পড়া express error auto-report (DSN থাকলে; না থাকলে no-op)
+app.use(((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    if (process.env.SENTRY_DSN) Sentry.captureException(err);
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+}) as express.ErrorRequestHandler);
 
 const startServer = async () => {
     await connectDB();

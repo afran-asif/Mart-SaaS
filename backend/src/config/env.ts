@@ -15,6 +15,7 @@ const OPTIONAL = [
     "SUBSCRIPTION_BKASH_NUMBER",
     "VERCEL_TOKEN",
     "VERCEL_PROJECT_ID",
+    "SENTRY_DSN",
 ] as const;
 
 export const validateEnv = (): void => {
