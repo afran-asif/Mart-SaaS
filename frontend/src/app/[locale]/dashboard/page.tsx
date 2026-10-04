@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { api } from "@/services/api";
 import { useTranslation } from "@/hooks/useTranslation";
+import DashboardCharts, { type DailyPoint } from "@/components/dashboard/DashboardCharts";
 
 interface RecentOrder {
     _id: string;
@@ -23,14 +24,8 @@ interface Analytics {
     statusBreakdown: Record<string, number>;
     paymentBreakdown: Record<string, number>;
     recentOrders: RecentOrder[];
+    dailySeries?: DailyPoint[];
 }
-
-const statusColors: Record<string, string> = {
-    Pending: "bg-yellow-500",
-    Processing: "bg-blue-500",
-    Delivered: "bg-green-600",
-    Cancelled: "bg-red-500",
-};
 
 export default function LocalizedDashboardPage() {
     const { user } = useSelector((state: any) => state.auth);
@@ -139,54 +134,43 @@ export default function LocalizedDashboardPage() {
                 </div>
             </div>
 
-            {/* Status + Payment Breakdown */}
+            {/* Charts — revenue graph + status donut */}
+            {!loading && analytics && (
+                <DashboardCharts
+                    dailySeries={analytics.dailySeries || []}
+                    statusBreakdown={analytics.statusBreakdown}
+                />
+            )}
+
+            {/* Payment Breakdown */}
             {!loading && analytics && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
-                        <h2 className="text-sm font-bold text-gray-900 mb-4">{t("dashboard.orderStatusBreakdown")}</h2>
+                        <h2 className="text-sm font-bold text-gray-900 mb-4">{t("dashboard.paymentStatus")}</h2>
                         <div className="flex flex-col gap-3">
-                            {["Pending", "Processing", "Delivered", "Cancelled"].map((status) => {
-                                const count = analytics.statusBreakdown[status] || 0;
+                            {[
+                                { key: "Online Paid", color: "bg-green-600" },
+                                { key: "COD", color: "bg-blue-500" },
+                                { key: "Pending Online", color: "bg-yellow-500" },
+                                { key: "Failed", color: "bg-red-500" },
+                            ].map(({ key, color }) => {
+                                const count = analytics.paymentBreakdown[key] || 0;
                                 const percentage = totalOrders > 0 ? (count / totalOrders) * 100 : 0;
                                 return (
-                                    <div key={status}>
+                                    <div key={key}>
                                         <div className="flex justify-between text-xs mb-1 text-gray-600">
-                                            <span>{getStatusLabel(status)}</span>
+                                            <span>{key === "Failed" ? "Payment Failed" : key}</span>
                                             <span>{count}</span>
                                         </div>
                                         <div className="w-full bg-gray-100 rounded-full h-2">
                                             <div
-                                                className={`h-2 rounded-full ${statusColors[status]}`}
+                                                className={`h-2 rounded-full ${color}`}
                                                 style={{ width: `${percentage}%` }}
                                             />
                                         </div>
                                     </div>
                                 );
                             })}
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-100 shadow-sm">
-                        <h2 className="text-sm font-bold text-gray-900 mb-4">{t("dashboard.paymentStatus")}</h2>
-                        <div className="flex gap-4 sm:gap-6 flex-wrap">
-                            <div>
-                                <p className="text-xs text-gray-500">Online Paid</p>
-                                <p className="text-lg font-semibold text-green-700">
-                                    {analytics.paymentBreakdown["Online Paid"] || 0}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500">COD</p>
-                                <p className="text-lg font-semibold text-blue-600">
-                                    {analytics.paymentBreakdown["COD"] || 0}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500">Payment Failed</p>
-                                <p className="text-lg font-semibold text-red-600">
-                                    {analytics.paymentBreakdown["Failed"] || 0}
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -308,6 +308,13 @@
     "statusProcessing": "প্রসেসিং",
     "statusDelivered": "ডেলিভারড",
     "statusCancelled": "বাতিল",
+    "revenueTitle": "রেভিনিউ — শেষ ৩০ দিন",
+    "revenueLabel": "রেভিনিউ",
+    "chartTotal": "মোট",
+    "ordersUnit": "টি অর্ডার",
+    "ordersByStatus": "স্ট্যাটাস অনুযায়ী অর্ডার",
+    "noRevenue": "এখনো কোনো paid order নেই — graph এখানে দেখাবে।",
+    "noChartOrders": "এখনো কোনো order নেই।",
     "productsPage": {
       "title": "আমার পণ্যসমূহ",
       "subtitle": "সহজেই আপনার স্টোরের পণ্যসমূহ পরিচালনা ও পর্যবেক্ষণ করুন।",

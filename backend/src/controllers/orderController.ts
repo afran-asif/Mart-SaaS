@@ -425,6 +425,49 @@ export const getVendorAnalytics = async (req: AuthenticatedRequest, res: Respons
             .limit(5)
             .select("customerName totalAmount status paymentStatus createdAt");
 
+        // ৬. শেষ ৩০ দিনের daily series — revenue (paid) + orders (all)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setHours(0, 0, 0, 0);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+        const dailyAgg = await Order.aggregate([
+            { $match: { storeId: storeObjectId, createdAt: { $gte: thirtyDaysAgo } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    orders: { $sum: 1 },
+                    revenue: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $or: [
+                                        { $eq: ["$paymentStatus", "Paid"] },
+                                        { $and: [{ $eq: ["$paymentMethod", "COD"] }, { $eq: ["$status", "Delivered"] }] },
+                                    ],
+                                },
+                                "$totalAmount",
+                                0,
+                            ],
+                        },
+                    },
+                },
+            },
+        ]);
+        const byDay = new Map(dailyAgg.map((d) => [d._id, d]));
+        const dailySeries: { date: string; label: string; revenue: number; orders: number }[] = [];
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().slice(0, 10);
+            const found = byDay.get(key);
+            dailySeries.push({
+                date: key,
+                label: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+                revenue: found?.revenue || 0,
+                orders: found?.orders || 0,
+            });
+        }
+
         res.status(200).json({
             success: true,
             analytics: {
@@ -440,6 +483,7 @@ export const getVendorAnalytics = async (req: AuthenticatedRequest, res: Respons
                     return acc;
                 }, {} as Record<string, number>),
                 recentOrders,
+                dailySeries,
             },
         });
     } catch (error: any) {

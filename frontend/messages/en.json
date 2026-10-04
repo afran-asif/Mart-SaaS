@@ -308,6 +308,13 @@
     "statusProcessing": "Processing",
     "statusDelivered": "Delivered",
     "statusCancelled": "Cancelled",
+    "revenueTitle": "Revenue — last 30 days",
+    "revenueLabel": "Revenue",
+    "chartTotal": "Total",
+    "ordersUnit": "orders",
+    "ordersByStatus": "Orders by status",
+    "noRevenue": "No paid orders yet — the graph will appear here.",
+    "noChartOrders": "No orders yet.",
     "productsPage": {
       "title": "My Products",
       "subtitle": "Manage and monitor your store items effortlessly.",
