@@ -118,7 +118,9 @@ export default async function CategoryPage({
                 facebookUrl={store.facebookUrl}
                 instagramUrl={store.instagramUrl}
                 whatsappNumber={store.whatsappNumber}
-                phone={store.whatsappNumber}
+                email={store.contactEmail}
+                phone={store.contactPhone}
+                address={store.address}
                 plan={store.plan}
             />
         </div>

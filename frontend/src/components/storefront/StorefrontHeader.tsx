@@ -52,7 +52,7 @@ export default function StorefrontHeader({ variant, storeName, storeLogo, brandC
     const titleColor = themeText[theme] || themeText.classic;
     const subColor = themeSubText[theme] || themeSubText.classic;
     return (
-        <header className={`sticky top-0 z-30 backdrop-blur-md border-b ${headerBg}`}>
+        <header className={`sticky top-0 z-30 backdrop-blur-md border-b shadow-[0_6px_18px_-10px_rgba(24,20,16,0.2)] ${headerBg}`}>
             <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 sm:py-4">
                 <div className="flex items-center justify-between gap-2 sm:gap-4">
                     {variant === "home" ? (

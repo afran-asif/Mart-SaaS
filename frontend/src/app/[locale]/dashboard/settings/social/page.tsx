@@ -11,6 +11,9 @@ export default function SocialSettingsPage() {
     const [facebookUrl, setFacebookUrl] = useState("");
     const [instagramUrl, setInstagramUrl] = useState("");
     const [whatsappNumber, setWhatsappNumber] = useState("");
+    const [contactEmail, setContactEmail] = useState("");
+    const [contactPhone, setContactPhone] = useState("");
+    const [address, setAddress] = useState("");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -22,6 +25,9 @@ export default function SocialSettingsPage() {
                 setFacebookUrl(data.facebookUrl || "");
                 setInstagramUrl(data.instagramUrl || "");
                 setWhatsappNumber(data.whatsappNumber || "");
+                setContactEmail(data.contactEmail || "");
+                setContactPhone(data.contactPhone || "");
+                setAddress(data.address || "");
             } catch (error: any) {
                 toast.error(error.message || "Failed to load settings.");
             } finally {
@@ -39,6 +45,9 @@ export default function SocialSettingsPage() {
                 facebookUrl: facebookUrl.trim(),
                 instagramUrl: instagramUrl.trim(),
                 whatsappNumber: whatsappNumber.trim(),
+                contactEmail: contactEmail.trim(),
+                contactPhone: contactPhone.trim(),
+                address: address.trim(),
             });
             toast.success("Social links updated.");
         } catch (error: any) {
@@ -114,6 +123,45 @@ export default function SocialSettingsPage() {
 <p className="text-xs text-gray-400 mt-1">
                                 {t("dashboard.socialPage.waHelp")}
                             </p>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Contact Email
+                    </label>
+                    <input
+                        type="email"
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        placeholder="shop@example.com"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Contact Phone
+                    </label>
+                    <input
+                        type="tel"
+                        value={contactPhone}
+                        onChange={(e) => setContactPhone(e.target.value)}
+                        placeholder="017XXXXXXXX"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Address
+                    </label>
+                    <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="House 12, Road 5, Dhaka"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                    />
                 </div>
 
                 <div className="flex justify-end pt-1">

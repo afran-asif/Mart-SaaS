@@ -53,6 +53,9 @@ export default function LocalizedSettingsPage() {
     const [facebookUrl, setFacebookUrl] = useState("");
     const [instagramUrl, setInstagramUrl] = useState("");
     const [whatsappNumber, setWhatsappNumber] = useState("");
+    const [contactEmail, setContactEmail] = useState("");
+    const [contactPhone, setContactPhone] = useState("");
+    const [address, setAddress] = useState("");
     const [brandColor, setBrandColor] = useState("#F4501A");
     const [heroTitle, setHeroTitle] = useState("");
     const [heroSubtitle, setHeroSubtitle] = useState("");
@@ -82,6 +85,9 @@ export default function LocalizedSettingsPage() {
                 setFacebookUrl(data.facebookUrl || "");
                 setInstagramUrl(data.instagramUrl || "");
                 setWhatsappNumber(data.whatsappNumber || "");
+                setContactEmail(data.contactEmail || "");
+                setContactPhone(data.contactPhone || "");
+                setAddress(data.address || "");
                 setBrandColor(data.brandColor || "#F4501A");
                 setHeroTitle(data.heroTitle || "");
                 setHeroSubtitle(data.heroSubtitle || "");
@@ -180,6 +186,9 @@ export default function LocalizedSettingsPage() {
                 facebookUrl: facebookUrl.trim(),
                 instagramUrl: instagramUrl.trim(),
                 whatsappNumber: whatsappNumber.trim(),
+                contactEmail: contactEmail.trim(),
+                contactPhone: contactPhone.trim(),
+                address: address.trim(),
                 brandColor: brandColor.trim() || null,
                 heroTitle: heroTitle.trim() || null,
                 heroSubtitle: heroSubtitle.trim() || null,
@@ -700,6 +709,55 @@ export default function LocalizedSettingsPage() {
                             <p className="text-xs text-gray-400 mt-1">
                                 Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX
                             </p>
+                        </div>
+                    </div>
+
+                    {/* Contact Info card — footer-এর Contact Info-তে দেখাবে */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div>
+                            <h2 className="text-sm font-bold text-gray-900">Contact Info</h2>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                এই তথ্যগুলো আপনার স্টোরের footer-এ Contact Info হিসেবে দেখাবে।
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Contact Email
+                            </label>
+                            <input
+                                type="email"
+                                value={contactEmail}
+                                onChange={(e) => setContactEmail(e.target.value)}
+                                placeholder="e.g. shop@example.com"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Contact Phone
+                            </label>
+                            <input
+                                type="tel"
+                                value={contactPhone}
+                                onChange={(e) => setContactPhone(e.target.value)}
+                                placeholder="e.g. 017XXXXXXXX"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Address
+                            </label>
+                            <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder="e.g. House 12, Road 5, Dhaka"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                            />
                         </div>
                     </div>
 

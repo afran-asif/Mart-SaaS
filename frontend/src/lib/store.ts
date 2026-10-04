@@ -7,6 +7,9 @@ interface StoreInfo {
     facebookUrl?: string | null;
     instagramUrl?: string | null;
     whatsappNumber?: string | null;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    address?: string | null;
 }
 
 export async function getStoreInfo(subdomain: string): Promise<StoreInfo | null> {

@@ -17,6 +17,9 @@ export interface IStore extends Document {
     facebookUrl?: string | null;
     instagramUrl?: string | null;
     whatsappNumber?: string | null;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    address?: string | null;
     brandColor?: string | null;
     heroTitle?: string | null;
     heroSubtitle?: string | null;
@@ -103,6 +106,22 @@ const storeSchema = new Schema<IStore>(
             trim: true,
         },
         whatsappNumber: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        contactEmail: {
+            type: String,
+            default: null,
+            trim: true,
+            lowercase: true,
+        },
+        contactPhone: {
+            type: String,
+            default: null,
+            trim: true,
+        },
+        address: {
             type: String,
             default: null,
             trim: true,

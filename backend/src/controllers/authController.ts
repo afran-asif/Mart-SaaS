@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmail";
+import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
 
 const DEFAULT_CATEGORIES = ["Clothing", "Gadgets", "Accessories", "Home & Kitchen", "Beauty & Health"];
 
@@ -61,7 +62,61 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         await user.save();
         res.status(200).json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null },
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// 📷 Profile picture upload (vendor) — Cloudinary vendoo-avatars, পুরনোটা auto-delete
+export const uploadAvatar = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const file = (req as any).file as Express.Multer.File | undefined;
+        if (!file) {
+            res.status(400).json({ message: 'Please select an image file to upload.' });
+            return;
+        }
+        const user = await User.findById((req as any).user._id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        const avatarUrl = await uploadToCloudinary(file.path, "vendoo-avatars", [{ width: 400, crop: "limit", quality: "auto", fetch_format: "auto" }]);
+        const oldAvatar = user.avatar;
+        user.avatar = avatarUrl;
+        await user.save();
+        if (oldAvatar && oldAvatar !== avatarUrl) {
+            deleteFromCloudinary(oldAvatar);
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Profile picture updated successfully',
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// 🗑️ Profile picture remove
+export const removeAvatar = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = await User.findById((req as any).user._id);
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+        const oldAvatar = user.avatar;
+        user.avatar = null;
+        await user.save();
+        if (oldAvatar) {
+            deleteFromCloudinary(oldAvatar);
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Profile picture removed',
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: null },
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -101,15 +156,20 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
 
 export const getMe = async (req: Request, res: Response): Promise<void> => {
     try {
-        const user = (req as any).user;
-        if (!user) {
+        const tokenUser = (req as any).user;
+        if (!tokenUser) {
             res.status(401).json({ message: 'Not authenticated' });
+            return;
+        }
+        const user = await User.findById(tokenUser._id).select("name email role avatar");
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
             return;
         }
         const store = await Store.findOne({ vendorId: user._id }).select("storeName subdomain");
         res.status(200).json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null },
             store: store ? { id: store._id, storeName: store.storeName, subdomain: store.subdomain } : null,
             impersonatedBy: (req as any).impersonatedBy || null,
         });
@@ -255,7 +315,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json({
             success: true,
             token, // ✅ token response-এ পাঠানো হচ্ছে
-            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null },
             store: { storeName: store?.storeName, subdomain: store?.subdomain }
         });
     } catch(error) {

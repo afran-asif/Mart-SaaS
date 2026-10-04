@@ -34,6 +34,20 @@ export const changePassword = async (currentPassword: string, newPassword: strin
     return response.data;
 }
 
+export const uploadAvatar = async (file: File) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    const response = await api.post("/auth/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+}
+
+export const removeAvatar = async () => {
+    const response = await api.delete("/auth/avatar");
+    return response.data;
+}
+
 export const verifyEmailToken = async (token: string) => {
     const response = await api.get(`/auth/verify-email/${token}`);
     return response.data;

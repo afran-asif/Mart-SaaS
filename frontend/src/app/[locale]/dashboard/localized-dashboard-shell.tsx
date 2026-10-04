@@ -239,8 +239,13 @@ export default function LocalizedDashboardShell({ children }: { children: React.
 
                 <div className="p-4 border-t border-gray-200 shrink-0">
                     <div className="flex items-center gap-3 px-2">
-                        <span className="w-9 h-9 rounded-lg bg-orange-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
-                            {(user?.name || user?.email || "V").charAt(0).toUpperCase()}
+                        <span className="w-9 h-9 rounded-lg bg-orange-600 text-white font-bold text-sm flex items-center justify-center shrink-0 overflow-hidden">
+                            {user?.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={user.avatar} alt={user?.name || "Account"} className="w-full h-full object-cover" />
+                            ) : (
+                                (user?.name || user?.email || "V").charAt(0).toUpperCase()
+                            )}
                         </span>
                         <div className="min-w-0">
                             <p className="text-sm font-semibold text-gray-800 truncate">{user?.name || t("dashboard.vendor")}</p>

@@ -70,6 +70,9 @@ async function getStoreTheme(subdomain: string): Promise<{
     facebookUrl?: string | null;
     instagramUrl?: string | null;
     whatsappNumber?: string | null;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    address?: string | null;
     plan?: string;
 }> {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
@@ -88,6 +91,9 @@ async function getStoreTheme(subdomain: string): Promise<{
             facebookUrl: data.store?.facebookUrl,
             instagramUrl: data.store?.instagramUrl,
             whatsappNumber: data.store?.whatsappNumber,
+            contactEmail: data.store?.contactEmail,
+            contactPhone: data.store?.contactPhone,
+            address: data.store?.address,
             plan: data.store?.plan,
         };
     } catch { return {}; }
@@ -253,7 +259,9 @@ export default async function ProductDetailPage({
                 facebookUrl={storeInfo.facebookUrl}
                 instagramUrl={storeInfo.instagramUrl}
                 whatsappNumber={storeInfo.whatsappNumber}
-                phone={storeInfo.whatsappNumber}
+                email={storeInfo.contactEmail}
+                phone={storeInfo.contactPhone}
+                address={storeInfo.address}
                 plan={storeInfo.plan}
             />
         </div>

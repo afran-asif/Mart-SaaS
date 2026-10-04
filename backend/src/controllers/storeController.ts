@@ -41,6 +41,9 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             facebookUrl,
             instagramUrl,
             whatsappNumber,
+            contactEmail,
+            contactPhone,
+            address,
             brandColor,
             heroTitle,
             heroSubtitle,
@@ -112,10 +115,13 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             (store as any)[key] = v || null;
         }
 
-        // ✅ Social links — খালি স্ট্রিং দিলে মুছে ফেলা যাবে (null করে)
+        // ✅ Social links + contact info — খালি স্ট্রিং দিলে মুছে ফেলা যাবে (null করে)
         if (facebookUrl !== undefined) store.facebookUrl = facebookUrl || null;
         if (instagramUrl !== undefined) store.instagramUrl = instagramUrl || null;
         if (whatsappNumber !== undefined) store.whatsappNumber = whatsappNumber || null;
+        if (contactEmail !== undefined) store.contactEmail = contactEmail || null;
+        if (contactPhone !== undefined) store.contactPhone = contactPhone || null;
+        if (address !== undefined) store.address = address || null;
 
         // ✅ Branding & hero — null-safe (frontend খালি field null পাঠায়)
         const toNullString = (v: unknown): string | null => {
@@ -176,6 +182,9 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                contactEmail: store.contactEmail,
+                contactPhone: store.contactPhone,
+                address: store.address,
                 brandColor: store.brandColor,
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,
@@ -307,6 +316,9 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                contactEmail: store.contactEmail,
+                contactPhone: store.contactPhone,
+                address: store.address,
                 brandColor: store.brandColor,
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,
@@ -348,6 +360,9 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                contactEmail: store.contactEmail,
+                contactPhone: store.contactPhone,
+                address: store.address,
                 brandColor: store.brandColor,
                 heroTitle: store.heroTitle,
                 heroSubtitle: store.heroSubtitle,

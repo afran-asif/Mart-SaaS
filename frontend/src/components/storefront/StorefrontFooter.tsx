@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 
@@ -33,25 +32,24 @@ export default function StorefrontFooter({
     address,
     plan,
 }: StorefrontFooterProps) {
-    const [subscriberEmail, setSubscriberEmail] = useState("");
-    const [subscribed, setSubscribed] = useState(false);
-
     const isDark = isDarkTheme(theme);
     const isLuxe = isLuxeTheme(theme);
     const brand = brandColor || "#F4501A";
 
     const displayPhone = phone || whatsappNumber || "01777059926";
-    const displayEmail = email || "asifafran24@gmail.com";
+    const displayEmail = email || "user@gmail.com";
     const displayAddress = address || "online";
     const displayTagline = tagline || "Buy your best cloth from here";
 
-    const handleSubscribe = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!subscriberEmail.trim() || !subscriberEmail.includes("@")) return;
-        setSubscribed(true);
-        setSubscriberEmail("");
-        setTimeout(() => setSubscribed(false), 5000);
-    };
+    // WhatsApp chat link — 017... → 88017... normalize
+    const waDigits = (whatsappNumber || "").replace(/\D/g, "");
+    const waNumber = waDigits
+        ? waDigits.startsWith("880")
+            ? waDigits
+            : waDigits.startsWith("0")
+            ? `880${waDigits.slice(1)}`
+            : waDigits
+        : null;
 
     return (
         <footer
@@ -64,8 +62,8 @@ export default function StorefrontFooter({
             }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8">
-                {/* Main 5 Columns Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-8">
+                {/* Main 4 Columns Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 lg:gap-8">
                     {/* Column 1: Brand Logo, Tagline, Socials */}
                     <div className="flex flex-col items-start space-y-4">
                         <Link href="/" className="inline-block transition-transform hover:scale-105">
@@ -202,45 +200,9 @@ export default function StorefrontFooter({
                         <ul className="space-y-2.5 text-sm">
                             {[
                                 { label: "Home", href: "/" },
-                                { label: "Products", href: "/#collection" },
-                                { label: "About Us", href: "/#about" },
+                                { label: "All Products", href: "/products" },
                                 { label: "My Cart", href: "/cart" },
-                                { label: "Blog", href: "/#blog" },
-                            ].map((item) => (
-                                <li key={item.label}>
-                                    <Link
-                                        href={item.href}
-                                        className={`group inline-flex items-center transition-colors ${
-                                            isDark ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-gray-900"
-                                        }`}
-                                    >
-                                        <span
-                                            style={{ color: brand }}
-                                            className="font-bold mr-2 text-sm leading-none group-hover:translate-x-0.5 transition-transform"
-                                        >
-                                            ›
-                                        </span>
-                                        <span className="hover:underline underline-offset-4">{item.label}</span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Column 3: More Links */}
-                    <div>
-                        <h4 className="font-semibold text-sm sm:text-base mb-4 tracking-tight text-[#d4af37]">
-                            More Links
-                            <span className="block w-8 h-0.5 rounded-full mt-1.5" style={{ background: "#F4501A" }} />
-                        </h4>
-                        <ul className="space-y-2.5 text-sm">
-                            {[
-                                { label: "Contact Us", href: "/#contact" },
-                                { label: "Flash Sale", href: "/#collection" },
-                                { label: "Daily Deals", href: "/#collection" },
-                                { label: "Return & Refund Policy", href: "/#refund" },
-                                { label: "Privacy Policy", href: "/#privacy" },
-                                { label: "Terms & Condition", href: "/#terms" },
+                                { label: "Track Order", href: "/track" },
                             ].map((item) => (
                                 <li key={item.label}>
                                     <Link
@@ -338,56 +300,6 @@ export default function StorefrontFooter({
                         </ul>
                     </div>
 
-                    {/* Column 5: Stay Connected (Newsletter) */}
-                    <div>
-                        <h4 className="font-semibold text-sm sm:text-base mb-4 tracking-tight text-[#d4af37]">
-                            Stay Connected
-                            <span className="block w-8 h-0.5 rounded-full mt-1.5" style={{ background: "#F4501A" }} />
-                        </h4>
-                        <p
-                            className={`text-xs sm:text-sm leading-relaxed mb-4 ${
-                                isDark ? "text-gray-400" : "text-gray-600"
-                            }`}
-                        >
-                            Subscribe to our newsletter for updates and offers
-                        </p>
-
-                        <form onSubmit={handleSubscribe} className="relative">
-                            <div className="flex items-center shadow-xs">
-                                <input
-                                    type="email"
-                                    required
-                                    value={subscriberEmail}
-                                    onChange={(e) => setSubscriberEmail(e.target.value)}
-                                    placeholder="Enter your email"
-                                    className={`w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-l-lg border transition-colors focus:outline-none ${
-                                        isDark
-                                            ? "bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-orange-500"
-                                            : "bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-gray-400"
-                                    }`}
-                                />
-                                <button
-                                    type="submit"
-                                    aria-label="Subscribe"
-                                    style={{ backgroundColor: brand }}
-                                    className="px-3.5 py-2.5 rounded-r-lg text-white hover:brightness-95 active:scale-95 transition-all flex items-center justify-center shrink-0 cursor-pointer"
-                                >
-                                    {/* Paper plane / Send icon */}
-                                    <svg
-                                        className="w-4 h-4 fill-current transform rotate-45 -translate-y-0.5 translate-x-0.5"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            {subscribed && (
-                                <p className="mt-2 text-xs text-emerald-600 font-medium animate-fadeIn">
-                                    ✓ Thank you for subscribing!
-                                </p>
-                            )}
-                        </form>
-                    </div>
                 </div>
 
                 {/* Bottom Row */}
@@ -398,11 +310,11 @@ export default function StorefrontFooter({
                 >
                     {/* Left: Privacy Policy | Terms & Condition */}
                     <div className="flex items-center gap-2">
-                        <Link href="/#privacy" className="hover:underline underline-offset-4 hover:text-gray-800 transition-colors">
+                        <Link href="/privacy" className="hover:underline underline-offset-4 hover:text-gray-800 transition-colors">
                             Privacy Policy
                         </Link>
                         <span className="text-gray-300">|</span>
-                        <Link href="/#terms" className="hover:underline underline-offset-4 hover:text-gray-800 transition-colors">
+                        <Link href="/terms" className="hover:underline underline-offset-4 hover:text-gray-800 transition-colors">
                             Terms & Condition
                         </Link>
                     </div>

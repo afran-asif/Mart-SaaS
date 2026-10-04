@@ -27,6 +27,9 @@ interface Store {
     facebookUrl?: string;
     instagramUrl?: string;
     whatsappNumber?: string;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    address?: string | null;
     brandColor?: string | null;
     heroTitle?: string | null;
     heroSubtitle?: string | null;
@@ -262,7 +265,9 @@ export default async function StorePage({
                 facebookUrl={store.facebookUrl}
                 instagramUrl={store.instagramUrl}
                 whatsappNumber={store.whatsappNumber}
-                phone={store.whatsappNumber}
+                email={store.contactEmail}
+                phone={store.contactPhone}
+                address={store.address}
                 plan={store.plan}
             />
         </div>

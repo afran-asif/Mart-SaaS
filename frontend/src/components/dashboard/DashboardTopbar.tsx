@@ -196,10 +196,15 @@ export default function DashboardTopbar({
                 <div className="relative" ref={menuRef}>
                     <button
                         onClick={() => setMenuOpen(!menuOpen)}
-                        className="w-9 h-9 rounded-full bg-orange-600 text-white font-bold text-sm flex items-center justify-center hover:bg-orange-700 transition-colors"
+                        className="w-9 h-9 rounded-full bg-orange-600 text-white font-bold text-sm flex items-center justify-center hover:bg-orange-700 transition-colors overflow-hidden"
                         aria-label="Account menu"
                     >
-                        {(user?.name || user?.email || "V").charAt(0).toUpperCase()}
+                        {user?.avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={user.avatar} alt={user?.name || "Account"} className="w-full h-full object-cover" />
+                        ) : (
+                            (user?.name || user?.email || "V").charAt(0).toUpperCase()
+                        )}
                     </button>
                     {menuOpen && (
                         <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-gray-100 shadow-lg overflow-hidden z-40">
