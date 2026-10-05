@@ -26,6 +26,11 @@ export interface Order {
     status: "Pending" | "Processing" | "Delivered" | "Cancelled";
     items: OrderItem[];
     createdAt: string;
+    courierProvider?: string | null;
+    consignmentId?: string | null;
+    trackingCode?: string | null;
+    courierStatus?: string | null;
+    courierSyncedAt?: string | null;
 }
 
 export interface CreateOrderPayload {

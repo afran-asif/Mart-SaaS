@@ -18,6 +18,11 @@ export interface IOrder extends Document {
     transactionId?: string;
     couponCode?: string | null;
     discountAmount?: number;
+    courierProvider?: string | null;
+    consignmentId?: string | null;
+    trackingCode?: string | null;
+    courierStatus?: string | null;
+    courierSyncedAt?: Date | null;
     items: Array<{
         product: Types.ObjectId | { _id: Types.ObjectId; name: string };
         quantity: number;
@@ -81,6 +86,11 @@ const OrderSchema: Schema = new Schema(
         },
         couponCode: { type: String, default: null, trim: true, uppercase: true },
         discountAmount: { type: Number, default: 0, min: 0 },
+        courierProvider: { type: String, default: null, trim: true },
+        consignmentId: { type: String, default: null, trim: true },
+        trackingCode: { type: String, default: null, trim: true },
+        courierStatus: { type: String, default: null, trim: true },
+        courierSyncedAt: { type: Date, default: null },
         emailSent: {
             type: Boolean,
             default: false,

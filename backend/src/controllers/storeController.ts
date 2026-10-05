@@ -41,6 +41,8 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             facebookUrl,
             instagramUrl,
             whatsappNumber,
+            steadfastApiKey,
+            steadfastSecretKey,
             contactEmail,
             contactPhone,
             address,
@@ -52,7 +54,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         } = req.body;
         const vendorId = req.user._id;
 
-        let store = await Store.findOne({ vendorId }).select('+sslcommerzStorePassword');
+        let store = await Store.findOne({ vendorId }).select('+sslcommerzStorePassword +steadfastApiKey +steadfastSecretKey');
 
         if (!store) {
             res.status(404).json({ message: "Store not found for this vendor"})
@@ -123,6 +125,21 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (contactPhone !== undefined) store.contactPhone = contactPhone || null;
         if (address !== undefined) store.address = address || null;
 
+        // 🚚 Steadfast keys — encrypted save, খালি দিলে মুছে ফেলা (null)
+        // ENCRYPTION_KEY ছাড়া key সেভ করা যাবে না (plaintext secret রাখা নিষেধ)
+        if (steadfastApiKey !== undefined || steadfastSecretKey !== undefined) {
+            if (!process.env.ENCRYPTION_KEY) {
+                res.status(400).json({ message: "ENCRYPTION_KEY is not configured on the server. Courier keys cannot be saved securely." });
+                return;
+            }
+            if (steadfastApiKey !== undefined) {
+                store.steadfastApiKey = steadfastApiKey ? encrypt(String(steadfastApiKey).trim()) : null;
+            }
+            if (steadfastSecretKey !== undefined) {
+                store.steadfastSecretKey = steadfastSecretKey ? encrypt(String(steadfastSecretKey).trim()) : null;
+            }
+        }
+
         // ✅ Branding & hero — null-safe (frontend খালি field null পাঠায়)
         const toNullString = (v: unknown): string | null => {
             if (v === undefined || v === null) return null;
@@ -182,6 +199,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                steadfastConnected: !!(store.steadfastApiKey && store.steadfastSecretKey),
                 contactEmail: store.contactEmail,
                 contactPhone: store.contactPhone,
                 address: store.address,
@@ -337,7 +355,7 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
 export const getMyStore = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const vendorId = req.user._id;
-        const store = await Store.findOne({vendorId});
+        const store = await Store.findOne({vendorId}).select('+steadfastApiKey +steadfastSecretKey');
 
         if (!store) {
             res.status(404).json({ message: "Store not found for this vendor"});
@@ -360,6 +378,7 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 facebookUrl: store.facebookUrl,
                 instagramUrl: store.instagramUrl,
                 whatsappNumber: store.whatsappNumber,
+                steadfastConnected: !!(store.steadfastApiKey && store.steadfastSecretKey),
                 contactEmail: store.contactEmail,
                 contactPhone: store.contactPhone,
                 address: store.address,

@@ -529,6 +529,9 @@ export const trackOrder = async (req: AuthenticatedRequest, res: Response): Prom
                     quantity: item.quantity,
                     price: item.price,
                 })),
+                courierProvider: order.courierProvider || null,
+                trackingCode: order.trackingCode || null,
+                courierStatus: order.courierStatus || null,
             },
         });
     } catch (error: any) {

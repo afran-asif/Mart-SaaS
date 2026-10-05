@@ -16,6 +16,9 @@ interface TrackedOrder {
     createdAt: string;
     updatedAt: string;
     items: Array<{ name: string; quantity: number; price: number; size?: string }>;
+    courierProvider?: string | null;
+    trackingCode?: string | null;
+    courierStatus?: string | null;
 }
 
 const STEPS = ["Pending", "Processing", "Delivered"];
@@ -164,6 +167,17 @@ function TrackContent() {
                                 </div>
                             ))}
                         </div>
+                        {order.trackingCode && (
+                            <div className="mt-3 rounded-xl bg-[#0E3B2C]/5 border border-[#0E3B2C]/15 p-3 text-sm">
+                                <p className="text-[#0E3B2C] font-semibold">
+                                    🚚 Courier: {order.courierProvider === "steadfast" ? "Steadfast" : order.courierProvider}
+                                </p>
+                                <p className="text-[#181410]/70 mt-0.5 font-mono text-xs">
+                                    Tracking: {order.trackingCode}
+                                    {order.courierStatus ? ` · ${(order.courierStatus || "").replace(/_/g, " ")}` : ""}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
             </main>

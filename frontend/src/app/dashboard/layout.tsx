@@ -68,6 +68,7 @@ const menuItems = [
                 { nameKey: "dashboard.settingsTabs.marketing", path: "/dashboard/settings/marketing" },
                 { nameKey: "dashboard.settingsTabs.branding", path: "/dashboard/settings/branding" },
                 { nameKey: "dashboard.settingsTabs.social", path: "/dashboard/settings/social" },
+                { nameKey: "dashboard.settingsTabs.courier", path: "/dashboard/settings/courier" },
             ],
         },
     ];

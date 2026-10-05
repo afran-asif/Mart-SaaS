@@ -98,6 +98,7 @@ export default function LocalizedDashboardShell({ children }: { children: React.
                 { nameKey: "dashboard.settingsTabs.marketing", path: `/${language}/dashboard/settings/marketing` },
                 { nameKey: "dashboard.settingsTabs.branding", path: `/${language}/dashboard/settings/branding` },
                 { nameKey: "dashboard.settingsTabs.social", path: `/${language}/dashboard/settings/social` },
+                { nameKey: "dashboard.settingsTabs.courier", path: `/${language}/dashboard/settings/courier` },
             ],
         },
     ];

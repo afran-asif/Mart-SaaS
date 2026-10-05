@@ -56,6 +56,9 @@ export default function LocalizedSettingsPage() {
     const [contactEmail, setContactEmail] = useState("");
     const [contactPhone, setContactPhone] = useState("");
     const [address, setAddress] = useState("");
+    const [steadfastApiKey, setSteadfastApiKey] = useState("");
+    const [steadfastSecretKey, setSteadfastSecretKey] = useState("");
+    const [courierConnected, setCourierConnected] = useState(false);
     const [brandColor, setBrandColor] = useState("#F4501A");
     const [heroTitle, setHeroTitle] = useState("");
     const [heroSubtitle, setHeroSubtitle] = useState("");
@@ -88,6 +91,7 @@ export default function LocalizedSettingsPage() {
                 setContactEmail(data.contactEmail || "");
                 setContactPhone(data.contactPhone || "");
                 setAddress(data.address || "");
+                setCourierConnected(!!data.steadfastConnected);
                 setBrandColor(data.brandColor || "#F4501A");
                 setHeroTitle(data.heroTitle || "");
                 setHeroSubtitle(data.heroSubtitle || "");
@@ -189,6 +193,8 @@ export default function LocalizedSettingsPage() {
                 contactEmail: contactEmail.trim(),
                 contactPhone: contactPhone.trim(),
                 address: address.trim(),
+                ...(steadfastApiKey.trim() ? { steadfastApiKey: steadfastApiKey.trim() } : {}),
+                ...(steadfastSecretKey.trim() ? { steadfastSecretKey: steadfastSecretKey.trim() } : {}),
                 brandColor: brandColor.trim() || null,
                 heroTitle: heroTitle.trim() || null,
                 heroSubtitle: heroSubtitle.trim() || null,
@@ -203,6 +209,9 @@ export default function LocalizedSettingsPage() {
 
             const res = await api.put("/store/config", payload);
             setStore(res.data.store);
+            setSteadfastApiKey("");
+            setSteadfastSecretKey("");
+            setCourierConnected(!!res.data?.store?.steadfastConnected);
             dispatch(
                 updateStoreInfo({
                     id: res.data.store.id,
@@ -757,6 +766,51 @@ export default function LocalizedSettingsPage() {
                                 onChange={(e) => setAddress(e.target.value)}
                                 placeholder="e.g. House 12, Road 5, Dhaka"
                                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm outline-none transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Courier (Steadfast) card */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-sm font-bold text-gray-900">🚚 Courier — Steadfast</h2>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                    API key বসালে order থেকে সরাসরি Steadfast-এ পাঠানো যাবে। Key encrypted থাকে।
+                                </p>
+                            </div>
+                            {courierConnected && (
+                                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 shrink-0">
+                                    Connected
+                                </span>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Api-Key
+                            </label>
+                            <input
+                                type="password"
+                                value={steadfastApiKey}
+                                onChange={(e) => setSteadfastApiKey(e.target.value)}
+                                placeholder="খালি রাখলে আগেরটাই থাকবে"
+                                autoComplete="off"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Secret-Key
+                            </label>
+                            <input
+                                type="password"
+                                value={steadfastSecretKey}
+                                onChange={(e) => setSteadfastSecretKey(e.target.value)}
+                                placeholder="খালি রাখলে আগেরটাই থাকবে"
+                                autoComplete="off"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
                             />
                         </div>
                     </div>

@@ -267,7 +267,8 @@
       "domain": "ডোমেইন",
       "marketing": "মার্কেটিং",
       "branding": "ব্র্যান্ডিং",
-      "social": "সোশ্যাল"
+      "social": "সোশ্যাল",
+      "courier": "কুরিয়ার"
     },
     "storeSettings": "স্টোর সেটিংস",
     "signOut": "সাইন আউট",
@@ -568,6 +569,28 @@
       "fbHelp": "আপনার Facebook পেজের পুরো লিংক দিন।",
       "igHelp": "আপনার Instagram প্রোফাইলের পুরো লিংক দিন।",
       "waHelp": "Country code সহ নম্বর দিন (শুধু সংখ্যা) — যেমন 8801XXXXXXXXX"
+    },
+    "courierPage": {
+      "title": "কুরিয়ার — Steadfast",
+      "subtitle": "Key বসালে order থেকে সরাসরি Steadfast-এ পাঠানো যাবে। Key server-এ encrypted থাকে।",
+      "connected": "সংযুক্ত",
+      "guideTitle": "Key কোথায় পাবেন?",
+      "step1": "1. Steadfast merchant panel-এ login করুন (portal.packzy.com)",
+      "step2": "2. Settings / API Key মেনুতে যান",
+      "step3": "3. Api-Key ও Secret-Key copy করে নিচে বসান",
+      "step4": "4. Save চাপুন → Test connection দিয়ে যাচাই করুন",
+      "apiKey": "Api-Key",
+      "secretKey": "Secret-Key",
+      "apiPlaceholder": "Steadfast Api-Key",
+      "secretPlaceholder": "Steadfast Secret-Key",
+      "changePlaceholder": "বদলাতে চাইলে নতুন key দিন",
+      "bothRequired": "Api-Key ও Secret-Key দুটোই দিন।",
+      "saved": "কুরিয়ার সংযুক্ত হয়েছে।",
+      "removed": "কুরিয়ার বিচ্ছিন্ন হয়েছে।",
+      "test": "Test connection",
+      "checking": "যাচাই হচ্ছে...",
+      "disconnect": "বিচ্ছিন্ন করুন",
+      "balanceOk": "Steadfast balance:"
     },
     "adminPage": {
       "title": "সাবস্ক্রিপশন রিকোয়েস্ট",

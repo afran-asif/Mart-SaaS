@@ -5,6 +5,7 @@ import React, { Fragment, useEffect, useState, useCallback, useRef } from "react
 import toast from "react-hot-toast";
 import { getAllOrders, updateOrderStatusApi, Order } from "@/services/orderService";
 import { useTranslation } from "@/hooks/useTranslation";
+import CourierPanel from "@/components/dashboard/CourierPanel";
 
 const PAGE_SIZE = 10;
 
@@ -363,6 +364,7 @@ export default function LocalizedOrdersPage() {
 // Row expand করলে নিচে inline detail panel
 function OrderDetailRow({ order, t }: { order: Order; t: (key: string) => string }) {
     return (
+        <>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Items */}
             <div className="lg:col-span-2">
@@ -435,5 +437,17 @@ function OrderDetailRow({ order, t }: { order: Order; t: (key: string) => string
                 </p>
             </div>
         </div>
+        {/* Courier — Steadfast পাঠানো + tracking */}
+        <div className="mt-4">
+            <CourierPanel
+                orderId={order._id}
+                orderStatus={order.status}
+                initialConsignmentId={order.consignmentId}
+                initialTrackingCode={order.trackingCode}
+                initialCourierStatus={order.courierStatus}
+                initialSyncedAt={order.courierSyncedAt}
+            />
+        </div>
+        </>
     );
 }

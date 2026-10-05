@@ -267,7 +267,8 @@
       "domain": "Domain",
       "marketing": "Marketing",
       "branding": "Branding",
-      "social": "Social"
+      "social": "Social",
+      "courier": "Courier"
     },
     "storeSettings": "Store Settings",
     "signOut": "Sign Out",
@@ -568,6 +569,28 @@
       "fbHelp": "Enter your full Facebook page link.",
       "igHelp": "Enter your full Instagram profile link.",
       "waHelp": "Enter number with country code (digits only) — e.g. 8801XXXXXXXXX"
+    },
+    "courierPage": {
+      "title": "Courier — Steadfast",
+      "subtitle": "Add keys to send orders directly to Steadfast. Keys stay encrypted on the server.",
+      "connected": "Connected",
+      "guideTitle": "Where to get the keys?",
+      "step1": "1. Login to the Steadfast merchant panel (portal.packzy.com)",
+      "step2": "2. Go to the Settings / API Key menu",
+      "step3": "3. Copy the Api-Key and Secret-Key and paste below",
+      "step4": "4. Press Save → verify with Test connection",
+      "apiKey": "Api-Key",
+      "secretKey": "Secret-Key",
+      "apiPlaceholder": "Steadfast Api-Key",
+      "secretPlaceholder": "Steadfast Secret-Key",
+      "changePlaceholder": "Enter new key only to change",
+      "bothRequired": "Please enter both Api-Key and Secret-Key.",
+      "saved": "Courier connected.",
+      "removed": "Courier disconnected.",
+      "test": "Test connection",
+      "checking": "Checking...",
+      "disconnect": "Disconnect",
+      "balanceOk": "Steadfast balance:"
     },
     "adminPage": {
       "title": "Subscription Requests",

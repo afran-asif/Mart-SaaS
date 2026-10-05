@@ -17,6 +17,8 @@ export interface IStore extends Document {
     facebookUrl?: string | null;
     instagramUrl?: string | null;
     whatsappNumber?: string | null;
+    steadfastApiKey?: string | null;
+    steadfastSecretKey?: string | null;
     contactEmail?: string | null;
     contactPhone?: string | null;
     address?: string | null;
@@ -110,6 +112,18 @@ const storeSchema = new Schema<IStore>(
             type: String,
             default: null,
             trim: true,
+        },
+        steadfastApiKey: {
+            type: String,
+            default: null,
+            trim: true,
+            select: false,
+        },
+        steadfastSecretKey: {
+            type: String,
+            default: null,
+            trim: true,
+            select: false,
         },
         contactEmail: {
             type: String,
