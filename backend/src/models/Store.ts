@@ -33,6 +33,9 @@ export interface IStore extends Document {
     customDomainFailedChecks?: number;
     plan?: "free" | "pro";
     planExpiresAt?: Date | null;
+    trialReminder3dSentAt?: Date | null;
+    trialReminder1dSentAt?: Date | null;
+    trialExpiredSentAt?: Date | null;
     emailNotifications?: {
         newOrderAlert?: boolean;
     };
@@ -192,6 +195,18 @@ theme: {
             default: "free",
         },
         planExpiresAt: {
+            type: Date,
+            default: null,
+        },
+        trialReminder3dSentAt: {
+            type: Date,
+            default: null,
+        },
+        trialReminder1dSentAt: {
+            type: Date,
+            default: null,
+        },
+        trialExpiredSentAt: {
             type: Date,
             default: null,
         },

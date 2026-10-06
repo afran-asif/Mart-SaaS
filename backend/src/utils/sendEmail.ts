@@ -522,3 +522,94 @@ export const sendResetPasswordEmail = async (data: { to: string; name: string; r
         console.error("❌ [RESET EMAIL EXCEPTION]:", error);
     }
 };
+
+export interface TrialReminderData {
+    to: string;
+    name: string;
+    storeName: string;
+    daysLeft: number;
+    billingUrl: string;
+}
+
+// Trial reminder — ৩ দিন / ১ দিন আগে + মেয়াদ শেষ হলে (daysLeft 0)
+export const sendTrialReminderEmail = async (data: TrialReminderData) => {
+    try {
+        const resend = getResend();
+        if (!resend) return;
+
+        const expired = data.daysLeft <= 0;
+        const subject = expired
+            ? "⏰ Vendoo — আপনার Pro trial শেষ হয়েছে"
+            : `⏰ Vendoo — Pro trial শেষ হতে আর ${data.daysLeft} দিন`;
+        const headline = expired
+            ? "আপনার Pro trial শেষ হয়েছে"
+            : `Pro trial শেষ হতে আর মাত্র ${data.daysLeft} দিন বাকি`;
+        const body = expired
+            ? `আপনার <strong>${data.storeName}</strong> স্টোরের Pro trial শেষ হয়ে গেছে। Pro ফিচার (unlimited products, custom domain, নিজস্ব পেমেন্ট গেটওয়ে) চালু রাখতে এখনই রিনিউ করুন।`
+            : `আপনার <strong>${data.storeName}</strong> স্টোরের Pro trial <strong>${data.daysLeft} দিন</strong> পর শেষ হবে। মেয়াদ শেষ হলে স্টোর Free plan-এ নেমে যাবে। Pro চালিয়ে যেতে আগেই রিনিউ করুন।`;
+
+        const html = `
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${headline}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+    <tr>
+        <td style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); padding: 36px 40px; text-align: center;">
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1.5px;">Pro Trial Reminder</p>
+            <h1 style="margin: 0; font-size: 24px; color: #ffffff; font-weight: 700;">${headline}</h1>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 28px 40px 0 40px;">
+            <p style="margin: 0; font-size: 15px; color: #374151;">প্রিয় <strong>${data.name}</strong>,</p>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.7;">${body}</p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 28px 40px 0 40px; text-align: center;">
+            <a href="${data.billingUrl}" style="display: inline-block; background-color: #ea580c; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 14px 36px; border-radius: 8px;">⚡ এখনই Pro নিন</a>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 24px 40px 36px 40px; text-align: center;">
+            <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+        </td>
+    </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+
+        const response = await resend.emails.send({
+            from: "Vendoo <noreply@vendoo.shop>",
+            to: data.to,
+            subject,
+            html,
+        });
+
+        if (response.error) {
+            console.error("❌ [TRIAL EMAIL ERROR]:", {
+                message: response.error.message,
+                to: data.to,
+            });
+        } else {
+            console.log("✅ [TRIAL EMAIL SENT] to", data.to, "ID:", response.data?.id);
+        }
+    } catch (error) {
+        console.error("❌ [TRIAL EMAIL EXCEPTION]:", error);
+    }
+};

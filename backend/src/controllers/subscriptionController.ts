@@ -160,6 +160,10 @@ export const approveSubscription = async (req: AuthenticatedRequest, res: Respon
 
         store.plan = "pro";
         store.planExpiresAt = periodEnd;
+        // renew হলে পুরনো reminder marker মুছে যায় (পরের cycle-এ আবার যাবে)
+        store.trialReminder3dSentAt = null;
+        store.trialReminder1dSentAt = null;
+        store.trialExpiredSentAt = null;
         await store.save();
         await cacheDelTenantStore(store.subdomain, store.customDomain);
 

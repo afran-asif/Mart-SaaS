@@ -8,6 +8,7 @@ import {
     getNotificationsFeed,
     impersonateVendor,
     reverifyDomains,
+    sendTrialRemindersNow,
 } from "../controllers/adminController";
 import { protect, authorize } from "../middlewares/authMiddleware";
 
@@ -23,5 +24,6 @@ router.get("/stats", getPlatformStats);
 router.get("/notifications", getNotificationsFeed);
 router.post("/stores/:id/impersonate", impersonateVendor);
 router.post("/domains/reverify", reverifyDomains);
+router.post("/subscriptions/remind", sendTrialRemindersNow);
 
 export default router;

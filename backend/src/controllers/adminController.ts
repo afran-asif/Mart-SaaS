@@ -11,6 +11,7 @@ import { getEffectivePlan } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
 import { Review } from "../models/Review";
 import { reverifyCustomDomains } from "../jobs/reverifyCustomDomains";
+import { sendTrialReminders } from "../jobs/trialReminders";
 
 // GET /admin/stores — সব store + vendor + plan + counts
 export const listStores = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -268,6 +269,16 @@ export const getPlatformStats = async (_req: AuthenticatedRequest, res: Response
 export const reverifyDomains = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const summary = await reverifyCustomDomains();
+        res.status(200).json({ success: true, summary });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+// POST /admin/subscriptions/remind — trial reminder manual trigger
+export const sendTrialRemindersNow = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const summary = await sendTrialReminders();
         res.status(200).json({ success: true, summary });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });

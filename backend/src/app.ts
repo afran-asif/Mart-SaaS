@@ -26,6 +26,7 @@ import reviewRoutes from './routes/reviewRoutes';
 import courierRoutes from './routes/courierRoutes';
 import { refreshCustomDomainCache, isVerifiedCustomDomain } from "./utils/customDomainCache";
 import { reverifyCustomDomains } from "./jobs/reverifyCustomDomains";
+import { sendTrialReminders } from "./jobs/trialReminders";
 import * as Sentry from "@sentry/node";
 import { originCheck } from "./middlewares/originCheck";
 import { seedPlans } from "./models/Plan";
@@ -122,6 +123,20 @@ const startServer = async () => {
         };
         setTimeout(runReverify, 5 * 60 * 1000);
         setInterval(runReverify, 24 * 60 * 60 * 1000);
+    }
+
+    // ✉️ Trial reminder — প্রতিদিন একবার (প্রথম run boot-এর ১০ মিনিট পর)
+    if (process.env.DISABLE_TRIAL_REMINDERS !== "1") {
+        const runTrialReminders = async () => {
+            try {
+                const summary = await sendTrialReminders();
+                console.log(`[TRIAL] done: ${JSON.stringify(summary)}`);
+            } catch (error) {
+                console.error(`[TRIAL] failed: ${(error as Error).message}`);
+            }
+        };
+        setTimeout(runTrialReminders, 10 * 60 * 1000);
+        setInterval(runTrialReminders, 24 * 60 * 60 * 1000);
     }
     
     app.listen(PORT, () => {
