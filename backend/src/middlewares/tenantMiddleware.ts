@@ -52,6 +52,9 @@ export const tenantResolver = async (req: TenantRequest, res: Response, next: Ne
             return;
         }
 
+        // 🔒 Locked store সবসময় resolve হয় (browse-only, takedown নেই — SEO safe)
+        // Order বন্ধ থাকে createOrder/payment + frontend button দিয়ে।
+
         req.storeId = store._id.toString();
         req.store = store;
 

@@ -3,7 +3,7 @@ import { Store } from "../models/Store";
 import { Plan } from "../models/Plan";
 import { Subscription } from "../models/Subscription";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
-import { getEffectivePlan, getUsage } from "../utils/plan";
+import { getEffectivePlan, getUsage, isStoreLocked } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
 
 const SUBSCRIPTION_DAYS = 30;
@@ -43,6 +43,7 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
                 storedPlan: store.plan,
                 planExpiresAt: store.planExpiresAt,
                 isTrial,
+                locked: isStoreLocked(store),
                 usage: {
                     products: usage.products,
                     maxProducts: usage.limits.maxProducts,

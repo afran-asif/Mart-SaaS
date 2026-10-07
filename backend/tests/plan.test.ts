@@ -1,6 +1,6 @@
 import { describe, test, expect } from "@jest/globals";
 import { Response } from "express";
-import { getEffectivePlan, requirePro, checkProductLimit } from "../src/utils/plan";
+import { getEffectivePlan, requirePro, checkProductLimit, isStoreLocked } from "../src/utils/plan";
 import { Store } from "../src/models/Store";
 import { Product } from "../src/models/Product";
 import { User } from "../src/models/User";
@@ -48,6 +48,13 @@ describe("plan helpers", () => {
             requirePro({ plan: "pro", planExpiresAt: new Date(Date.now() + 86400000) } as any, res, "Coupons")
         ).toBe(true);
         expect(res.statusCode).toBe(200);
+    });
+
+    test("isStoreLocked: active trial → false, expired → true, free → true", () => {
+        expect(isStoreLocked({ plan: "pro", planExpiresAt: new Date(Date.now() + 86400000) } as any)).toBe(false);
+        expect(isStoreLocked({ plan: "pro", planExpiresAt: new Date(Date.now() - 1000) } as any)).toBe(true);
+        expect(isStoreLocked({ plan: "free" } as any)).toBe(true);
+        expect(isStoreLocked({} as any)).toBe(true);
     });
 });
 

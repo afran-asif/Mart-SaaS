@@ -9,6 +9,7 @@ import { api } from "@/services/api";
 import { trackInitiateCheckout, trackAddToCart } from "@/lib/tracking";
 import toast from "react-hot-toast";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import StoreLockedBanner from "@/components/storefront/StoreLockedBanner";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 import { BD_DISTRICTS, BD_DISTRICT_THANAS, getDeliveryCharge } from "@/lib/delivery";
 
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
     const [storeId, setStoreId] = useState<string | null>(null);    const [loading, setLoading] = useState(false);
     const [theme, setTheme] = useState("classic");
     const [brand, setBrand] = useState("#F4501A");
+    const [storeLocked, setStoreLocked] = useState(false);
     const [onlinePaymentEnabled, setOnlinePaymentEnabled] = useState(false);
     const orderPlacedRef = useRef(false);   // ✅ নতুন flag
     const initiatedRef = useRef(false);
@@ -70,6 +72,7 @@ export default function CheckoutPage() {
                 setStoreId(res.data.store.id);
                 setTheme(res.data.store.theme || "classic");
                 setBrand(res.data.store.brandColor || "#F4501A");
+                setStoreLocked(!!res.data.store.locked);
                 setOnlinePaymentEnabled(!!res.data.store.onlinePaymentEnabled);
             } catch {
                 toast.error("স্টোরের তথ্য লোড করা যায়নি");
@@ -146,6 +149,11 @@ export default function CheckoutPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (storeLocked) {
+            toast.error("এই স্টোরে এখন অর্ডার নেওয়া হচ্ছে না");
+            return;
+        }
 
         if (!storeId) {
             toast.error("স্টোরের তথ্য এখনো লোড হয়নি, আবার চেষ্টা করুন");
@@ -235,6 +243,7 @@ const res = await api.post("/payment/initiate", {
     return (
         <div className={`min-h-screen ${bg}`}>
             <StorefrontHeader variant="sub" brandColor={brand} theme={theme} />
+            {storeLocked && <StoreLockedBanner theme={theme} />}
 
             <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
                 <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>

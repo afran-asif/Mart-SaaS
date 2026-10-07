@@ -254,9 +254,9 @@ export const registerVendor = async (req: Request, res: Response) => {
             vendorId: user._id,
             storeName,
             subdomain,
-            // 🎁 নতুন স্টোরে ১৪ দিনের Pro trial
+            // 🎁 নতুন স্টোরে ৩০ দিনের Pro trial (first month free, তারপর pay না করলে lock)
             plan: "pro",
-            planExpiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
 
         // 🏷️ নতুন স্টোরের জন্য default categories তৈরি

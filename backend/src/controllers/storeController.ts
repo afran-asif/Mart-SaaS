@@ -4,7 +4,7 @@ import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { TenantRequest } from "../middlewares/tenantMiddleware";
 import { encrypt } from "../utils/encryption";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
-import { getEffectivePlan, getPlanLimits } from "../utils/plan";
+import { getEffectivePlan, getPlanLimits, isStoreLocked } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
 
 export const getAllActiveStores = async (_req: Request, res: Response): Promise<void> => {
@@ -345,6 +345,8 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 onlinePaymentEnabled: tenantPlan === "pro" && !!store.useOwnSSLCommerz && !!store.sslcommerzStoreId,
                 // Pro-তে "Powered by Vendoo" badge লুকানো যাবে
                 plan: tenantPlan,
+                // 🔒 locked (trial শেষ / unpaid) → storefront browse-only, order বন্ধ
+                locked: isStoreLocked(store),
             }
         });
     } catch (error) {

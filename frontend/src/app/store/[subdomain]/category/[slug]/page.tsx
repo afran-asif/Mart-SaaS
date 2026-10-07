@@ -4,6 +4,7 @@ import Link from "next/link";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import StoreCollection from "@/components/storefront/StoreCollection";
 import StorefrontFooter from "@/components/storefront/StorefrontFooter";
+import StoreLockedBanner from "@/components/storefront/StoreLockedBanner";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 
 export const revalidate = 60;
@@ -87,6 +88,7 @@ export default async function CategoryPage({
                 brandColor={brand}
                 theme={theme}
             />
+            {store.locked && <StoreLockedBanner storeName={store.storeName} theme={theme} />}
 
             <main className="max-w-[1440px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 {/* Breadcrumb */}

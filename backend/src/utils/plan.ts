@@ -22,6 +22,12 @@ export const getEffectivePlan = (store: StoreLike): PlanSlug => {
     return "free";
 };
 
+// 🔒 Lock state — free tier বলে কিছু নেই: effective plan pro না হলেই locked।
+// Locked vendor: dashboard (billing ছাড়া) + সব vendor API বন্ধ; storefront browse-only।
+export const isStoreLocked = (store: StoreLike): boolean => {
+    return getEffectivePlan(store) !== "pro";
+};
+
 export const getPlanLimits = async (plan: PlanSlug) => {
     const cached = await cacheGet<any>(cacheKeys.plan(plan));
     if (cached) return cached;

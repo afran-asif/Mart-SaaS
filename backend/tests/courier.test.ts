@@ -76,6 +76,8 @@ describe("courier routes (vendor)", () => {
             vendorId: user._id,
             storeName: "S",
             subdomain: `co${t}`,
+            plan: "pro",
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
             steadfastApiKey: encrypt("APIKEY"),
             steadfastSecretKey: encrypt("SECRET"),
         });

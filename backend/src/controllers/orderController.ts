@@ -4,6 +4,7 @@ import Order from "../models/Order";
 import { Store } from "../models/Store";
 import { Product } from "../models/Product";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { isStoreLocked } from "../utils/plan";
 
 // Helper — vendor এর storeId বের করা
 const getVendorStoreId = async (vendorId: string): Promise<string | null> => {
@@ -183,6 +184,18 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
         if (!store) {
             await session.abortTransaction();
             res.status(404).json({ message: "Store not found." });
+            return;
+        }
+
+        // 🔒 Locked/suspended store-এ order নেওয়া যাবে না (storefront browse-only)
+        if (store.status !== "active") {
+            await session.abortTransaction();
+            res.status(403).json({ message: "This store is not accepting orders right now." });
+            return;
+        }
+        if (isStoreLocked(store)) {
+            await session.abortTransaction();
+            res.status(403).json({ message: "This store is not accepting orders right now.", locked: true });
             return;
         }
 

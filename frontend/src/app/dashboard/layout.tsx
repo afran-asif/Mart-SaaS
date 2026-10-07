@@ -8,6 +8,7 @@ import { logout, setCredentials } from "@/redux/authSlice";
 import { fetchMe, logoutVendor } from "@/services/authService";
 import { useTranslation } from "@/hooks/useTranslation";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
+import DashboardLockGate from "@/components/dashboard/DashboardLockGate";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -245,7 +246,9 @@ const menuItems = [
                         </button>
                     </div>
                 )}
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">{children}</main>
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">
+                    <DashboardLockGate billingHref="/dashboard/billing">{children}</DashboardLockGate>
+                </main>
             </div>
         </div>
     );

@@ -8,6 +8,7 @@ import { decreaseQuantity, removeFromCart, addToCart, toggleSelectItem, setSelec
 import { trackAddToCart } from "@/lib/tracking";
 import { api } from "@/services/api";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
+import StoreLockedBanner from "@/components/storefront/StoreLockedBanner";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 
 export default function CartPage() {
@@ -15,10 +16,12 @@ export default function CartPage() {
     const { items, totalQuantity, selectedIds } = useSelector((state: RootState) => state.cart);
     const [theme, setTheme] = useState("classic");
     const [brand, setBrand] = useState("#F4501A");
+    const [storeLocked, setStoreLocked] = useState(false);
     useEffect(() => {
         api.get("/tenant/store").then((res) => {
             setTheme(res.data.store?.theme || "classic");
             setBrand(res.data.store?.brandColor || "#F4501A");
+            setStoreLocked(!!res.data.store?.locked);
         }).catch(() => {});
     }, []);
 
@@ -66,6 +69,7 @@ export default function CartPage() {
         <div className={`min-h-screen ${bg}`}>
             {/* হেডার */}
             <StorefrontHeader variant="sub" brandColor={brand} theme={theme} />
+            {storeLocked && <StoreLockedBanner theme={theme} />}
 
             <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.2em] uppercase mb-2 ${isLuxe ? "text-[#d4af37]" : isDark ? "text-white/60" : "text-[#C6A15B]"}`}>
@@ -214,7 +218,7 @@ export default function CartPage() {
                                     <span className="font-['Fraunces',serif] text-xl">৳{selectedTotal}</span>
                                 </div>
 
-                                {selectedItems.length > 0 ? (
+                                {selectedItems.length > 0 && !storeLocked ? (
                                     <Link
                                         href="/checkout"
                                         className="block w-full text-center bg-[#F4501A] text-white py-3.5 rounded-xl text-sm font-medium hover:bg-[#D63F0F] transition-all shadow-lg shadow-[#F4501A]/25"
@@ -223,7 +227,7 @@ export default function CartPage() {
                                     </Link>
                                 ) : (
                                     <span className="block w-full text-center bg-[#75705F]/15 text-[#75705F] py-3.5 rounded-xl text-sm font-medium cursor-not-allowed">
-                                        আইটেম সিলেক্ট করুন
+                                        {storeLocked ? "অর্ডার বন্ধ আছে" : "আইটেম সিলেক্ট করুন"}
                                     </span>
                                 )}
                             </div>

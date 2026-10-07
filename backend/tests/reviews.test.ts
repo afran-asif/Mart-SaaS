@@ -27,7 +27,13 @@ describe("reviews", () => {
         const t = Date.now();
         const user = await User.create({ name: "V", email: `r${t}@t.com`, password: "x", role: "vendor", isVerified: true });
         subdomain = `rev${t}`;
-        const store = await Store.create({ vendorId: user._id, storeName: "S", subdomain });
+        const store = await Store.create({
+            vendorId: user._id,
+            storeName: "S",
+            subdomain,
+            plan: "pro",
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
         const product = await Product.create({ vendorId: user._id, storeId: store._id, name: "P", price: 100, stock: 5, description: "d" });
         productId = (product._id as unknown as { toString(): string }).toString();
         const order: any = await Order.create({

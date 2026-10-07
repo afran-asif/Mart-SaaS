@@ -6,6 +6,7 @@ import ProductReviews from "@/components/storefront/ProductReviews";
 import StorefrontFooter from "@/components/storefront/StorefrontFooter";
 import TrackViewContent from "@/components/storefront/TrackViewContent";
 import FeaturedSlider from "@/components/storefront/FeaturedSlider";
+import StoreLockedBanner from "@/components/storefront/StoreLockedBanner";
 import { themeBgMap, isDarkTheme, isLuxeTheme } from "@/lib/storeTheme";
 import type { Metadata } from "next";
 
@@ -73,6 +74,7 @@ async function getStoreTheme(subdomain: string): Promise<{
     contactEmail?: string | null;
     contactPhone?: string | null;
     address?: string | null;
+    locked?: boolean;
     plan?: string;
 }> {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
@@ -94,6 +96,7 @@ async function getStoreTheme(subdomain: string): Promise<{
             contactEmail: data.store?.contactEmail,
             contactPhone: data.store?.contactPhone,
             address: data.store?.address,
+            locked: data.store?.locked ?? data.store?.plan !== "pro",
             plan: data.store?.plan,
         };
     } catch { return {}; }
@@ -155,6 +158,7 @@ export default async function ProductDetailPage({
         <div className={`min-h-screen ${bg}`}>
             {/* সিম্পল হেডার — ব্যাক লিংক সহ */}
             <StorefrontHeader variant="sub" theme={theme} brandColor={storeInfo.brandColor || undefined} />
+            {storeInfo.locked && <StoreLockedBanner storeName={storeInfo.storeName} theme={theme} />}
 
             {/* E-commerce ViewContent Tracking (Meta, TikTok, GA) */}
             <TrackViewContent
@@ -217,7 +221,7 @@ export default async function ProductDetailPage({
                             )}
                         </div>
 
-                        <AddToCartButton product={product} theme={theme} sizes={product.sizes || []} />
+                        <AddToCartButton product={product} theme={theme} sizes={product.sizes || []} locked={storeInfo.locked} />
 
                         {/* Trust badges */}
                         {!outOfStock && (

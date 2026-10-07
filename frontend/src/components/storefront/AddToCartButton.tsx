@@ -15,7 +15,7 @@ interface Product {
     stock: number;
 }
 
-export default function AddToCartButton({ product, theme = "classic", sizes = [] }: { product: Product; theme?: string; sizes?: string[] }) {
+export default function AddToCartButton({ product, theme = "classic", sizes = [], locked = false }: { product: Product; theme?: string; sizes?: string[]; locked?: boolean }) {
     const dispatch = useDispatch();
     const router = useRouter();
     const outOfStock = product.stock === 0;
@@ -80,22 +80,22 @@ export default function AddToCartButton({ product, theme = "classic", sizes = []
             )}
             <button
                 onClick={handleBuyNow}
-                disabled={outOfStock || (hasSizes && !size)}
+                disabled={outOfStock || locked || (hasSizes && !size)}
             className={`w-full py-3.5 rounded-xl font-medium text-sm transition-all ${
-                outOfStock
+                outOfStock || locked
                     ? "bg-[#75705F]/15 text-[#75705F] cursor-not-allowed"
                     : hasSizes && !size
                     ? "bg-[#F4501A]/60 text-white cursor-not-allowed"
                     : "bg-[#F4501A] text-white hover:bg-[#D63F0F] shadow-lg shadow-[#F4501A]/25 hover:shadow-xl hover:shadow-[#F4501A]/30"
             }`}
             >
-                {outOfStock ? "স্টক নেই" : hasSizes && !size ? "সাইজ বাছুন" : "এখনই কিনুন"}
+                {locked ? "অর্ডার বন্ধ আছে" : outOfStock ? "স্টক নেই" : hasSizes && !size ? "সাইজ বাছুন" : "এখনই কিনুন"}
             </button>
             <button
                 onClick={handleAddToCart}
-                disabled={outOfStock || (hasSizes && !size)}
+                disabled={outOfStock || locked || (hasSizes && !size)}
             className={`w-full py-3.5 rounded-xl font-medium text-sm transition-all border-2 ${
-                outOfStock
+                outOfStock || locked
                     ? "border-[#75705F]/20 text-[#75705F] cursor-not-allowed"
                     : hasSizes && !size
                     ? isDark
@@ -108,7 +108,7 @@ export default function AddToCartButton({ product, theme = "classic", sizes = []
                     : "border-[#0E3B2C] text-[#0E3B2C] hover:bg-[#0E3B2C] hover:text-white"
             }`}
             >
-                {outOfStock ? "স্টক নেই" : "কার্টে যোগ করুন"}
+                {locked ? "অর্ডার বন্ধ আছে" : outOfStock ? "স্টক নেই" : "কার্টে যোগ করুন"}
             </button>
         </div>
     );

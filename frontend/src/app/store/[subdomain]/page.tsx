@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import StoreCollection from "@/components/storefront/StoreCollection";
 import FeaturedSlider from "@/components/storefront/FeaturedSlider";
+import StoreLockedBanner from "@/components/storefront/StoreLockedBanner";
 
 
 interface Product {
@@ -36,6 +37,7 @@ interface Store {
     heroImage?: string | null;
     theme?: string | null;
     plan?: string;
+    locked?: boolean;
 }
 
 export async function generateMetadata({
@@ -183,6 +185,7 @@ export default async function StorePage({
         <div className={`min-h-screen overflow-x-clip ${themeBg[theme] || themeBg.classic}`}>
             {/* Header — শপ ব্যানার */}
             <StorefrontHeader variant="home" storeName={store.storeName} storeLogo={store.logo} brandColor={brand} theme={theme} />
+            {store.locked && <StoreLockedBanner storeName={store.storeName} theme={theme} />}
 
             {/* Hero — full width edge-to-edge, image full height */}
             {hasHero && (

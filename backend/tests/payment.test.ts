@@ -22,7 +22,13 @@ describe("payment initiate (money path)", () => {
     beforeEach(async () => {
         const email = `pay${Date.now()}@t.com`;
         const user = await User.create({ name: "V", email, password: "x", role: "vendor", isVerified: true });
-        store = await Store.create({ vendorId: user._id, storeName: "S", subdomain: `pay${Date.now()}` });
+        store = await Store.create({
+            vendorId: user._id,
+            storeName: "S",
+            subdomain: `pay${Date.now()}`,
+            plan: "pro",
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
         product = await Product.create({
             vendorId: user._id, storeId: store._id, name: "P", price: 1200, stock: 5, description: "d",
         });

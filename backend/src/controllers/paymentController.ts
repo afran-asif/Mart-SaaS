@@ -8,7 +8,7 @@ import { sendOrderConfirmationEmail, sendNewOrderAlertEmail } from "../utils/sen
 import { User } from "../models/User";
 import { Coupon } from "../models/Coupon";
 import { getDeliveryCharge, BD_DISTRICTS, isValidThana } from "../utils/deliveryCharges";
-import { checkMonthlyOrderLimit, getEffectivePlan } from "../utils/plan";
+import { checkMonthlyOrderLimit, getEffectivePlan, isStoreLocked } from "../utils/plan";
 const SSLCommerzPayment = require("sslcommerz-lts");
 
 const calcCouponDiscount = (coupon: any, subtotal: number): number => {
@@ -169,6 +169,13 @@ export const initiatePayment = async (req: Request, res: Response) => {
         if (!store) {
             await session.abortTransaction();
             res.status(404).json({ message: "Store not found." });
+            return;
+        }
+
+        // 🔒 Locked/suspended store-এ order/payment নেওয়া যাবে না
+        if (store.status !== "active" || isStoreLocked(store)) {
+            await session.abortTransaction();
+            res.status(403).json({ message: "This store is not accepting orders right now.", locked: true });
             return;
         }
 

@@ -9,6 +9,7 @@ import { api } from "@/services/api";
 import { fetchMe, logoutVendor } from "@/services/authService";
 import { useTranslation } from "@/hooks/useTranslation";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
+import DashboardLockGate from "@/components/dashboard/DashboardLockGate";
 
 export default function LocalizedDashboardShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -275,7 +276,9 @@ export default function LocalizedDashboardShell({ children }: { children: React.
                         </button>
                     </div>
                 )}
-<main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">{children}</main>
+<main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10">
+                    <DashboardLockGate billingHref={`/${language}/dashboard/billing`}>{children}</DashboardLockGate>
+                </main>
             </div>
         </div>
     );
