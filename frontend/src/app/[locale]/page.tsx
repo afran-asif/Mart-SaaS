@@ -462,7 +462,7 @@ export default function LocalizedHomePage() {
               <div className="flex items-center justify-between">
                 <span className="inline-block h-2.5 w-10 rounded-full bg-blue-500" />
                 <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
-                  SSLCommerz
+                  COD
                 </span>
               </div>
               <div className="mt-3 text-sm font-bold text-gray-900">Fresh Organics</div>
@@ -671,7 +671,7 @@ export default function LocalizedHomePage() {
                 <div className="flex items-center justify-between rounded-lg bg-gray-900/90 p-2.5 text-xs border border-gray-800/80">
                   <div>
                     <div className="font-semibold text-gray-200">#ORD-9041 · Minimalist Backpack</div>
-                    <div className="text-[10px] text-gray-400">Buyer: afrin.s@yahoo.com · SSLCommerz</div>
+                    <div className="text-[10px] text-gray-400">Buyer: afrin.s@yahoo.com · COD</div>
                   </div>
                   <span className="font-bold text-emerald-400">৳ 3,200</span>
                 </div>
@@ -696,14 +696,14 @@ export default function LocalizedHomePage() {
         </div>
 
         <div className="mt-12 grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
-          {/* Free Tier */}
+          {/* Trial Tier (30-day free, then Pro or locked) */}
           <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.starterLabel")}</span>
               <div className="mt-4 flex items-center gap-2 flex-wrap">
                 <span className="text-lg font-semibold text-gray-400 line-through">৳499</span>
                 <span className="text-4xl font-extrabold text-gray-900">৳0</span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">100% OFF</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{t("pricing.trialBadge")}</span>
               </div>
               <p className="mt-3 text-xs text-gray-500">
                 {t("pricing.starterDesc")}
@@ -882,7 +882,7 @@ export default function LocalizedHomePage() {
                 <span>•</span>
                 <span>Redux Toolkit</span>
                 <span>•</span>
-                <span>SSLCommerz Ready</span>
+                <span>COD Ready</span>
               </div>
             </div>
 

@@ -17,7 +17,7 @@
     "claimButton": "Claim Store",
     "feature1": "Zero setup fee",
     "feature2": "Instant subdomain activation",
-    "feature3": "SSLCommerz & COD ready"
+    "feature3": "COD ready"
   },
   "stats": {
     "setupTime": "Store Setup Time",
@@ -40,8 +40,8 @@
         "description": "Easily upload products with multiple high-resolution images, real-time stock counters, price configurations, and category sorting."
       },
       {
-        "title": "Integrated COD & Online Payments",
-        "description": "Cash on Delivery for everyone, district-wise auto delivery charges, plus bKash/Nagad/cards via your own SSLCommerz gateway on Pro."
+        "title": "Integrated COD Payments",
+        "description": "Cash on Delivery for everyone with district-wise auto delivery charges."
       },
       {
         "title": "Real-Time Vendor Analytics",
@@ -95,34 +95,35 @@
     "subtitle": "Effortlessly manage your catalog, track incoming customer orders, update store branding, and inspect live revenue data without ever touching code.",
     "point1": "Instant product image uploads via Cloudinary",
     "point2": "Real-time status updates: Pending, Processing, Delivered",
-    "point3": "Custom SSLCommerz store credentials integration",
+      "point3": "Steadfast courier integration with tracking",
     "createAccount": "Create Vendor Account",
     "loginDashboard": "Log In to Dashboard"
   },
   "pricing": {
     "badge": "Transparent Pricing",
     "title": "Simple, Vendor-First Plans",
-    "subtitle": "Start completely free — every new store gets a 14-day Pro trial. Upgrade whenever you are ready to scale.",
-    "starterLabel": "Starter Vendor",
-    "starterDesc": "Ideal for individuals and small shops launching their first online storefront.",
-    "starterFree": "/ forever free",
-    "starterFeature1": "1 Branded Subdomain (.vendoo.shop)",
-    "starterFeature2": "Up to 20 products",
-    "starterFeature3": "Cash on Delivery (COD)",
-    "starterFeature4": "Auto district delivery charges",
-    "starterFeature5": "3 store themes",
-    "starterFeature6": "Real-time dashboard",
-    "starterCta": "Get Started Free",
+    "subtitle": "Every new store gets 30 days of full Pro, free. After trial, Pro at ৳499/month keeps your store live — no pay, no orders.",
+    "starterLabel": "Free Trial",
+    "starterDesc": "30 days of everything — no card, no payment. Just sell.",
+    "starterFree": "/ 30 days free",
+    "trialBadge": "30 DAYS FREE",
+    "starterFeature1": "Full Pro access for 30 days",
+    "starterFeature2": "Custom domain (yourbrand.com)",
+    "starterFeature3": "All 9 store themes",
+    "starterFeature4": "Coupons & discount codes",
+    "starterFeature5": "Steadfast courier integration",
+    "starterFeature6": "Priority 24/7 support",
+    "starterCta": "Start Free Trial",
     "popular": "Most Popular",
     "proLabel": "Pro Merchant",
     "proMonth": "/ month",
-    "proDesc": "For growing businesses that want their own brand and marketing power.",
-    "proFeature1": "Everything in Starter",
+    "proDesc": "Keep everything running after your trial — pause means no orders, no dashboard.",
+    "proFeature1": "Everything from the trial, continued",
     "proFeature2": "Custom domain (yourbrand.com)",
     "proFeature3": "All 9 store themes",
     "proFeature4": "Coupons & discount codes",
     "proFeature5": "Marketing pixels (FB/Google/TikTok)",
-    "proFeature6": "Own SSLCommerz gateway",
+    "proFeature6": "Steadfast courier integration",
     "proFeature7": "Priority 24/7 support",
       "proFeature8": "Up to 500 products",
     "proCta": "Launch Pro Store"
@@ -141,7 +142,7 @@
       },
       {
         "q": "What payment methods are supported?",
-        "a": "Every store supports Cash on Delivery (COD) with automatic district-wise delivery charges. On the Pro plan you can also accept online payments (bKash, Nagad, cards) through your own SSLCommerz credentials."
+        "a": "Every store supports Cash on Delivery (COD) with automatic district-wise delivery charges."
       },
       {
         "q": "How do I manage my products and orders?",
@@ -153,7 +154,7 @@
       },
       {
         "q": "How does Pro billing work?",
-        "a": "Every new store starts with a free 14-day Pro trial. After that you can stay free forever (20 products, COD, subdomain) or upgrade to Pro for ৳499/month via bKash — custom domain, coupons, all themes, and unlimited everything."
+        "a": "Every new store gets a free 30-day Pro trial with everything unlocked. After trial, Pro costs ৳499/month via bKash. If you don't renew, your store pauses (no orders, no dashboard) but nothing is deleted — pay anytime and everything comes back instantly."
       }
     ]
   },

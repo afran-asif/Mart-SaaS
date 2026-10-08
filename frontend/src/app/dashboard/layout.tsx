@@ -64,7 +64,6 @@ const menuItems = [
             path: "/dashboard/settings",
             children: [
                 { nameKey: "dashboard.settingsTabs.identity", path: "/dashboard/settings" },
-                { nameKey: "dashboard.settingsTabs.payments", path: "/dashboard/settings/payments" },
                 { nameKey: "dashboard.settingsTabs.domain", path: "/dashboard/settings/domain" },
                 { nameKey: "dashboard.settingsTabs.marketing", path: "/dashboard/settings/marketing" },
                 { nameKey: "dashboard.settingsTabs.branding", path: "/dashboard/settings/branding" },

@@ -12,7 +12,7 @@ const PRO_FEATURES = [
     "All 9 store themes",
     "Coupons & discounts",
     "Facebook / Google / TikTok pixels",
-    "Own SSLCommerz gateway",
+    "Steadfast courier integration",
     "0% transaction fee",
 ];
 
@@ -101,7 +101,7 @@ export default function LocalizedBillingPage() {
                             {t("dashboard.billingPage.currentPlan")}
                         </p>
                         <h2 className="text-2xl font-extrabold mt-1">
-                            {isPro ? "Pro" : "Free"}
+                            {isPro ? "Pro" : "🔒 Locked"}
                             {sub?.isTrial && (
                                 <span className="ml-2 text-xs font-semibold bg-white/20 px-2 py-1 rounded-md align-middle">
                                     {t("dashboard.billingPage.trial")}

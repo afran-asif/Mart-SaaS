@@ -159,7 +159,7 @@ export default function BrandingSettingsPage() {
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
                     <div>
                         <h2 className="text-sm font-bold text-gray-900">Store Theme</h2>
-                        <p className="text-xs text-gray-500 mt-0.5">Free: classic, minimal, vibrant · Pro: all 9 themes.</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Trial & Pro: all 9 themes. Locked stores can't change themes.</p>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {[

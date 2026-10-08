@@ -13,8 +13,6 @@ interface StoreData {
     subdomain: string;
     logo: string | null;
     status: "active" | "suspended";
-    useOwnSSLCommerz: boolean;
-    sslcommerzStoreId?: string;
     facebookPixelId?: string;
     googleAnalyticsId?: string;
     tiktokPixelId?: string;
@@ -36,9 +34,6 @@ export default function LocalizedSettingsPage() {
     const [storeName, setStoreName] = useState("");
     const [logo, setLogo] = useState("");
     const [status, setStatus] = useState<"active" | "suspended">("active");
-    const [useOwnSSLCommerz, setUseOwnSSLCommerz] = useState(false);
-    const [sslcommerzStoreId, setSslcommerzStoreId] = useState("");
-    const [sslcommerzStorePassword, setSslcommerzStorePassword] = useState("");
     const [logoError, setLogoError] = useState(false);
 
     const [loading, setLoading] = useState(true);
@@ -80,8 +75,6 @@ export default function LocalizedSettingsPage() {
                 setStoreName(data.storeName || "");
                 setLogo(data.logo || "");
                 setStatus(data.status || "active");
-                setUseOwnSSLCommerz(data.useOwnSSLCommerz || false);
-                setSslcommerzStoreId(data.sslcommerzStoreId || "");
                 setFacebookPixelId(data.facebookPixelId || "");
                 setGoogleAnalyticsId(data.googleAnalyticsId || "");
                 setTiktokPixelId(data.tiktokPixelId || "");
@@ -183,7 +176,6 @@ export default function LocalizedSettingsPage() {
                 storeName,
                 logo: logo.trim() ? logo.trim() : null,
                 status,
-                useOwnSSLCommerz,
                 facebookPixelId: facebookPixelId.trim(),
                 googleAnalyticsId: googleAnalyticsId.trim(),
                 tiktokPixelId: tiktokPixelId.trim(),
@@ -202,11 +194,6 @@ export default function LocalizedSettingsPage() {
                 theme,
             };
 
-            if (useOwnSSLCommerz) {
-                if (sslcommerzStoreId) payload.sslcommerzStoreId = sslcommerzStoreId.trim();
-                if (sslcommerzStorePassword) payload.sslcommerzStorePassword = sslcommerzStorePassword.trim();
-            }
-
             const res = await api.put("/store/config", payload);
             setStore(res.data.store);
             setSteadfastApiKey("");
@@ -220,7 +207,6 @@ export default function LocalizedSettingsPage() {
                     logo: res.data.store.logo,
                 })
             );
-            setSslcommerzStorePassword("");
             toast.success("Settings updated successfully.");
         } catch (error: any) {
             toast.error(error.message || "Failed to update settings.");
@@ -404,122 +390,6 @@ export default function LocalizedSettingsPage() {
                                         </p>
                                     </div>
                                 </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Payment Routing card */}
-                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.paymentRouting")}</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                                {t("dashboard.settingsPage.paymentRoutingDesc")}
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setUseOwnSSLCommerz(false)}
-                                className={`text-left p-4 rounded-xl border-2 transition-all ${
-                                    !useOwnSSLCommerz
-                                        ? "border-orange-500 bg-orange-50/40"
-                                        : "border-gray-200 hover:border-gray-300"
-                                }`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        Default
-                                    </span>
-                                    <span
-                                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                            !useOwnSSLCommerz ? "border-orange-600 bg-orange-600" : "border-gray-300"
-                                        }`}
-                                    >
-                                        {!useOwnSSLCommerz && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                                    </span>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.defaultGateway")}</p>
-                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    {t("dashboard.settingsPage.defaultGatewayDesc")}
-                                </p>
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => setUseOwnSSLCommerz(true)}
-                                className={`text-left p-4 rounded-xl border-2 transition-all ${
-                                    useOwnSSLCommerz
-                                        ? "border-orange-500 bg-orange-50/40"
-                                        : "border-gray-200 hover:border-gray-300"
-                                }`}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        Direct
-                                    </span>
-                                    <span
-                                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                            useOwnSSLCommerz ? "border-orange-600 bg-orange-600" : "border-gray-300"
-                                        }`}
-                                    >
-                                        {useOwnSSLCommerz && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-                                    </span>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900">{t("dashboard.settingsPage.ownSSLCommerz")}</p>
-                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    {t("dashboard.settingsPage.ownSSLCommerzDesc")}
-                                </p>
-                            </button>
-                        </div>
-
-                        <div
-                            className={`grid transition-all duration-300 ease-in-out ${
-                                useOwnSSLCommerz ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                            }`}
-                        >
-                            <div className="overflow-hidden">
-                                <div className="pt-1 space-y-4 border-t border-gray-100 mt-1">
-                                    <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-900 mt-4">
-                                        <span className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                        <p className="leading-relaxed">
-                                            {t("dashboard.settingsPage.sslNote")}
-                                        </p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                {t("dashboard.settingsPage.storeId")}
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={sslcommerzStoreId}
-                                                onChange={(e) => setSslcommerzStoreId(e.target.value)}
-                                                required={useOwnSSLCommerz}
-                                                placeholder="e.g. yourstorelive01"
-                                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                                                {t("dashboard.settingsPage.storePassword")}
-                                            </label>
-                                            <input
-                                                type="password"
-                                                value={sslcommerzStorePassword}
-                                                onChange={(e) => setSslcommerzStorePassword(e.target.value)}
-                                                placeholder={
-                                                    store.sslcommerzStoreId
-                                                        ? t("dashboard.settingsPage.storePasswordPlaceholder")
-                                                        : "Enter Store Password"
-                                                }
-                                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-sm font-mono outline-none transition-all"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -876,18 +746,6 @@ export default function LocalizedSettingsPage() {
                                     }`}
                                 />
                                 <span>{status === "active" ? t("dashboard.settingsPage.storefrontOnline") : t("dashboard.settingsPage.storefrontOffline")}</span>
-                            </div>
-
-                            <div className="pt-1">
-                                <span
-                                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md ${
-                                        useOwnSSLCommerz
-                                            ? "bg-blue-50 text-blue-700"
-                                            : "bg-orange-50 text-orange-700"
-                                    }`}
-                                >
-                                    {useOwnSSLCommerz ? t("dashboard.settingsPage.directRouting") : t("dashboard.settingsPage.platformRouting")}
-                                </span>
                             </div>
                         </div>
 

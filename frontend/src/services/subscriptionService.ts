@@ -22,6 +22,7 @@ export interface SubscriptionInfo {
     storedPlan?: string;
     planExpiresAt?: string | null;
     isTrial: boolean;
+    locked: boolean;
     usage: SubscriptionUsage;
     features: SubscriptionFeatures;
     proPrice: number;
