@@ -305,6 +305,7 @@ export default function LocalizedAdminPage() {
                                             <div className="mt-3 bg-gray-50 rounded-xl p-3 text-xs space-y-1 font-mono">
                                                 <p><span className="text-gray-400">TrxID:</span> <span className="font-bold">{r.trxId || "—"}</span></p>
                                                 <p><span className="text-gray-400">Sender:</span> {r.senderNumber || "—"}</p>
+                                                {(r as any).durationMonths ? <p><span className="text-gray-400">Duration:</span> {(r as any).durationMonths} month{(r as any).durationMonths > 1 ? "s" : ""}</p> : null}
                                                 {r.adminNote && <p><span className="text-gray-400">Note:</span> {r.adminNote}</p>}
                                             </div>
                                             {reqTab === "pending" && (

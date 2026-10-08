@@ -13,7 +13,6 @@ const PRO_FEATURES = [
     "Coupons & discounts",
     "Facebook / Google / TikTok pixels",
     "Steadfast courier integration",
-    "0% transaction fee",
 ];
 
 export default function LocalizedBillingPage() {
@@ -23,6 +22,7 @@ export default function LocalizedBillingPage() {
     const [senderNumber, setSenderNumber] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [durationMonths, setDurationMonths] = useState(1);
 
     const handleCopy = () => {
         if (!sub?.bkashNumber) return;
@@ -39,7 +39,7 @@ export default function LocalizedBillingPage() {
         }
         setSubmitting(true);
         try {
-            await requestSubscription(trxId.trim(), senderNumber.trim());
+            await requestSubscription(trxId.trim(), senderNumber.trim(), durationMonths);
             toast.success(t("dashboard.billingPage.requestSent"));
             setTrxId("");
             setSenderNumber("");
@@ -165,6 +165,38 @@ export default function LocalizedBillingPage() {
                         ) : null}
 
                         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+                            {/* Duration selector */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                                    Plan duration
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {(sub?.planPrices?.length ? sub.planPrices : [{ months: 1, days: 30, amount: sub?.proPrice ?? 499 }]).map((p) => {
+                                        const active = durationMonths === p.months;
+                                        const perMonth = Math.round(p.amount / p.months);
+                                        return (
+                                            <button
+                                                key={p.months}
+                                                type="button"
+                                                onClick={() => setDurationMonths(p.months)}
+                                                className={`rounded-xl border-2 px-2 py-2.5 text-center transition-all active:scale-95 ${
+                                                    active
+                                                        ? "border-orange-600 bg-orange-50/60"
+                                                        : "border-gray-200 hover:border-gray-300"
+                                                }`}
+                                            >
+                                                <p className="text-xs font-bold text-gray-900">
+                                                    {p.months} {p.months === 1 ? "month" : "months"}
+                                                </p>
+                                                <p className="text-sm font-extrabold text-orange-600 mt-0.5">৳{p.amount}</p>
+                                                {p.months > 1 && (
+                                                    <p className="text-[10px] text-gray-500">৳{perMonth}/mo</p>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                                     {t("dashboard.billingPage.trxId")}
@@ -206,6 +238,8 @@ export default function LocalizedBillingPage() {
                     <p className="text-sm font-bold text-amber-900">{t("dashboard.billingPage.pendingTitle")}</p>
                     <p className="text-xs text-amber-800 mt-1">
                         {t("dashboard.billingPage.pendingDesc")} ({sub.pendingRequest.trxId})
+                        {sub.pendingRequest.durationMonths ? ` · ${sub.pendingRequest.durationMonths} month${sub.pendingRequest.durationMonths > 1 ? "s" : ""}` : ""}
+                        {sub.pendingRequest.amount ? ` · ৳${sub.pendingRequest.amount}` : ""}
                     </p>
                 </div>
             )}
@@ -229,6 +263,9 @@ export default function LocalizedBillingPage() {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <span className="font-semibold text-gray-800 capitalize">{h.plan}</span>
+                                        {h.durationMonths ? (
+                                            <span className="ml-1 text-[11px] text-gray-500">· {h.durationMonths}mo</span>
+                                        ) : null}
                                         <span className={`ml-2 text-[11px] font-semibold px-2 py-0.5 rounded-md ${
                                             h.status === "active" ? "bg-green-50 text-green-700" : h.status === "rejected" ? "bg-red-50 text-red-700" : "bg-gray-100 text-gray-500"
                                         }`}>

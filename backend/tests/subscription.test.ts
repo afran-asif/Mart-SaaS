@@ -66,4 +66,25 @@ describe("subscription flow", () => {
         const r = await vauth(request(app).get("/api/v1/subscription/requests"));
         expect(r.status).toBe(403);
     });
+
+    test("3-month request → 1199, approve grants ~90 days", async () => {
+        let r = await vauth(request(app).post("/api/v1/subscription/request")).send({ trxId: "T3", senderNumber: "0171", durationMonths: 3 });
+        expect(r.status).toBe(201);
+
+        r = await aauth(request(app).get("/api/v1/subscription/requests?status=pending"));
+        const sub = r.body.requests.find((x: any) => x.trxId === "T3");
+        expect(sub.amount).toBe(1199);
+        expect(sub.durationMonths).toBe(3);
+
+        r = await aauth(request(app).post(`/api/v1/subscription/requests/${sub._id}/approve`));
+        expect(r.status).toBe(200);
+        const days = (new Date(r.body.periodEnd).getTime() - Date.now()) / 86400000;
+        expect(days).toBeGreaterThan(85);
+        expect(days).toBeLessThan(95);
+    });
+
+    test("invalid duration rejected", async () => {
+        const r = await vauth(request(app).post("/api/v1/subscription/request")).send({ trxId: "T4", senderNumber: "0171", durationMonths: 2 });
+        expect(r.status).toBe(400);
+    });
 });

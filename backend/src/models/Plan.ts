@@ -55,7 +55,7 @@ export const DEFAULT_PLANS = [
         slug: "pro",
         name: "Pro",
         priceMonthly: 499,
-        maxProducts: 500,
+        maxProducts: null,
         maxOrdersPerMonth: null,
         themes: ["classic", "minimal", "bold", "elegant", "vibrant", "retro", "luxe", "pastel", "urban"],
         customDomain: true,

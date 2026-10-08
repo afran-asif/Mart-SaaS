@@ -8,6 +8,18 @@ import { cacheDelTenantStore } from "../utils/cache";
 
 const SUBSCRIPTION_DAYS = 30;
 
+// Pro duration pricing — 1mo 499 (50% off), 3mo 1199 (60% off), 6mo 1999 (67% off)
+export const PLAN_DURATIONS = [
+    { months: 1, days: 30, amount: 499 },
+    { months: 3, days: 90, amount: 1199 },
+    { months: 6, days: 180, amount: 1999 },
+] as const;
+
+export const getPlanPrice = (months: number): number | null => {
+    const found = PLAN_DURATIONS.find((p) => p.months === months);
+    return found ? found.amount : null;
+};
+
 // GET /subscription/me — vendor নিজের plan + usage + payment info
 export const getMySubscription = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -52,9 +64,10 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
                 },
                 features: usage.limits,
                 proPrice: proPlan?.priceMonthly ?? 499,
+                planPrices: PLAN_DURATIONS.map((p) => ({ months: p.months, days: p.days, amount: p.amount })),
                 bkashNumber: process.env.SUBSCRIPTION_BKASH_NUMBER || "",
                 pendingRequest: pending
-                    ? { id: pending._id, trxId: pending.trxId, createdAt: pending.createdAt }
+                    ? { id: pending._id, trxId: pending.trxId, createdAt: pending.createdAt, durationMonths: (pending as any).durationMonths || 1, amount: (pending as any).amount }
                     : null,
                 lastRejected: lastRejected
                     ? { adminNote: lastRejected.adminNote || "", createdAt: lastRejected.createdAt }
@@ -64,6 +77,7 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
                     plan: h.plan,
                     status: h.status,
                     amount: h.amount,
+                    durationMonths: (h as any).durationMonths || 1,
                     adminNote: h.adminNote || "",
                     periodStart: h.periodStart,
                     periodEnd: h.periodEnd,
@@ -80,10 +94,17 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
 export const requestSubscription = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const vendorId = req.user._id;
-        const { trxId, senderNumber } = req.body as { trxId?: string; senderNumber?: string };
+        const { trxId, senderNumber, durationMonths } = req.body as { trxId?: string; senderNumber?: string; durationMonths?: number };
 
         if (!trxId?.trim() || !senderNumber?.trim()) {
             res.status(400).json({ message: "Transaction ID and sender number are required." });
+            return;
+        }
+
+        const months = Number(durationMonths) || 1;
+        const price = getPlanPrice(months);
+        if (!price) {
+            res.status(400).json({ message: "Invalid plan duration. Choose 1, 3 or 6 months." });
             return;
         }
 
@@ -110,7 +131,8 @@ export const requestSubscription = async (req: AuthenticatedRequest, res: Respon
             storeId: store._id,
             plan: "pro",
             status: "pending",
-            amount: proPlan?.priceMonthly ?? 499,
+            amount: price,
+            durationMonths: months,
             trxId: trxId.trim(),
             senderNumber: senderNumber.trim(),
         });
@@ -157,7 +179,8 @@ export const approveSubscription = async (req: AuthenticatedRequest, res: Respon
 
         const now = new Date();
         const base = store.planExpiresAt && new Date(store.planExpiresAt) > now ? new Date(store.planExpiresAt) : now;
-        const periodEnd = new Date(base.getTime() + SUBSCRIPTION_DAYS * 24 * 60 * 60 * 1000);
+        const durationDays = (sub.durationMonths || 1) * SUBSCRIPTION_DAYS;
+        const periodEnd = new Date(base.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
         store.plan = "pro";
         store.planExpiresAt = periodEnd;
@@ -181,7 +204,7 @@ export const approveSubscription = async (req: AuthenticatedRequest, res: Respon
             { $set: { status: "expired" } }
         );
 
-        res.status(200).json({ success: true, message: "Pro activated for 30 days.", periodEnd });
+        res.status(200).json({ success: true, message: `Pro activated for ${durationDays} days.`, periodEnd });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }

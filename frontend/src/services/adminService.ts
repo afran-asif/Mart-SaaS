@@ -5,6 +5,7 @@ export interface SubRequest {
     plan: string;
     status: string;
     amount: number;
+    durationMonths?: number;
     trxId?: string;
     senderNumber?: string;
     adminNote?: string;

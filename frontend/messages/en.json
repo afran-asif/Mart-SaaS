@@ -125,8 +125,28 @@
     "proFeature5": "Marketing pixels (FB/Google/TikTok)",
     "proFeature6": "Steadfast courier integration",
     "proFeature7": "Priority 24/7 support",
-      "proFeature8": "Up to 500 products",
-    "proCta": "Launch Pro Store"
+      "proFeature8": "Unlimited products",
+    "proCta": "Launch Pro Store",
+    "trialBannerTitle": "Start with 30 days free",
+    "trialBannerDesc": "Full Pro access for 30 days — no card, no payment. Pay only if you love it.",
+    "trialBannerCta": "Start Free Trial",
+    "plan1Name": "Monthly",
+    "plan1Duration": "1 month",
+    "plan1Cta": "Choose Monthly",
+    "plan3Name": "Quarterly",
+    "plan3Duration": "3 months",
+    "plan3Badge": "Save ৳1798",
+    "plan3Cta": "Choose Quarterly",
+    "plan6Name": "Half-Yearly",
+    "plan6Duration": "6 months",
+    "plan6Badge": "Best Value · Save ৳3995",
+    "plan6Cta": "Choose Half-Yearly",
+    "perMonthShort": "/mo",
+    "planIncludesTitle": "Every plan includes",
+    "planFeatOrders": "Unlimited orders every month",
+    "planFeatCourier": "Steadfast courier integration with live tracking",
+    "planFeatCod": "Cash on Delivery with district-wise auto charges",
+    "planFeatAnalytics": "Sales analytics dashboard with revenue reports"
   },
   "faq": {
     "badge": "Got Questions?",
@@ -154,7 +174,7 @@
       },
       {
         "q": "How does Pro billing work?",
-        "a": "Every new store gets a free 30-day Pro trial with everything unlocked. After trial, Pro costs ৳499/month via bKash. If you don't renew, your store pauses (no orders, no dashboard) but nothing is deleted — pay anytime and everything comes back instantly."
+        "a": "Every new store gets a free 30-day Pro trial with everything unlocked. After trial, choose 1 month (৳499), 3 months (৳1199) or 6 months (৳1999) via bKash. If you don't renew, your store pauses (no orders, no dashboard) but nothing is deleted — pay anytime and everything comes back instantly."
       }
     ]
   },
@@ -163,6 +183,12 @@
     "subtitle": "Join merchants growing with Vendoo. Set up your inventory and start accepting customer orders today.",
     "createStore": "Create Your Store Now",
     "signIn": "Sign In to Dashboard"
+  },
+  "demo": {
+    "badge": "Live Demo",
+    "title": "See a real store in action",
+    "desc": "Browse SESTONE — a live Vendoo storefront. This is exactly what your customers will experience.",
+    "visit": "Visit Demo Store"
   },
   "footer": {
     "tagline": "Empowering retailers, entrepreneurs, and independent merchants with dedicated multi-tenant e-commerce storefronts and integrated payment workflows.",

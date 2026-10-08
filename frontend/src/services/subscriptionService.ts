@@ -26,14 +26,16 @@ export interface SubscriptionInfo {
     usage: SubscriptionUsage;
     features: SubscriptionFeatures;
     proPrice: number;
+    planPrices: Array<{ months: number; days: number; amount: number }>;
     bkashNumber: string;
-    pendingRequest: { id: string; trxId?: string; createdAt: string } | null;
+    pendingRequest: { id: string; trxId?: string; createdAt: string; durationMonths?: number; amount?: number } | null;
     lastRejected: { adminNote: string; createdAt: string } | null;
     history: Array<{
         id: string;
         plan: string;
         status: string;
         amount: number;
+        durationMonths?: number;
         adminNote?: string;
         periodStart?: string;
         periodEnd?: string;
@@ -46,7 +48,7 @@ export const getMySubscription = async (): Promise<SubscriptionInfo> => {
     return res.data.subscription as SubscriptionInfo;
 };
 
-export const requestSubscription = async (trxId: string, senderNumber: string) => {
-    const res = await api.post("/subscription/request", { trxId, senderNumber });
+export const requestSubscription = async (trxId: string, senderNumber: string, durationMonths = 1) => {
+    const res = await api.post("/subscription/request", { trxId, senderNumber, durationMonths });
     return res.data;
 };

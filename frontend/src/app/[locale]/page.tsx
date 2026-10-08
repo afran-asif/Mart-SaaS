@@ -681,6 +681,26 @@ export default function LocalizedHomePage() {
         </div>
       </section>
 
+      {/* ---------------- Live Demo Store ---------------- */}
+      <section id="demo" className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
+        <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col sm:flex-row items-center gap-6 justify-between">
+          <div className="text-center sm:text-left">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">{t("demo.badge")}</span>
+            <h3 className="mt-3 text-2xl font-extrabold text-gray-900">{t("demo.title")}</h3>
+            <p className="mt-1 text-sm text-gray-500">{t("demo.desc")}</p>
+            <p className="mt-3 inline-block font-mono text-xs text-gray-700 bg-gray-100 rounded-lg px-3 py-1.5">sestone.vendoo.shop</p>
+          </div>
+          <a
+            href="https://sestone.vendoo.shop"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-xl bg-orange-600 px-8 py-3 text-sm font-bold text-white shadow-md shadow-orange-600/30 hover:bg-orange-700 transition"
+          >
+            {t("demo.visit")} →
+          </a>
+        </div>
+      </section>
+
       {/* ---------------- Pricing Section ---------------- */}
       <section id="pricing" className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center max-w-2xl mx-auto">
@@ -695,101 +715,87 @@ export default function LocalizedHomePage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
-          {/* Trial Tier (30-day free, then Pro or locked) */}
-          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between">
+        <div className="mt-12 max-w-5xl mx-auto rounded-3xl bg-gradient-to-br from-orange-600 to-orange-700 p-8 shadow-xl text-white">
+          <h3 className="text-center text-lg font-extrabold">{t("pricing.planIncludesTitle")}</h3>
+          <ul className="mt-5 space-y-3 text-sm text-orange-50 max-w-xl mx-auto">
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.proFeature2")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.proFeature3")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.proFeature4")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.proFeature5")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.proFeature7")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.proFeature8")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.planFeatOrders")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.planFeatCourier")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.planFeatCod")}</li>
+            <li className="flex items-center gap-2"><span className="font-bold">✓</span> {t("pricing.planFeatAnalytics")}</li>
+          </ul>
+        </div>
+
+        <div className="mt-8 grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+          {/* 1 Month */}
+          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-4 right-4 rounded-full bg-orange-100 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
+              50% OFF
+            </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.starterLabel")}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.plan1Name")}</span>
               <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <span className="text-lg font-semibold text-gray-400 line-through">৳499</span>
-                <span className="text-4xl font-extrabold text-gray-900">৳0</span>
+                <span className="text-lg font-semibold text-gray-400 line-through">৳999</span>
+                <span className="text-4xl font-extrabold text-gray-900">৳499</span>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{t("pricing.trialBadge")}</span>
               </div>
-              <p className="mt-3 text-xs text-gray-500">
-                {t("pricing.starterDesc")}
-              </p>
-
-              <ul className="mt-6 space-y-3 text-xs text-gray-600">
-                <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature1")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature2")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature3")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature4")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature5")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-orange-600 font-bold">✓</span> {t("pricing.starterFeature6")}
-                </li>
-              </ul>
+              <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.plan1Duration")}</p>
+              <p className="mt-2 text-xs text-gray-500">{t("pricing.trialBannerDesc")}</p>
             </div>
-
             <Link
               href={`/${language}/register`}
               className="mt-8 block w-full text-center rounded-xl border-2 border-orange-600 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50 transition"
             >
-              {t("pricing.starterCta")}
+              {t("pricing.plan1Cta")}
             </Link>
           </div>
 
-          {/* Pro Tier */}
+          {/* 3 Months */}
+          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-4 right-4 rounded-full bg-green-100 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-700">
+              {t("pricing.plan3Badge")}
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.plan3Name")}</span>
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
+                <span className="text-lg font-semibold text-gray-400 line-through">৳2997</span>
+                <span className="text-4xl font-extrabold text-gray-900">৳1199</span>
+              </div>
+              <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.plan3Duration")} · ৳400{t("pricing.perMonthShort")}</p>
+            </div>
+            <Link
+              href={`/${language}/register`}
+              className="mt-8 block w-full text-center rounded-xl border-2 border-orange-600 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50 transition"
+            >
+              {t("pricing.plan3Cta")}
+            </Link>
+          </div>
+
+          {/* 6 Months — Best Value */}
           <div className="rounded-3xl bg-gradient-to-b from-orange-600 to-orange-700 p-8 text-white shadow-xl flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              {t("pricing.popular")}
+              {t("pricing.plan6Badge")}
             </div>
 
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-100">{t("pricing.proLabel")}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-orange-100">{t("pricing.plan6Name")}</span>
               <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <span className="text-lg font-semibold text-orange-200/70 line-through">৳999</span>
-                <span className="text-4xl font-extrabold">৳499</span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">50% OFF</span>
+                <span className="text-lg font-semibold text-orange-200/70 line-through">৳5994</span>
+                <span className="text-4xl font-extrabold">৳1999</span>
               </div>
-              <p className="mt-1 text-sm font-medium text-orange-100">{t("pricing.proMonth")}</p>
-              <p className="mt-3 text-xs text-orange-100">
-                {t("pricing.proDesc")}
-              </p>
-
-              <ul className="mt-6 space-y-3 text-xs text-orange-50">
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature1")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature8")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature2")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature3")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature4")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature5")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature6")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="font-bold">✓</span> {t("pricing.proFeature7")}
-                </li>
-              </ul>
+              <p className="mt-1 text-sm font-medium text-orange-100">{t("pricing.plan6Duration")} · ৳333{t("pricing.perMonthShort")}</p>
             </div>
 
             <Link
               href={`/${language}/register`}
               className="mt-8 block w-full text-center rounded-xl bg-white py-3 text-sm font-bold text-orange-600 shadow-md hover:bg-gray-100 transition"
             >
-              {t("pricing.proCta")}
+              {t("pricing.plan6Cta")}
             </Link>
           </div>
         </div>

@@ -6,6 +6,7 @@ export interface ISubscription extends Document {
     plan: string;
     status: "pending" | "active" | "rejected" | "expired" | "cancelled";
     amount: number;
+    durationMonths: number;
     trxId?: string;
     senderNumber?: string;
     adminNote?: string;
@@ -28,6 +29,7 @@ const subscriptionSchema = new Schema<ISubscription>(
             default: "pending",
         },
         amount: { type: Number, required: true, default: 0 },
+        durationMonths: { type: Number, required: true, default: 1, min: 1, max: 12 },
         trxId: { type: String, trim: true },
         senderNumber: { type: String, trim: true },
         adminNote: { type: String, trim: true },
