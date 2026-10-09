@@ -184,9 +184,9 @@ export default function LocalizedHomePage() {
             <img
               src="/shopilika-logo.png"
               alt="Shopilika"
-              className="h-10 w-auto rounded-xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform"
+              className="h-10 w-auto group-hover:scale-105 transition-transform"
             />
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-1.5">
               <span className="text-xl font-extrabold tracking-tight text-gray-900 leading-none">
                 Shopilika
               </span>
@@ -419,60 +419,7 @@ export default function LocalizedHomePage() {
             </span>
           </div>
 
-          {/* <div className="relative mx-auto mt-14 sm:mt-18 h-64 max-w-lg">
-            <div className="absolute left-1/2 -translate-x-[50%] top-2 w-60 sm:w-64 -rotate-6 rounded-2xl bg-white p-4.5 text-left shadow-2xl ring-1 ring-gray-200/80 transition duration-300">
-              <div className="flex items-center justify-between">
-                <span className="inline-block h-2.5 w-10 rounded-full bg-orange-500" />
-                <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                  Active
-                </span>
-              </div>
-              <div className="mt-3 text-sm font-bold text-gray-900">Sestone Fashion</div>
-              <div className="text-xs text-gray-500">sestone.shopilika.com</div>
-              <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
-                <span className="text-gray-400">Today&apos;s Sales</span>
-                <span className="font-bold text-orange-600">৳48,500</span>
-              </div>
-            </div>
 
-            <div className="absolute left-1/2 -translate-x-1/2 top-8 z-10 w-64 sm:w-72 rounded-2xl bg-white p-5 text-left shadow-2xl ring-1 ring-orange-500/30 transition hover:scale-105 duration-300">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="text-xs font-semibold text-gray-700">Af Gadgets & Tech</span>
-                </div>
-                <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
-                  Top Vendor
-                </span>
-              </div>
-              <div className="mt-2 text-xs text-gray-400 font-mono">af-gadgets.shopilika.com</div>
-              <div className="mt-4 grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-xl text-center">
-                <div>
-                  <div className="text-[10px] text-gray-500">New Orders</div>
-                  <div className="text-sm font-bold text-gray-900">26 Pending</div>
-                </div>
-                <div className="border-l border-gray-200">
-                  <div className="text-[10px] text-gray-500">This Month</div>
-                  <div className="text-sm font-bold text-emerald-600">৳1,82,400</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute left-1/2 -translate-x-[25%] top-4 w-60 sm:w-64 rotate-6 rounded-2xl bg-white p-4.5 text-left shadow-2xl ring-1 ring-gray-200/80 transition hover:rotate-0 hover:z-20 hover:scale-105 duration-300">
-              <div className="flex items-center justify-between">
-                <span className="inline-block h-2.5 w-10 rounded-full bg-blue-500" />
-                <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
-                  COD
-                </span>
-              </div>
-              <div className="mt-3 text-sm font-bold text-gray-900">Fresh Organics</div>
-              <div className="text-xs text-gray-500">organics.shopilika.com</div>
-              <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
-                <span className="text-gray-400">Cart Checkout</span>
-                <span className="font-bold text-gray-800">12s avg time</span>
-              </div>
-            </div>
-          </div> */}
         </div>
       </section>
 
@@ -873,11 +820,14 @@ export default function LocalizedHomePage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div className="col-span-2">
               <Link href={`/${language}`} className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-600 text-white font-bold text-sm">
-                  M
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/shopilika-logo.png"
+                  alt="Shopilika"
+                  className="h-8 w-auto"
+                />
                 <span className="text-lg font-bold tracking-tight text-gray-900">
-                  MART<span className="text-orange-600">saas</span>
+                  Shopilika
                 </span>
               </Link>
               <p className="mt-3 max-w-sm text-xs text-gray-500 leading-relaxed">
