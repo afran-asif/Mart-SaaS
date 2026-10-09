@@ -25,23 +25,33 @@ export default function ShopByCategory({
 }: ShopByCategoryProps) {
     const [startIndex, setStartIndex] = useState(0);
     const [wide, setWide] = useState(false);
+    const [xl, setXl] = useState(false);
 
     const isDark = isDarkTheme(theme);
     const isLuxe = isLuxeTheme(theme);
     const n = categories?.length || 0;
 
-    // responsive visible slots — PC 5, mobile 3
+    // responsive visible slots — mobile 3, PC 3, xl screen 5
     useEffect(() => {
         const mq = window.matchMedia("(min-width: 640px)");
-        const update = () => setWide(mq.matches);
+        const mqXl = window.matchMedia("(min-width: 1280px)");
+        const update = () => {
+            setWide(mq.matches);
+            setXl(mqXl.matches);
+        };
         update();
         mq.addEventListener("change", update);
-        return () => mq.removeEventListener("change", update);
+        mqXl.addEventListener("change", update);
+        return () => {
+            mq.removeEventListener("change", update);
+            mqXl.removeEventListener("change", update);
+        };
     }, []);
 
-    const K = Math.min(n, 3);
+    const K = Math.min(n, xl ? 5 : 3);
     const center = Math.floor(K / 2);
-    const rotating = n > K;
+    // 3-এর বেশি হলেই rotate (slot যাই হোক transformation থাকবে)
+    const rotating = n > 3;
 
     // একটা একটা করে left-এ ঘোরা, loop — hover/touch-এও থামে না
     useEffect(() => {
