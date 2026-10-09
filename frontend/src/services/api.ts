@@ -15,8 +15,8 @@ const getSubdomain = (): string | null => {
     if (
         raw === "localhost" ||
         raw === "mart-saa-s.vercel.app" ||
-        raw === "vendoo.shop" ||
-        raw === "www.vendoo.shop" ||
+        raw === "shopilika.com" ||
+        raw === "www.shopilika.com" ||
         raw === "www.localhost"
     ) {
         return null;
@@ -29,12 +29,12 @@ const getSubdomain = (): string | null => {
     if (
         hostname === "localhost" ||
         hostname === "mart-saa-s.vercel.app" ||
-        hostname === "vendoo.shop"
+        hostname === "shopilika.com"
     ) {
         return null;
     }
 
-    const isSubOfBase = ["localhost", "vendoo.shop", "mart-saa-s.vercel.app"].some(
+    const isSubOfBase = ["localhost", "shopilika.com", "mart-saa-s.vercel.app"].some(
         (b) => hostname.endsWith(`.${b}`)
     );
 

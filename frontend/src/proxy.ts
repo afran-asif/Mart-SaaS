@@ -14,12 +14,12 @@ export function proxy(request: NextRequest) {
     const MAIN_DOMAINS = [
         "localhost:3000",
         "mart-saa-s.vercel.app",
-        "vendoo.shop",
-        "www.vendoo.shop",
+        "shopilika.com",
+        "www.shopilika.com",
     ];
 
-    // বেস domain এরো subdomain চেনা (যেমন af-brand.vendoo.shop, anything.localhost:3000)
-    const BASEHOST_NAMES = ["vendoo.shop", "mart-saa-s.vercel.app", "localhost:3000"];
+    // বেস domain এরো subdomain চেনা (যেমন af-brand.shopilika.com, anything.localhost:3000)
+    const BASEHOST_NAMES = ["shopilika.com", "mart-saa-s.vercel.app", "localhost:3000"];
 
     const isMainDomain = MAIN_DOMAINS.includes(hostname);
 
@@ -30,7 +30,7 @@ export function proxy(request: NextRequest) {
         const isSubOfBase = BASEHOST_NAMES.some((b) => hostname.endsWith(`.${b}`));
 
         if (isSubOfBase) {
-            // 1. Platform subdomain (ex: sestone.vendoo.shop / af-brand.localhost:3000)
+            // 1. Platform subdomain (ex: sestone.shopilika.com / af-brand.localhost:3000)
             const subdomain = parts[0];
             if (subdomain && subdomain !== "www") {
                 url.pathname = `/store/${subdomain}${pathname}`;
@@ -77,6 +77,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
     matcher: [
-        "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+        "/((?!api|_next/static|_next/image|favicon.ico|icon|sitemap.xml|robots.txt|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|txt|xml|webmanifest)$).*)",
     ],
 };

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vendoo Core Engine",
+  title: "Shopilika Core Engine",
   description: "Multi-tenant SaaS Platform",
 };
 

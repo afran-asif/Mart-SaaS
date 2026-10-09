@@ -15,8 +15,8 @@ export async function generateMetadata({
 
   return {
     title: isBn
-      ? "Vendoo - মাল্টি-টেন্যান্ট ই-কমার্স প্ল্যাটফর্ম"
-      : "Vendoo Core Engine - Multi-Tenant SaaS Platform",
+      ? "Shopilika - মাল্টি-টেন্যান্ট ই-কমার্স প্ল্যাটফর্ম"
+      : "Shopilika Core Engine - Multi-Tenant SaaS Platform",
     description: isBn
       ? "কাস্টম সাবডোমেন, সম্পূর্ণ ইনভেন্টরি ও পেমেন্ট ইন্টিগ্রেশন সহ কয়েক মিনিটে নিজস্ব অনলাইন স্টোর তৈরি করুন।"
       : "Launch your branded multi-tenant storefront in minutes with custom subdomain and integrated payments.",

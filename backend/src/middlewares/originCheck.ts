@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { isVerifiedCustomDomain } from "../utils/customDomainCache";
 
-const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saa-s\.vercel\.app|vendoo\.shop)$/;
+const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saa-s\.vercel\.app|shopilika\.com)$/;
 
 // 🛡️ CSRF defense — state বদলানো request (POST/PUT/PATCH/DELETE) কোন পেজ থেকে এলো, যাচাই করা।
 // Browser নিজে Origin/Referer header পাঠায় — attacker-এর JS এটা বদলাতে বা মুছতে পারে না।

@@ -182,13 +182,13 @@ export default function LocalizedHomePage() {
           <Link href={`/${language}`} className="flex items-center gap-2.5 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/favicon.ico"
-              alt="Vendoo"
-              className="h-9 w-9 rounded-xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform"
+              src="/shopilika-logo.png"
+              alt="Shopilika"
+              className="h-10 w-auto rounded-xl shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform"
             />
             <div className="flex flex-col">
               <span className="text-xl font-extrabold tracking-tight text-gray-900 leading-none">
-                Vendoo
+                Shopilika
               </span>
               <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
                 Multi-Tenant Commerce
@@ -387,7 +387,7 @@ export default function LocalizedHomePage() {
                 className="w-full bg-transparent text-sm font-semibold text-gray-900 placeholder:text-gray-400 focus:outline-none"
               />
               <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-500 select-none shrink-0">
-                .vendoo.shop
+                .shopilika.com
               </span>
             </div>
             <button
@@ -428,7 +428,7 @@ export default function LocalizedHomePage() {
                 </span>
               </div>
               <div className="mt-3 text-sm font-bold text-gray-900">Sestone Fashion</div>
-              <div className="text-xs text-gray-500">sestone.vendoo.shop</div>
+              <div className="text-xs text-gray-500">sestone.shopilika.com</div>
               <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
                 <span className="text-gray-400">Today&apos;s Sales</span>
                 <span className="font-bold text-orange-600">৳48,500</span>
@@ -445,7 +445,7 @@ export default function LocalizedHomePage() {
                   Top Vendor
                 </span>
               </div>
-              <div className="mt-2 text-xs text-gray-400 font-mono">af-gadgets.vendoo.shop</div>
+              <div className="mt-2 text-xs text-gray-400 font-mono">af-gadgets.shopilika.com</div>
               <div className="mt-4 grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-xl text-center">
                 <div>
                   <div className="text-[10px] text-gray-500">New Orders</div>
@@ -466,7 +466,7 @@ export default function LocalizedHomePage() {
                 </span>
               </div>
               <div className="mt-3 text-sm font-bold text-gray-900">Fresh Organics</div>
-              <div className="text-xs text-gray-500">organics.vendoo.shop</div>
+              <div className="text-xs text-gray-500">organics.shopilika.com</div>
               <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-xs">
                 <span className="text-gray-400">Cart Checkout</span>
                 <span className="font-bold text-gray-800">12s avg time</span>
@@ -639,7 +639,7 @@ export default function LocalizedHomePage() {
                   <div className="h-3 w-3 rounded-full bg-red-500/80" />
                   <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
                   <div className="h-3 w-3 rounded-full bg-green-500/80" />
-                  <span className="ml-2 text-xs font-mono text-gray-400">Vendoo / dashboard</span>
+                  <span className="ml-2 text-xs font-mono text-gray-400">Shopilika / dashboard</span>
                 </div>
                 <span className="text-[10px] font-semibold text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded">
                   Live Engine
@@ -688,10 +688,10 @@ export default function LocalizedHomePage() {
             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">{t("demo.badge")}</span>
             <h3 className="mt-3 text-2xl font-extrabold text-gray-900">{t("demo.title")}</h3>
             <p className="mt-1 text-sm text-gray-500">{t("demo.desc")}</p>
-            <p className="mt-3 inline-block font-mono text-xs text-gray-700 bg-gray-100 rounded-lg px-3 py-1.5">sestone.vendoo.shop</p>
+            <p className="mt-3 inline-block font-mono text-xs text-gray-700 bg-gray-100 rounded-lg px-3 py-1.5">sestone.shopilika.com</p>
           </div>
           <a
-            href="https://sestone.vendoo.shop"
+            href="https://sestone.shopilika.com"
             target="_blank"
             rel="noopener noreferrer"
             className="shrink-0 rounded-xl bg-orange-600 px-8 py-3 text-sm font-bold text-white shadow-md shadow-orange-600/30 hover:bg-orange-700 transition"
@@ -972,7 +972,7 @@ export default function LocalizedHomePage() {
           </div>
 
           <div className="mt-12 border-t border-gray-100 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-            <p>© {new Date().getFullYear()} Vendoo Core Engine. {t("footer.rights")}</p>
+            <p>© {new Date().getFullYear()} Shopilika Core Engine. {t("footer.rights")}</p>
             <div className="flex items-center gap-6">
               <Link href={`/${language}/login`} className="hover:text-gray-600 transition">
                 {t("footer.vendorAccess")}

@@ -58,7 +58,7 @@ export async function generateMetadata({
         title: `${data.categoryName} — ${data.store.storeName}`,
         description: `${data.store.storeName}-এর ${data.categoryName} কালেকশন থেকে কেনাকাটা করুন।`,
         icons: {
-            icon: data.store.logo || "/favicon.ico",
+            icon: data.store.logo || "/shopilika-logo.png",
         },
     };
 }

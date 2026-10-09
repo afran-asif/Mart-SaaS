@@ -8,7 +8,7 @@ export async function generateMetadata({
     const { locale } = await params;
 
     return {
-        title: locale === "bn" ? "লগইন - Vendoo" : "Log in - Vendoo",
+        title: locale === "bn" ? "লগইন - Shopilika" : "Log in - Shopilika",
     };
 }
 

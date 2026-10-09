@@ -54,7 +54,7 @@ app.use("/api/v1/auth", authLimiter);
 app.use("/api/v1/payment", paymentLimiter);
 // 🛡️ CSRF — state-changing request-এর Origin যাচাই (GET বাদে সব /api/ route-এ)
 app.use("/api/", originCheck);
-const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saa-s\.vercel\.app|vendoo\.shop)$/;
+const allowedOriginPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)?(localhost:3000|mart-saa-s\.vercel\.app|shopilika\.com)$/;
 
 app.use("/api/v1/payment", paymentCallbackRoutes);
 
@@ -79,7 +79,7 @@ app.use(
 );
 
 app.get("/",(req: Request, res: Response) => {
-    res.send("Vendoo Backend Server is Running Perfectly!");
+    res.send("Shopilika Backend Server is Running Perfectly!");
 })
 
 app.use('/api/v1/auth', authRoutes);

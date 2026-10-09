@@ -133,7 +133,7 @@ export default async function AllProductsPage({
                     </Link>
                     {store.plan !== "pro" && (
                         <p className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.18em] uppercase ${isLuxe ? "text-[#d4af37]/60" : isDark ? "text-white/50" : "text-[#75705F]"}`}>
-                            Powered by Vendoo
+                            Powered by Shopilika
                         </p>
                     )}
                 </div>

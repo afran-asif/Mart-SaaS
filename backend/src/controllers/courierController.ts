@@ -68,7 +68,7 @@ export const sendToSteadfast = async (req: AuthenticatedRequest, res: Response):
             recipientPhone: order.phone.replace(/\D/g, ""),
             recipientAddress: addressParts,
             codAmount: order.paymentStatus === "Paid" ? 0 : order.totalAmount,
-            note: `Vendoo order ${order._id}`,
+            note: `Shopilika order ${order._id}`,
         });
 
         order.courierProvider = "steadfast";

@@ -12,7 +12,7 @@ const DNS_NAME_PATTERN =
     /^(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(\.[a-zA-Z0-9-]{1,63}(?<!-))+$/;
 
 const BASE_DOMAIN = process.env.FRONTEND_BASE_DOMAIN || "localhost:3000";
-// বেস ডোমেইনের "hostname" অংশ (port বাদে) — যেমন vendoo.shop
+// বেস ডোমেইনের "hostname" অংশ (port বাদে) — যেমন shopilika.com
 const BASE_HOST = BASE_DOMAIN.split(":")[0];
 
 const isForbiddenDomain = (hostname: string): boolean => {
@@ -22,12 +22,14 @@ const isForbiddenDomain = (hostname: string): boolean => {
         `www.${BASE_HOST}`,
         "vendoo.shop",
         "www.vendoo.shop",
+        "shopilika.com",
+        "www.shopilika.com",
         "mart-saa-s.vercel.app",
         "www.mart-saa-s.vercel.app",
     ];
     if (forbidden.includes(hostname)) return true;
-    // vendor-এর নিজস্ব subdomain.gusu o platform main domain redeem করা যাবে না
-    for (const base of [BASE_HOST, "vendoo.shop", "mart-saa-s.vercel.app", "localhost"]) {
+    // vendor-এর নিজস্ব subdomain বা platform main domain claim করা যাবে না
+    for (const base of [BASE_HOST, "vendoo.shop", "shopilika.com", "mart-saa-s.vercel.app", "localhost"]) {
         if (hostname === base || hostname.endsWith(`.${base}`)) return true;
     }
     return false;
@@ -68,7 +70,7 @@ export const requestCustomDomain = async (req: AuthenticatedRequest, res: Respon
         // 🌐 Custom domain শুধু Pro-তে
         if (!requirePro(store, res, "Custom domain")) return;
 
-        // নিজের subdomain URL (af-gadgets-2.vendoo.shop) নিজে আবার বাঁধা যাবে না
+        // নিজের subdomain URL (af-gadgets-2.shopilika.com) নিজে আবার বাঁধা যাবে না
         if (hostname === `${store.subdomain}.${BASE_HOST}`) {
             res.status(400).json({ message: "This is your own vanilla URL. Please use a different custom domain." });
             return;

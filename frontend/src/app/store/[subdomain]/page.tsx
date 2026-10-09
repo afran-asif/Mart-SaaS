@@ -56,7 +56,7 @@ export async function generateMetadata({
 
     const { store } = data;
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vendoo.shop";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://shopilika.com";
     const siteHost = siteUrl.replace(/^https?:\/\//, "").split("/")[0];
     const protocol = siteHost.includes("localhost") ? "http" : "https";
     const storeUrl = `${protocol}://${subdomain}.${siteHost}`;
@@ -71,7 +71,7 @@ export async function generateMetadata({
         description,
         // vendor store logo browser tab-এ (না থাকলে default favicon)
         icons: {
-            icon: store.logo || "/favicon.ico",
+            icon: store.logo || "/shopilika-logo.png",
         },
         openGraph: {
             type: "website",

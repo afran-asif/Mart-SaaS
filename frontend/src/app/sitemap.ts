@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export const revalidate = 86400;
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vendoo.shop";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://shopilika.com";
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 interface StoreInfo {
@@ -22,7 +22,7 @@ function storeBaseUrl(subdomain: string): string {
         const origin = new URL(siteUrl);
         return `${origin.protocol}//${subdomain}.${origin.host}`;
     } catch {
-        return `https://${subdomain}.vendoo.shop`;
+        return `https://${subdomain}.shopilika.com`;
     }
 }
 

@@ -167,7 +167,7 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
         <td style="padding: 24px 40px 36px 40px; text-align: center;">
             <p style="margin: 0 0 6px 0; font-size: 14px; color: #374151; font-weight: 600;">কোনো সমস্যা হলে আমাদের সাথে যোগাযোগ করুন।</p>
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
-            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Shopilika</strong></p>
         </td>
     </tr>
 
@@ -178,7 +178,7 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData) => {
 </html>`;
 
         const response = await resend.emails.send({
-            from: "Vendoo <noreply@vendoo.shop>",
+            from: "Shopilika <noreply@shopilika.com>",
             to: data.customerEmail,
             subject: `✅ অর্ডার কনফার্ম — ${data.storeName} (#${data.orderId.slice(-8).toUpperCase()})`,
             html,
@@ -298,7 +298,7 @@ export const sendNewOrderAlertEmail = async (data: VendorAlertData) => {
     <tr>
         <td style="padding: 24px 40px 36px 40px; text-align: center;">
             <p style="margin: 0 0 6px 0; font-size: 14px; color: #374151; font-weight: 600;">ড্যাশবোর্ডে গিয়ে অর্ডারটি প্রসেস করুন।</p>
-            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Shopilika</strong></p>
         </td>
     </tr>
 
@@ -309,7 +309,7 @@ export const sendNewOrderAlertEmail = async (data: VendorAlertData) => {
 </html>`;
 
         const response = await resend.emails.send({
-            from: "Vendoo <noreply@vendoo.shop>",
+            from: "Shopilika <noreply@shopilika.com>",
             to: data.vendorEmail,
             subject: `🔔 নতুন অর্ডার — ${data.storeName} (৳${data.totalAmount.toFixed(2)})`,
             html,
@@ -352,14 +352,14 @@ export const sendVerificationEmail = async (data: { to: string; name: string; ve
     <tr>
         <td style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); padding: 36px 40px; text-align: center;">
             <p style="margin: 0 0 4px 0; font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1.5px;">ইমেইল ভেরিফিকেশন</p>
-            <h1 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700;">Vendoo</h1>
+            <h1 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700;">Shopilika</h1>
         </td>
     </tr>
 
     <tr>
         <td style="padding: 28px 40px 0 40px;">
             <p style="margin: 0; font-size: 15px; color: #374151;">প্রিয় <strong>${data.name}</strong>,</p>
-            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.7;">আপনার Vendoo অ্যাকাউন্ট তৈরি হয়েছে! আপনার অ্যাকাউন্ট সক্রিয় করতে নিচের বাটনে ক্লিক করে আপনার ইমেইল ঠিকানাটি ভেরিফাই করুন।</p>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.7;">আপনার Shopilika অ্যাকাউন্ট তৈরি হয়েছে! আপনার অ্যাকাউন্ট সক্রিয় করতে নিচের বাটনে ক্লিক করে আপনার ইমেইল ঠিকানাটি ভেরিফাই করুন।</p>
         </td>
     </tr>
 
@@ -397,7 +397,7 @@ export const sendVerificationEmail = async (data: { to: string; name: string; ve
     <tr>
         <td style="padding: 24px 40px 36px 40px; text-align: center;">
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
-            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Shopilika</strong></p>
         </td>
     </tr>
 
@@ -408,9 +408,9 @@ export const sendVerificationEmail = async (data: { to: string; name: string; ve
 </html>`;
 
         const response = await resend.emails.send({
-            from: "Vendoo <noreply@vendoo.shop>",
+            from: "Shopilika <noreply@shopilika.com>",
             to: data.to,
-            subject: "✅ Vendoo — ইমেইল ভেরিফাই করুন",
+            subject: "✅ Shopilika — ইমেইল ভেরিফাই করুন",
             html,
         });
 
@@ -448,7 +448,7 @@ export const sendResetPasswordEmail = async (data: { to: string; name: string; r
     <tr>
         <td style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); padding: 36px 40px; text-align: center;">
             <p style="margin: 0 0 4px 0; font-size: 12px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1.5px;">পাসওয়ার্ড রিসেট</p>
-            <h1 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700;">Vendoo</h1>
+            <h1 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700;">Shopilika</h1>
         </td>
     </tr>
 
@@ -493,7 +493,7 @@ export const sendResetPasswordEmail = async (data: { to: string; name: string; r
     <tr>
         <td style="padding: 24px 40px 36px 40px; text-align: center;">
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
-            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Shopilika</strong></p>
         </td>
     </tr>
 
@@ -504,9 +504,9 @@ export const sendResetPasswordEmail = async (data: { to: string; name: string; r
 </html>`;
 
         const response = await resend.emails.send({
-            from: "Vendoo <noreply@vendoo.shop>",
+            from: "Shopilika <noreply@shopilika.com>",
             to: data.to,
-            subject: "🔑 Vendoo — পাসওয়ার্ড রিসেট করুন",
+            subject: "🔑 Shopilika — পাসওয়ার্ড রিসেট করুন",
             html,
         });
 
@@ -539,8 +539,8 @@ export const sendTrialReminderEmail = async (data: TrialReminderData) => {
 
         const expired = data.daysLeft <= 0;
         const subject = expired
-            ? "⏰ Vendoo — আপনার Pro trial শেষ হয়েছে"
-            : `⏰ Vendoo — Pro trial শেষ হতে আর ${data.daysLeft} দিন`;
+            ? "⏰ Shopilika — আপনার Pro trial শেষ হয়েছে"
+            : `⏰ Shopilika — Pro trial শেষ হতে আর ${data.daysLeft} দিন`;
         const headline = expired
             ? "আপনার Pro trial শেষ হয়েছে"
             : `Pro trial শেষ হতে আর মাত্র ${data.daysLeft} দিন বাকি`;
@@ -584,7 +584,7 @@ export const sendTrialReminderEmail = async (data: TrialReminderData) => {
     <tr>
         <td style="padding: 24px 40px 36px 40px; text-align: center;">
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">এই ইমেইলটি স্বয়ংক্রিয়ভাবে পাঠানো হয়েছে। অনুগ্রহ করে সরাসরি রিপ্লাই করবেন না।</p>
-            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Vendoo</strong></p>
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #d1d5db;">Powered by <strong style="color: #ea580c;">Shopilika</strong></p>
         </td>
     </tr>
 
@@ -595,7 +595,7 @@ export const sendTrialReminderEmail = async (data: TrialReminderData) => {
 </html>`;
 
         const response = await resend.emails.send({
-            from: "Vendoo <noreply@vendoo.shop>",
+            from: "Shopilika <noreply@shopilika.com>",
             to: data.to,
             subject,
             html,

@@ -9,7 +9,7 @@ export async function generateMetadata({
     const { locale } = await params;
 
     return {
-        title: locale === "bn" ? "ড্যাশবোর্ড - Vendoo" : "Dashboard - Vendoo",
+        title: locale === "bn" ? "ড্যাশবোর্ড - Shopilika" : "Dashboard - Shopilika",
     };
 }
 

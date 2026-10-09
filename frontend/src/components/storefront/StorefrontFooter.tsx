@@ -324,19 +324,19 @@ export default function StorefrontFooter({
                         © {new Date().getFullYear()} {storeName}. All rights reserved.
                     </p>
 
-                    {/* Right: Powered by Vendoo */}
+                    {/* Right: Powered by Shopilika */}
                     <div className="flex items-center gap-2">
                         <span>Powered by</span>
                         <a
-                            href={process.env.NEXT_PUBLIC_SITE_URL || "https://vendoo.shop"}
+                            href={process.env.NEXT_PUBLIC_SITE_URL || "https://shopilika.com"}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 font-bold tracking-tight hover:opacity-80 transition-opacity"
                             style={{ color: brand }}
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="/favicon.ico" alt="Vendoo" className="w-4 h-4 rounded" />
-                            <span className="text-[#d4af37]">Vendoo</span>
+                            <img src="/shopilika-logo.png" alt="Shopilika" className="h-4 w-auto rounded" />
+                            <span className="text-[#d4af37]">Shopilika</span>
                         </a>
                     </div>
                 </div>

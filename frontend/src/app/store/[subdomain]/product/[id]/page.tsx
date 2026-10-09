@@ -39,7 +39,7 @@ export async function generateMetadata({
         title: `${product.name} - ৳${product.price}`,
         description: product.description?.slice(0, 150) || `${product.name} কিনুন সেরা দামে`,
         icons: {
-            icon: storeInfo.logo || "/favicon.ico",
+            icon: storeInfo.logo || "/shopilika-logo.png",
         },
         openGraph: {
             title: product.name,

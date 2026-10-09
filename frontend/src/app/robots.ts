@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vendoo.shop";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://shopilika.com";
 
     return {
         rules: [

@@ -343,7 +343,7 @@ export const getTenantStoreInfo = async (req: TenantRequest, res: Response): Pro
                 heroImage: store.heroImage,
                 theme: themeAllowed ? store.theme : "classic",
                 onlinePaymentEnabled: tenantPlan === "pro" && !!store.useOwnSSLCommerz && !!store.sslcommerzStoreId,
-                // Pro-তে "Powered by Vendoo" badge লুকানো যাবে
+                // Pro-তে "Powered by Shopilika" badge লুকানো যাবে
                 plan: tenantPlan,
                 // 🔒 locked (trial শেষ / unpaid) → storefront browse-only, order বন্ধ
                 locked: isStoreLocked(store),
