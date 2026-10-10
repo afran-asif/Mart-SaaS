@@ -154,7 +154,7 @@ export default function LocalizedDashboardShell({ children }: { children: React.
                         <Link href={`/${language}`} className="flex items-center gap-2">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src="/shopilika-logo.png" alt="Shopilika" className="h-8 w-auto rounded-lg shadow-md shadow-orange-500/20" />
-                            <h2 className="text-2xl font-bold text-orange-600">Shopilika</h2>
+                            <h2 className="font-['Caveat',cursive] text-xl sm:text-2xl font-bold text-orange-600 leading-none drop-shadow-sm">Shopilika</h2>
                         </Link>
                         {/* Close button (mobile only) */}
                         <button

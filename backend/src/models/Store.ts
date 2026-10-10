@@ -174,7 +174,8 @@ theme: {
             trim: true,
             lowercase: true,
             unique: true,
-            sparse: true,
+            // partial: শুধু real string value index হয় — null/missing skip (E11000 fix)
+            partialFilterExpression: { customDomain: { $type: "string" } },
         },
         customDomainStatus: {
             type: String,

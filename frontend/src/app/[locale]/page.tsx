@@ -187,7 +187,7 @@ export default function LocalizedHomePage() {
               className="h-10 w-auto group-hover:scale-105 transition-transform"
             />
             <div className="flex flex-col gap-1.5">
-              <span className="text-xl font-extrabold tracking-tight text-gray-900 leading-none">
+              <span className="font-['Caveat',cursive] text-xl sm:text-2xl font-bold tracking-tight text-gray-900 leading-none drop-shadow-sm">
                 Shopilika
               </span>
               <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
@@ -252,9 +252,11 @@ export default function LocalizedHomePage() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
+          <div className="flex items-center gap-1 md:hidden">
+            <LanguageSwitcher variant="dark" />
+            <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden rounded-lg p-2 text-gray-600 hover:bg-gray-100 focus:outline-none"
+            className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 focus:outline-none"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? (
@@ -267,6 +269,7 @@ export default function LocalizedHomePage() {
               </svg>
             )}
           </button>
+          </div>
         </div>
 
         {/* Mobile Dropdown */}
@@ -311,9 +314,6 @@ export default function LocalizedHomePage() {
             </nav>
 
             <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
-              <div className="flex justify-center pb-1">
-                <LanguageSwitcher variant="dark" />
-              </div>
               {mounted && isAuthenticated ? (
                 <Link
                   href={`/${language}/dashboard`}
@@ -826,7 +826,7 @@ export default function LocalizedHomePage() {
                   alt="Shopilika"
                   className="h-8 w-auto"
                 />
-                <span className="text-lg font-bold tracking-tight text-gray-900">
+                <span className="font-['Caveat',cursive] text-2xl font-bold tracking-tight text-gray-900 leading-none">
                   Shopilika
                 </span>
               </Link>

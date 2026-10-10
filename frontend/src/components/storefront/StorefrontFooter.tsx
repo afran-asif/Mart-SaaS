@@ -336,7 +336,7 @@ export default function StorefrontFooter({
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src="/shopilika-logo.png" alt="Shopilika" className="h-4 w-auto rounded" />
-                            <span className="text-[#d4af37]">Shopilika</span>
+                            <span className="font-['Caveat',cursive] text-xl font-bold text-[#d4af37] leading-none">Shopilika</span>
                         </a>
                     </div>
                 </div>
