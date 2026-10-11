@@ -96,6 +96,23 @@ app.use('/api/v1/tenant', tenantRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/v1/payment", paymentRoutes);
 
+// 📤 Multer upload error → 400 JSON (Sentry 500-এর আগে; message frontend-এ দেখাবে)
+app.use(((err: any, _req: Request, res: Response, next: NextFunction) => {
+    if (err && (err.code === "LIMIT_FILE_SIZE" || err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE")) {
+        const msg =
+            err.code === "LIMIT_FILE_SIZE"
+                ? "Image must be under 5MB."
+                : "Maximum 5 images allowed per product.";
+        res.status(400).json({ message: msg });
+        return;
+    }
+    if (err && err.message && /only image|not an image|invalid image/i.test(err.message)) {
+        res.status(400).json({ message: err.message });
+        return;
+    }
+    next(err);
+}) as express.ErrorRequestHandler);
+
 // 🐞 Sentry — ধরা না-পড়া express error auto-report (DSN থাকলে; না থাকলে no-op)
 app.use(((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (process.env.SENTRY_DSN) Sentry.captureException(err);

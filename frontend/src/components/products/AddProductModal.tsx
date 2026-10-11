@@ -99,7 +99,8 @@ export default function AddProductModal({ isOpen, onClose, onSuccess }: AddProdu
             onClose();
             onSuccess();
         } catch (err: any) {
-            toast.error(err.response?.data?.message || "Failed to add product.", { id: toastId });
+            // api interceptor already backend message Error-এ ভরে দেয় — err.message-ই আসল কারণ
+            toast.error(err.message || "Failed to add product.", { id: toastId });
         } finally {
             setFormLoading(false);
         }

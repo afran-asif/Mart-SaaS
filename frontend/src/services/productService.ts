@@ -52,7 +52,7 @@ export const deleteProductApi = async (id: string): Promise<{ success: boolean; 
         const response = await api.delete(`/products/${id}`);
         return response.data;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Failed to delete product");
+        throw new Error(error.message || "Failed to delete product");
     }
 };
 
@@ -74,6 +74,6 @@ export const updateProductApi = async (
         const response = await api.put(`/products/${id}`, productData, config);
         return response.data;
     } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Failed to update product");
+        throw new Error(error.message || "Failed to update product");
     }
 };
