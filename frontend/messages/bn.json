@@ -231,6 +231,7 @@
     "fullName": "পূর্ণ নাম",
     "emailLabel": "ইমেইল ঠিকানা",
     "passwordLabel": "পাসওয়ার্ড",
+    "phoneLabel": "ফোন নম্বর",
     "storeName": "দোকানের নাম",
     "subdomain": "পছন্দের সাবডোমেইন",
     "registerButton": "স্টোর নিবন্ধন করুন",

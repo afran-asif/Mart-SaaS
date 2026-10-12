@@ -5,6 +5,7 @@ export interface IUser extends Document {
     email: string;
     password: string;
     role: string;
+    phone: string | null;
     avatar: string | null;
     isActive: boolean;
     isVerified: boolean;
@@ -33,6 +34,11 @@ const userSchema = new Schema<IUser>(
             type: String,
             required: [true, "Please add a password"],
             trim: true
+        },
+        phone: {
+            type: String,
+            default: null,
+            trim: true,
         },
         role: {
             type: String,
@@ -72,5 +78,8 @@ const userSchema = new Schema<IUser>(
     },
     { timestamps: true }
 );
+
+// partial unique — শুধু real phone string index হয়, null/missing skip (E11000-safe)
+userSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $type: "string" } } });
 
 export const User = model<IUser>('User', userSchema);

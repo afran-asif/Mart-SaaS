@@ -173,9 +173,6 @@ theme: {
             default: null,
             trim: true,
             lowercase: true,
-            unique: true,
-            // partial: শুধু real string value index হয় — null/missing skip (E11000 fix)
-            partialFilterExpression: { customDomain: { $type: "string" } },
         },
         customDomainStatus: {
             type: String,
@@ -222,6 +219,8 @@ theme: {
 storeSchema.index({ vendorId: 1 });
 storeSchema.index({ customDomainStatus: 1, status: 1 });
 storeSchema.index({ plan: 1, planExpiresAt: 1 });
+// partial unique — শুধু real domain string index হয়, null/missing skip (E11000-safe)
+storeSchema.index({ customDomain: 1 }, { unique: true, partialFilterExpression: { customDomain: { $type: "string" } } });
 
 
 export const Store = model<IStore>('Store', storeSchema);

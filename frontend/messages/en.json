@@ -231,6 +231,7 @@
     "fullName": "Full Name",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
+    "phoneLabel": "Phone Number",
     "storeName": "Store Name",
     "subdomain": "Desired Subdomain",
     "registerButton": "Register Store",

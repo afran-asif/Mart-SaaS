@@ -13,6 +13,7 @@ export default function LocalizedRegisterPage() {
         name: "",
         email: "",
         password: "",
+        phone: "",
         storeName: "",
         subdomain: "",
     });
@@ -111,6 +112,21 @@ export default function LocalizedRegisterPage() {
                                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 placeholder="••••••••"
                                 value={formData.password}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">{t("register.phoneLabel")}</label>
+                            <input
+                                name="phone"
+                                type="tel"
+                                required
+                                pattern="01[3-9][0-9]{8}"
+                                title="01XXXXXXXXX"
+                                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                                placeholder="01XXXXXXXXX"
+                                value={formData.phone}
                                 onChange={handleChange}
                             />
                         </div>

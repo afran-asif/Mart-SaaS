@@ -62,7 +62,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         await user.save();
         res.status(200).json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -161,7 +161,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
             res.status(401).json({ message: 'Not authenticated' });
             return;
         }
-        const user = await User.findById(tokenUser._id).select("name email role avatar");
+        const user = await User.findById(tokenUser._id).select("name email role avatar phone");
         if (!user) {
             res.status(404).json({ message: 'User not found' });
             return;
@@ -169,7 +169,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         const store = await Store.findOne({ vendorId: user._id }).select("storeName subdomain");
         res.status(200).json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
             store: store ? { id: store._id, storeName: store.storeName, subdomain: store.subdomain } : null,
             impersonatedBy: (req as any).impersonatedBy || null,
         });
@@ -217,10 +217,22 @@ export const impersonateCallback = async (req: Request, res: Response): Promise<
 
 export const registerVendor = async (req: Request, res: Response) => {
     try {
-        const {name, email, password, storeName, subdomain } = req.body;
+        const {name, email, password, phone, storeName, subdomain } = req.body;
 
         if (!password || password.length < 8) {
             res.status(400).json({ message: 'Password must be at least 8 characters long' });
+            return;
+        }
+
+        // 📱 Phone required + BD format (01XXXXXXXXX) — এক ফোনে একটাই trial
+        const cleanPhone = String(phone || "").replace(/\D/g, "");
+        if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+            res.status(400).json({ message: 'Valid phone number is required (e.g. 017XXXXXXXX).' });
+            return;
+        }
+        const phoneExists = await User.findOne({ phone: cleanPhone });
+        if (phoneExists) {
+            res.status(400).json({ message: 'This phone number is already registered.' });
             return;
         }
         
@@ -244,6 +256,7 @@ export const registerVendor = async (req: Request, res: Response) => {
             name,
             email,
             password: hashedPassword,
+            phone: cleanPhone,
             role: 'vendor',
             isVerified: false,
             verificationToken,
@@ -315,7 +328,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json({
             success: true,
             token, // ✅ token response-এ পাঠানো হচ্ছে
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
             store: { storeName: store?.storeName, subdomain: store?.subdomain }
         });
     } catch(error) {

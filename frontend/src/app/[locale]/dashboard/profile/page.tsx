@@ -171,6 +171,9 @@ export default function LocalizedProfilePage() {
                     <div className="min-w-0 flex-1">
                         <p className="font-bold text-gray-900 truncate">{user?.name}</p>
                         <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                        {user?.phone && (
+                            <p className="text-xs text-gray-500 truncate mt-0.5">📱 {user.phone}</p>
+                        )}
                         <span className="inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 capitalize">
                             {user?.role}
                         </span>

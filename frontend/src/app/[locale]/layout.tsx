@@ -18,8 +18,8 @@ export async function generateMetadata({
       ? "Shopilika - মাল্টি-টেন্যান্ট ই-কমার্স প্ল্যাটফর্ম"
       : "Shopilika Core Engine - Multi-Tenant SaaS Platform",
     description: isBn
-      ? "কাস্টম সাবডোমেন, সম্পূর্ণ ইনভেন্টরি ও পেমেন্ট ইন্টিগ্রেশন সহ কয়েক মিনিটে নিজস্ব অনলাইন স্টোর তৈরি করুন।"
-      : "Launch your branded multi-tenant storefront in minutes with custom subdomain and integrated payments.",
+      ? "কাস্টম সাবডোমেন, সম্পূর্ণ ইনভেন্টরি ও ক্যাশ অন ডেলিভারি সহ কয়েক মিনিটে নিজস্ব অনলাইন স্টোর তৈরি করুন।"
+      : "Launch your branded multi-tenant storefront in minutes with custom subdomain and cash on delivery.",
     alternates: {
       canonical: `/${locale}`,
       languages: {
