@@ -43,6 +43,7 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
             whatsappNumber,
             steadfastApiKey,
             steadfastSecretKey,
+            newOrderAlert,
             contactEmail,
             contactPhone,
             address,
@@ -124,6 +125,11 @@ export const updateStoreConfig = async (req: AuthenticatedRequest, res: Response
         if (contactEmail !== undefined) store.contactEmail = contactEmail || null;
         if (contactPhone !== undefined) store.contactPhone = contactPhone || null;
         if (address !== undefined) store.address = address || null;
+
+        // 🔔 Order email alert opt-in — bell-এ in-app এমনিই আসে
+        if (newOrderAlert !== undefined) {
+            store.emailNotifications = { newOrderAlert: newOrderAlert === true };
+        }
 
         // 🚚 Steadfast keys — encrypted save, খালি দিলে মুছে ফেলা (null)
         // ENCRYPTION_KEY ছাড়া key সেভ করা যাবে না (plaintext secret রাখা নিষেধ)
@@ -392,6 +398,7 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 customDomain: store.customDomain,
                 customDomainStatus: store.customDomainStatus,
                 customDomainVerificationCode: store.customDomainVerificationCode,
+                emailNotifications: (store as any).emailNotifications || { newOrderAlert: false },
                 plan: getEffectivePlan(store),
                 planExpiresAt: store.planExpiresAt,
             },

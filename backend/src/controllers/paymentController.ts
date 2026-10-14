@@ -67,8 +67,9 @@ const sendOrderEmailSafely = async (orderId: Types.ObjectId | string, storeId: T
             console.log(`✅ [EMAIL SUCCESS] Order confirmation email dispatched and saved for order ${order._id}`);
         }
 
-        // 🔔 Vendor new-order alert (store flag ON থাকলে, একবারই)
-        if (!order.vendorNotified && (store as any)?.emailNotifications?.newOrderAlert !== false) {
+        // 🔔 Vendor new-order alert — opt-in (store flag true) হলে, একবারই
+        // default OFF: vendor bell-এ in-app notification পায়, mail limit বাঁচে
+        if (!order.vendorNotified && (store as any)?.emailNotifications?.newOrderAlert === true) {
             const vendor = await User.findById(order.vendorId).select("email name");
             if (vendor?.email) {
                 await sendNewOrderAlertEmail({

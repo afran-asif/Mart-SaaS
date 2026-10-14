@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/redux/authSlice";
 import { logoutVendor } from "@/services/authService";
 import { getOrderNotifications, markOrderSeen, markAllSeen, OrderNotification } from "@/services/orderService";
+import { api } from "@/services/api";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -27,6 +28,8 @@ export default function DashboardTopbar({
     const [pending, setPending] = useState(0);    const [notifs, setNotifs] = useState<OrderNotification[]>([]);
     const [bellOpen, setBellOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [emailAlert, setEmailAlert] = useState(false);
+    const [emailAlertLoaded, setEmailAlertLoaded] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLDivElement>(null);
 
@@ -41,11 +44,32 @@ export default function DashboardTopbar({
         };
         load();
         const id = setInterval(load, 60000);
+        // order email alert pref — bell dropdown toggle-এর জন্য (fail হলে off থাকে)
+        api.get("/store/config")
+            .then((res) => {
+                if (!cancelled) {
+                    setEmailAlert(!!res.data?.store?.emailNotifications?.newOrderAlert);
+                    setEmailAlertLoaded(true);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setEmailAlertLoaded(true);
+            });
         return () => {
             cancelled = true;
             clearInterval(id);
         };
     }, [pathname]);
+
+    const handleEmailAlertToggle = async () => {
+        const next = !emailAlert;
+        setEmailAlert(next);
+        try {
+            await api.put("/store/config", { newOrderAlert: next });
+        } catch {
+            setEmailAlert(!next);
+        }
+    };
 
     useEffect(() => {
         const close = (e: MouseEvent) => {
@@ -188,6 +212,26 @@ export default function DashboardTopbar({
                             >
                                 {t("dashboard.viewAllOrders")}
                             </Link>
+                            <button
+                                type="button"
+                                onClick={handleEmailAlertToggle}
+                                disabled={!emailAlertLoaded}
+                                className="w-full flex items-center justify-between px-4 py-2.5 border-t border-gray-100 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                title="প্রতিটা নতুন অর্ডারে ইমেইল আসবে"
+                            >
+                                <span className="text-[11px] font-semibold text-gray-500">📧 Order email alerts</span>
+                                <span
+                                    className={`w-8 h-[18px] rounded-full p-[2px] transition-colors shrink-0 ${
+                                        emailAlert ? "bg-orange-600" : "bg-gray-200"
+                                    }`}
+                                >
+                                    <span
+                                        className={`block w-[14px] h-[14px] rounded-full bg-white shadow transition-transform ${
+                                            emailAlert ? "translate-x-[14px]" : ""
+                                        }`}
+                                    />
+                                </span>
+                            </button>
                         </div>
                     )}
                 </div>

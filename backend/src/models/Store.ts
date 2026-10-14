@@ -209,7 +209,8 @@ theme: {
             default: null,
         },
         emailNotifications: {
-            newOrderAlert: { type: Boolean, default: true },
+            // default OFF — vendor bell-এ in-app পায়; mail চাইলে opt-in (limit বাঁচাতে)
+            newOrderAlert: { type: Boolean, default: false },
         },
     },
     { timestamps: true }
