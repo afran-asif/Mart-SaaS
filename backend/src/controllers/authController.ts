@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmail";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
+import { OAuth2Client } from "google-auth-library";
 
 const DEFAULT_CATEGORIES = ["Clothing", "Gadgets", "Accessories", "Home & Kitchen", "Beauty & Health"];
 
@@ -170,8 +171,117 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json({
             success: true,
             user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
-            store: store ? { id: store._id, storeName: store.storeName, subdomain: store.subdomain } : null,
-            impersonatedBy: (req as any).impersonatedBy || null,
+            store: { storeName: store?.storeName, subdomain: store?.subdomain }
+        });
+    } catch(error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+}
+
+// 🔵 Google login — GIS idToken verify → existing login / নতুন vendor+store তৈরি
+// নতুন vendor-এর জন্য phone + storeName + subdomain লাগে (trial abuse guard একই)
+export const googleAuth = async (req: Request, res: Response): Promise<void> => {
+    try {
+        if (!process.env.GOOGLE_CLIENT_ID) {
+            res.status(500).json({ message: "Google login is not configured (GOOGLE_CLIENT_ID missing)." });
+            return;
+        }
+        const { idToken, name, phone, storeName, subdomain } = req.body as {
+            idToken?: string; name?: string; phone?: string; storeName?: string; subdomain?: string;
+        };
+        if (!idToken) {
+            res.status(400).json({ message: "Google token is required." });
+            return;
+        }
+
+        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        let email = "";
+        let googleName = "";
+        try {
+            const ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+            const payload = ticket.getPayload();
+            if (!payload?.email || payload.email_verified === false) {
+                res.status(401).json({ message: "Google email could not be verified." });
+                return;
+            }
+            email = payload.email.toLowerCase().trim();
+            googleName = payload.name || "";
+        } catch {
+            res.status(401).json({ message: "Invalid Google token." });
+            return;
+        }
+
+        let user = await User.findOne({ email });
+        if (user) {
+            // Google email verified → legacy unverified account-ও activate হয়
+            if (!user.isVerified) {
+                user.isVerified = true;
+                await user.save();
+            }
+            if (user.role !== "vendor" && user.role !== "super-admin") {
+                res.status(403).json({ message: "This account cannot access the vendor dashboard." });
+                return;
+            }
+            const token = generateToken(res, user._id.toString());
+            const store = await Store.findOne({ vendorId: user._id });
+            res.status(200).json({
+                success: true,
+                token,
+                user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
+                store: { storeName: store?.storeName, subdomain: store?.subdomain },
+            });
+            return;
+        }
+
+        // নতুন vendor — phone + store details বাধ্যতামূলক
+        const cleanPhone = String(phone || "").replace(/\D/g, "");
+        if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+            res.status(400).json({ message: "Valid phone number is required (e.g. 017XXXXXXXX).", needProfile: true, email });
+            return;
+        }
+        if (await User.findOne({ phone: cleanPhone })) {
+            res.status(400).json({ message: "This phone number is already registered." });
+            return;
+        }
+        const cleanSub = String(subdomain || "").toLowerCase().trim();
+        if (!cleanSub || !/^[a-z0-9-]{3,30}$/.test(cleanSub)) {
+            res.status(400).json({ message: "Valid subdomain is required (3-30 chars, a-z 0-9 -).", needProfile: true, email });
+            return;
+        }
+        if (await Store.findOne({ subdomain: cleanSub })) {
+            res.status(400).json({ message: "Subdomain is already taken.", needProfile: true, email });
+            return;
+        }
+        const finalName = String(name || googleName || "Vendor").trim().slice(0, 60) || "Vendor";
+
+        const randomPass = crypto.randomBytes(32).toString("hex");
+        const salt = await bcrypt.genSalt(10);
+        user = await User.create({
+            name: finalName,
+            email,
+            password: await bcrypt.hash(randomPass, salt),
+            phone: cleanPhone,
+            role: "vendor",
+            isVerified: true, // Google already verified
+        });
+
+        const store = await Store.create({
+            vendorId: user._id,
+            storeName: String(storeName || `${finalName}'s Store`).trim().slice(0, 80),
+            subdomain: cleanSub,
+            plan: "pro",
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        });
+        await Category.insertMany(
+            DEFAULT_CATEGORIES.map((cat) => ({ vendorId: user._id, storeId: store._id, name: cat }))
+        );
+
+        const token = generateToken(res, user._id.toString());
+        res.status(201).json({
+            success: true,
+            token,
+            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
+            store: { storeName: store.storeName, subdomain: store.subdomain },
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });

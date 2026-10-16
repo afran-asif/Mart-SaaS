@@ -11,6 +11,17 @@ export const loginVendor = async ( credentials: any ) => {
     return response.data;
 }
 
+export const loginWithGoogle = async (payload: {
+    idToken: string;
+    name?: string;
+    phone?: string;
+    storeName?: string;
+    subdomain?: string;
+}) => {
+    const response = await api.post("/auth/google", payload);
+    return response.data;
+}
+
 export const logoutVendor = async () => {
     try {
         await api.post("/auth/logout");

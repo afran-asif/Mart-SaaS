@@ -1,6 +1,6 @@
 import {Router } from 'express';
 import rateLimit from "express-rate-limit";
-import { registerVendor, loginUser, logoutUser, getMe, updateProfile, changePassword, uploadAvatar, removeAvatar, impersonateCallback, verifyEmail, resendVerificationEmail, forgotPassword, resetPassword } from "../controllers/authController";
+import { registerVendor, loginUser, logoutUser, getMe, updateProfile, changePassword, uploadAvatar, removeAvatar, googleAuth, impersonateCallback, verifyEmail, resendVerificationEmail, forgotPassword, resetPassword } from "../controllers/authController";
 import { protect, authorize } from '../middlewares/authMiddleware';
 import { upload } from '../middlewares/uploadMiddleware';
 
@@ -16,6 +16,7 @@ const resetLimiter = rateLimit({ ...std, max: 10 });
 
 router.post('/register', registerLimiter, registerVendor);
 router.post('/login', loginLimiter, loginUser);
+router.post('/google', loginLimiter, googleAuth);
 router.post('/logout', logoutUser);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);

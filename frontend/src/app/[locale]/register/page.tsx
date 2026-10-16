@@ -1,13 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { registerVendor } from "@/services/authService";
+import { registerVendor, loginWithGoogle } from "@/services/authService";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/redux/authSlice";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function LocalizedRegisterPage() {
     const router = useRouter();
+    const dispatch = useDispatch();
     const { t, language } = useTranslation();
     const [formData, setFormData] = useState({
         name: "",
@@ -35,6 +39,9 @@ export default function LocalizedRegisterPage() {
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    // Google flow — idToken পেলে existing user হলে direct login, নতুন হলে profile step
+    const [googleIdToken, setGoogleIdToken] = useState<string | null>(null);
+    const [googleEmail, setGoogleEmail] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,6 +53,21 @@ export default function LocalizedRegisterPage() {
         setMessage("");
 
         try {
+            // Google profile step — idToken + পূরণ করা profile একসাথে
+            if (googleIdToken) {
+                const data = await loginWithGoogle({
+                    idToken: googleIdToken,
+                    name: formData.name.trim(),
+                    phone: formData.phone.trim(),
+                    storeName: formData.storeName.trim(),
+                    subdomain: formData.subdomain.trim().toLowerCase(),
+                });
+                if (data.success) {
+                    dispatch(setCredentials({ user: data.user, store: data.store }));
+                    router.push(`/${language}/dashboard`);
+                }
+                return;
+            }
             const data = await registerVendor(formData);
             if (data.success) {
                 router.push(`/${language}/verify-email?email=${encodeURIComponent(formData.email)}`);
@@ -53,6 +75,30 @@ export default function LocalizedRegisterPage() {
         } catch (error: any) {
             const msg = error.response?.data?.message || error.message || "Something went wrong!";
             setMessage(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleToken = async (idToken: string) => {
+        setLoading(true);
+        setMessage("");
+        try {
+            // শুধু idToken — existing user হলে backend direct login দেবে
+            const data = await loginWithGoogle({ idToken });
+            if (data.success) {
+                dispatch(setCredentials({ user: data.user, store: data.store }));
+                router.push(`/${language}/dashboard`);
+            }
+        } catch (error: any) {
+            // নতুন user — profile step দেখাও (email backend থেকে আসে)
+            if (error?.response?.data?.needProfile) {
+                setGoogleIdToken(idToken);
+                setGoogleEmail(error.response.data.email || "");
+                setMessage("");
+            } else {
+                setMessage(error?.response?.data?.message || error.message || "Google sign-in failed!");
+            }
         } finally {
             setLoading(false);
         }
@@ -103,6 +149,17 @@ export default function LocalizedRegisterPage() {
                             />
                         </div>
 
+                        {googleIdToken ? (
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">{t("register.emailLabel")}</label>
+                                <input
+                                    type="email"
+                                    disabled
+                                    value={googleEmail}
+                                    className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500"
+                                />
+                            </div>
+                        ) : (
                         <div>
                             <label className="text-sm font-medium text-gray-700">{t("register.passwordLabel")}</label>
                             <input
@@ -115,6 +172,7 @@ export default function LocalizedRegisterPage() {
                                 onChange={handleChange}
                             />
                         </div>
+                        )}
 
                         <div>
                             <label className="text-sm font-medium text-gray-700">{t("register.phoneLabel")}</label>
@@ -181,6 +239,14 @@ export default function LocalizedRegisterPage() {
                 </form>
 
                 <div className="text-center pt-2 border-t border-gray-100">
+                    <div className="flex justify-center py-3">
+                        <GoogleAuthButton onToken={handleGoogleToken} disabled={loading} />
+                    </div>
+                    {googleIdToken && (
+                        <p className="text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2 mb-2">
+                            {googleEmail ? `${googleEmail} — ` : ""}complete your store profile below ↓
+                        </p>
+                    )}
                     <p className="text-xs text-gray-500">
                         {t("register.hasAccount")}{" "}
                         <Link href={`/${language}/login`} className="font-semibold text-orange-600 hover:text-orange-700">

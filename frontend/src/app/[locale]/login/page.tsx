@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { loginVendor } from "@/services/authService";
+import { loginVendor, loginWithGoogle } from "@/services/authService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
+import toast from "react-hot-toast";
 
 export default function LocalizedLoginPage() {
     const router = useRouter();
@@ -37,6 +39,31 @@ export default function LocalizedLoginPage() {
         } catch (error: any) {
             const errorMsg = error.response?.data?.message || error.message || "Login failed!";
             setMessage(errorMsg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleToken = async (idToken: string) => {
+        setLoading(true);
+        setMessage("");
+        try {
+            const data = await loginWithGoogle({ idToken });
+            if (data.success) {
+                dispatch(setCredentials({ user: data.user, store: data.store }));
+                setTimeout(() => {
+                    router.push(`/${language}/dashboard`);
+                }, 800);
+            }
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || error.message || "Google login failed!";
+            // নতুন user login page-এ Google চাপলে → register-এ পাঠাও
+            if (error?.response?.data?.needProfile) {
+                toast("No account yet — complete registration first.");
+                router.push(`/${language}/register`);
+                return;
+            }
+            setMessage(msg);
         } finally {
             setLoading(false);
         }
@@ -119,6 +146,9 @@ export default function LocalizedLoginPage() {
                 </form>
 
                 <div className="text-center pt-2 border-t border-gray-100">
+                    <div className="flex justify-center py-3">
+                        <GoogleAuthButton onToken={handleGoogleToken} disabled={loading} />
+                    </div>
                     <p className="text-xs text-gray-500">
                         {t("login.noAccount")}{" "}
                         <Link href={`/${language}/register`} className="font-semibold text-orange-600 hover:text-orange-700">
