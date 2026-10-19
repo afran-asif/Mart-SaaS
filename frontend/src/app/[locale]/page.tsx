@@ -190,8 +190,8 @@ export default function LocalizedHomePage() {
               <span className="font-['Caveat',cursive] text-xl sm:text-2xl font-bold tracking-tight text-gray-900 leading-none drop-shadow-sm">
                 Shopilika
               </span>
-              <span className="text-[10px] font-medium tracking-wider uppercase text-gray-400">
-                Multi-Tenant Commerce
+              <span className="text-[8px] font-medium tracking-wider uppercase text-black">
+                Claim Your Ecommerce
               </span>
             </div>
           </Link>
@@ -365,7 +365,21 @@ export default function LocalizedHomePage() {
             {t("hero.heading1")}
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500">
-              {t("hero.heading2")}
+              {(() => {
+                const heading2 = t("hero.heading2");
+                const highlight = language === "bn" ? "ফ্রি" : "Free";
+                const parts = heading2.split(highlight);
+                if (parts.length < 2) return heading2;
+                return (
+                  <>
+                    {parts[0]}
+                    <span className="relative inline-block font-black text-emerald-600 underline decoration-emerald-400 decoration-4 underline-offset-4">
+                      {highlight}
+                    </span>
+                    {parts.slice(1).join(highlight)}
+                  </>
+                );
+              })()}
             </span>
           </h1>
 
