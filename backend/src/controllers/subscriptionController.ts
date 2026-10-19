@@ -8,11 +8,11 @@ import { cacheDelTenantStore } from "../utils/cache";
 
 const SUBSCRIPTION_DAYS = 30;
 
-// Pro duration pricing — 1mo 499 (50% off), 3mo 1199 (60% off), 6mo 1999 (67% off)
+// Pro duration pricing — 1mo 299, 3mo 699, 6mo 1299
 export const PLAN_DURATIONS = [
-    { months: 1, days: 30, amount: 499 },
-    { months: 3, days: 90, amount: 1199 },
-    { months: 6, days: 180, amount: 1999 },
+    { months: 1, days: 30, amount: 299 },
+    { months: 3, days: 90, amount: 699 },
+    { months: 6, days: 180, amount: 1299 },
 ] as const;
 
 export const getPlanPrice = (months: number): number | null => {
@@ -63,7 +63,7 @@ export const getMySubscription = async (req: AuthenticatedRequest, res: Response
                     maxOrdersPerMonth: usage.limits.maxOrdersPerMonth,
                 },
                 features: usage.limits,
-                proPrice: proPlan?.priceMonthly ?? 499,
+                proPrice: proPlan?.priceMonthly ?? 299,
                 planPrices: PLAN_DURATIONS.map((p) => ({ months: p.months, days: p.days, amount: p.amount })),
                 bkashNumber: process.env.SUBSCRIPTION_BKASH_NUMBER || "",
                 pendingRequest: pending

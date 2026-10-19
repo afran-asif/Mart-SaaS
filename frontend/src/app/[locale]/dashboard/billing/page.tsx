@@ -171,7 +171,7 @@ export default function LocalizedBillingPage() {
                                     Plan duration
                                 </label>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {(sub?.planPrices?.length ? sub.planPrices : [{ months: 1, days: 30, amount: sub?.proPrice ?? 499 }]).map((p) => {
+                                    {(sub?.planPrices?.length ? sub.planPrices : [{ months: 1, days: 30, amount: sub?.proPrice ?? 299 }]).map((p) => {
                                         const active = durationMonths === p.months;
                                         const perMonth = Math.round(p.amount / p.months);
                                         return (

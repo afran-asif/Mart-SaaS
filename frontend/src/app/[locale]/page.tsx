@@ -701,8 +701,8 @@ export default function LocalizedHomePage() {
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.plan1Name")}</span>
               <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <span className="text-lg font-semibold text-gray-400 line-through">৳999</span>
-                <span className="text-4xl font-extrabold text-gray-900">৳499</span>
+                <span className="text-lg font-semibold text-gray-400 line-through">৳598</span>
+                <span className="text-4xl font-extrabold text-gray-900">৳299</span>
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{t("pricing.trialBadge")}</span>
               </div>
               <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.plan1Duration")}</p>
@@ -724,10 +724,10 @@ export default function LocalizedHomePage() {
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("pricing.plan3Name")}</span>
               <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <span className="text-lg font-semibold text-gray-400 line-through">৳2997</span>
-                <span className="text-4xl font-extrabold text-gray-900">৳1199</span>
+                <span className="text-lg font-semibold text-gray-400 line-through">৳897</span>
+                <span className="text-4xl font-extrabold text-gray-900">৳699</span>
               </div>
-              <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.plan3Duration")} · ৳400{t("pricing.perMonthShort")}</p>
+              <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.plan3Duration")} · ৳233{t("pricing.perMonthShort")}</p>
             </div>
             <Link
               href={`/${language}/register`}
@@ -746,10 +746,10 @@ export default function LocalizedHomePage() {
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-orange-100">{t("pricing.plan6Name")}</span>
               <div className="mt-4 flex items-center gap-2 flex-wrap">
-                <span className="text-lg font-semibold text-orange-200/70 line-through">৳5994</span>
-                <span className="text-4xl font-extrabold">৳1999</span>
+                <span className="text-lg font-semibold text-orange-200/70 line-through">৳1794</span>
+                <span className="text-4xl font-extrabold">৳1299</span>
               </div>
-              <p className="mt-1 text-sm font-medium text-orange-100">{t("pricing.plan6Duration")} · ৳333{t("pricing.perMonthShort")}</p>
+              <p className="mt-1 text-sm font-medium text-orange-100">{t("pricing.plan6Duration")} · ৳216{t("pricing.perMonthShort")}</p>
             </div>
 
             <Link

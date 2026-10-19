@@ -67,13 +67,13 @@ describe("subscription flow", () => {
         expect(r.status).toBe(403);
     });
 
-    test("3-month request → 1199, approve grants ~90 days", async () => {
+    test("3-month request → 699, approve grants ~90 days", async () => {
         let r = await vauth(request(app).post("/api/v1/subscription/request")).send({ trxId: "T3", senderNumber: "0171", durationMonths: 3 });
         expect(r.status).toBe(201);
 
         r = await aauth(request(app).get("/api/v1/subscription/requests?status=pending"));
         const sub = r.body.requests.find((x: any) => x.trxId === "T3");
-        expect(sub.amount).toBe(1199);
+        expect(sub.amount).toBe(699);
         expect(sub.durationMonths).toBe(3);
 
         r = await aauth(request(app).post(`/api/v1/subscription/requests/${sub._id}/approve`));

@@ -102,7 +102,7 @@
   "pricing": {
     "badge": "Transparent Pricing",
     "title": "Simple, Vendor-First Plans",
-    "subtitle": "Every new store gets 30 days of full Pro, free. After trial, Pro at ৳499/month keeps your store live — no pay, no orders.",
+    "subtitle": "Every new store gets 30 days of full Pro, free. After trial, Pro at ৳299/month keeps your store live — no pay, no orders.",
     "starterLabel": "Free Trial",
     "starterDesc": "30 days of everything — no card, no payment. Just sell.",
     "starterFree": "/ 30 days free",
@@ -135,11 +135,11 @@
     "plan1Cta": "Choose Monthly",
     "plan3Name": "Quarterly",
     "plan3Duration": "3 months",
-    "plan3Badge": "Save ৳1798",
+    "plan3Badge": "Save ৳198",
     "plan3Cta": "Choose Quarterly",
     "plan6Name": "Half-Yearly",
     "plan6Duration": "6 months",
-    "plan6Badge": "Best Value · Save ৳3995",
+    "plan6Badge": "Best Value · Save ৳495",
     "plan6Cta": "Choose Half-Yearly",
     "perMonthShort": "/mo",
     "planIncludesTitle": "Every plan includes",
@@ -174,7 +174,7 @@
       },
       {
         "q": "How does Pro billing work?",
-        "a": "Every new store gets a free 30-day Pro trial with everything unlocked. After trial, choose 1 month (৳499), 3 months (৳1199) or 6 months (৳1999) via bKash. If you don't renew, your store pauses (no orders, no dashboard) but nothing is deleted — pay anytime and everything comes back instantly."
+        "a": "Every new store gets a free 30-day Pro trial with everything unlocked. After trial, choose 1 month (৳299), 3 months (৳699) or 6 months (৳1299) via bKash. If you don't renew, your store pauses (no orders, no dashboard) but nothing is deleted — pay anytime and everything comes back instantly."
       }
     ]
   },
