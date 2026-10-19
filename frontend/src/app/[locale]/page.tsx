@@ -179,12 +179,12 @@ export default function LocalizedHomePage() {
       <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
           {/* Logo */}
-          <Link href={`/${language}`} className="flex items-center gap-2.5 group">
+          <Link href={`/${language}`} className="flex items-center gap-1.5 group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/shopilika-logo.png"
               alt="Shopilika"
-              className="h-10 w-auto group-hover:scale-105 transition-transform"
+              className="h-12 w-auto drop-shadow-md group-hover:drop-shadow-lg group-hover:scale-105 transition-all"
             />
             <div className="flex flex-col gap-1.5">
               <span className="font-['Caveat',cursive] text-xl sm:text-2xl font-bold tracking-tight text-gray-900 leading-none drop-shadow-sm">
