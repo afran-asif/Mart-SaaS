@@ -1,16 +1,14 @@
 import { Request, Response } from "express";
 import { User } from "../models/User";
 import { Store } from "../models/Store";
-import { Category } from "../models/Category";
 import { ImpersonationLog } from "../models/ImpersonationLog";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmail";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
+import { seedNewStore } from "../utils/storeDefaults";
 import { OAuth2Client } from "google-auth-library";
-
-const DEFAULT_CATEGORIES = ["Clothing", "Gadgets", "Accessories", "Home & Kitchen", "Beauty & Health"];
 
 const getFrontendUrl = (): string => {
     return (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
@@ -272,9 +270,13 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
             plan: "pro",
             planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
-        await Category.insertMany(
-            DEFAULT_CATEGORIES.map((cat) => ({ vendorId: user._id, storeId: store._id, name: cat }))
-        );
+        await seedNewStore({
+            vendorId: user._id,
+            storeId: store._id,
+            storeName: store.storeName,
+            email: user.email,
+            phone: cleanPhone,
+        });
 
         const token = generateToken(res, user._id.toString());
         res.status(201).json({
@@ -382,10 +384,14 @@ export const registerVendor = async (req: Request, res: Response) => {
             planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
 
-        // 🏷️ নতুন স্টোরের জন্য default categories তৈরি
-        await Category.insertMany(
-            DEFAULT_CATEGORIES.map((name) => ({ vendorId: user._id, storeId: store._id, name }))
-        );
+        // 🏷️ নতুন স্টোরের জন্য default categories + products + hero (vendor চাইলে remove/change করবে)
+        await seedNewStore({
+            vendorId: user._id,
+            storeId: store._id,
+            storeName: store.storeName,
+            email: user.email,
+            phone: cleanPhone,
+        });
 
         const verifyUrl = `${getFrontendUrl()}/en/verify-email?token=${verificationToken}`;
         sendVerificationEmail({ to: user.email, name: user.name, verifyUrl });
