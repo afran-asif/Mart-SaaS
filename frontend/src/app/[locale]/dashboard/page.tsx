@@ -28,10 +28,14 @@ interface Analytics {
 }
 
 export default function LocalizedDashboardPage() {
-    const { user } = useSelector((state: any) => state.auth);
+    const { user, store } = useSelector((state: any) => state.auth);
     const { t, language } = useTranslation();
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
+    const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
+    const storefrontUrl = store?.subdomain ? `${protocol}://${store.subdomain}.${baseDomain}` : "";
 
     useEffect(() => {
         let isMounted = true;
@@ -94,11 +98,28 @@ export default function LocalizedDashboardPage() {
 
     return (
         <div className="space-y-6 sm:space-y-8">
-            <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                    {t("dashboard.welcome")}, {user?.name || t("dashboard.vendor")}!
-                </h1>
-                <p className="text-gray-500 mt-1 text-sm">{t("dashboard.overviewSubtitle")}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                        {t("dashboard.welcome")}, {user?.name || t("dashboard.vendor")}!
+                    </h1>
+                    <p className="text-gray-500 mt-1 text-sm">{t("dashboard.overviewSubtitle")}</p>
+                </div>
+                {storefrontUrl && (
+                    <a
+                        href={storefrontUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 self-start sm:self-auto rounded-xl bg-orange-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-orange-700 transition-colors shrink-0"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        {t("dashboard.visitStorefront")}
+                    </a>
+                )}
             </div>
 
             {/* Summary Cards */}

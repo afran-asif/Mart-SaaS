@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shopilika Core Engine",
-  description: "Multi-tenant SaaS Platform",
+  title: "Shopilika – Online Store Builder in Bangladesh",
+  description: "Shopilika is an ecommerce platform for Bangladesh. Launch your own online store in minutes with a custom subdomain, product and order management, and cash on delivery.",
 };
 
 export default function RootLayout({
