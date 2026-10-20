@@ -5,9 +5,20 @@ import Link from "next/link";
 import { api } from "@/services/api";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useDispatch } from "react-redux";
+import { updateStoreInfo } from "@/redux/authSlice";
+
+const SUBDOMAIN_CHANGE_LIMIT = 3;
 
 export default function DomainSettingsPage() {
     const { t, language } = useTranslation();
+    const dispatch = useDispatch();
+    const [storeName, setStoreName] = useState("");
+    const [subdomain, setSubdomain] = useState("");
+    const [savedSubdomain, setSavedSubdomain] = useState("");
+    const [subdomainChanges, setSubdomainChanges] = useState(0);
+    const [editingSubdomain, setEditingSubdomain] = useState(false);
+    const [savingSubdomain, setSavingSubdomain] = useState(false);
     const [customDomain, setCustomDomain] = useState("");
     const [customDomainStatus, setCustomDomainStatus] = useState<
         "none" | "pending" | "verified" | "failed"
@@ -19,6 +30,8 @@ export default function DomainSettingsPage() {
     const [loading, setLoading] = useState(true);
 
     const protocol = process.env.NEXT_PUBLIC_FRONTEND_PROTOCOL || "http";
+    const baseDomain = process.env.NEXT_PUBLIC_FRONTEND_BASE_DOMAIN || "localhost:3000";
+    const subdomainLimitReached = subdomainChanges >= SUBDOMAIN_CHANGE_LIMIT;
 
     useEffect(() => {
         const fetchStore = async () => {
@@ -26,6 +39,10 @@ export default function DomainSettingsPage() {
                 const res = await api.get("/store/config");
                 const data = res.data.store;
                 setPlan(data.plan || "free");
+                setStoreName(data.storeName || "");
+                setSubdomain(data.subdomain || "");
+                setSavedSubdomain(data.subdomain || "");
+                setSubdomainChanges(data.subdomainChanges || 0);
                 setCustomDomain(data.customDomain || "");
                 setCustomDomainStatus(data.customDomainStatus || "none");
                 setVerificationCode(data.customDomainVerificationCode || "");
@@ -37,6 +54,35 @@ export default function DomainSettingsPage() {
         };
         fetchStore();
     }, []);
+
+    const handleSaveSubdomain = async () => {
+        const next = subdomain.trim().toLowerCase();
+        if (!next) {
+            toast.error("Enter a store link first.");
+            return;
+        }
+        setSavingSubdomain(true);
+        try {
+            const res = await api.put("/store/setup", { storeName, subdomain: next });
+            setSubdomain(res.data.store.subdomain);
+            setSavedSubdomain(res.data.store.subdomain);
+            setSubdomainChanges(res.data.store.subdomainChanges ?? 0);
+            setEditingSubdomain(false);
+            setStoreName(res.data.store.storeName);
+            dispatch(updateStoreInfo({
+                storeName: res.data.store.storeName,
+                subdomain: res.data.store.subdomain,
+            }));
+            toast.success(t("dashboard.settingsPage.subdomainSaved"));
+        } catch (error: unknown) {
+            const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+                || (error as Error).message
+                || "Failed to update store link.";
+            toast.error(msg);
+        } finally {
+            setSavingSubdomain(false);
+        }
+    };
 
     const handleRequestDomain = async () => {
         const value = customDomain.trim();
@@ -115,8 +161,110 @@ export default function DomainSettingsPage() {
                 <p className="text-gray-500 mt-1 text-sm">{t("dashboard.settingsPage.domainDesc")}</p>
             </div>
 
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h2 className="text-base font-bold text-gray-900">{t("dashboard.settingsPage.subdomainTitle")}</h2>
+                        <p className="text-xs text-gray-500 mt-0.5">{t("dashboard.settingsPage.subdomainDesc")}</p>
+                    </div>
+                    <p className="text-[11px] font-medium text-amber-600 sm:max-w-[190px] sm:text-right shrink-0">
+                        {t("dashboard.settingsPage.subdomainSeoWarning")}
+                    </p>
+                </div>
+                <div className="flex gap-2">
+                    <div className="flex flex-1 rounded-xl shadow-sm min-w-0">
+                        <input
+                            type="text"
+                            value={subdomain}
+                            readOnly={!editingSubdomain}
+                            onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                            required
+                            minLength={3}
+                            maxLength={30}
+                            placeholder="my-store"
+                            className={`w-full min-w-0 px-4 py-2.5 rounded-l-xl border border-gray-200 text-sm font-mono outline-none transition-all ${
+                                editingSubdomain
+                                    ? "bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10"
+                                    : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                            }`}
+                        />
+                        <span className={`inline-flex items-center rounded-r-xl border border-l-0 border-gray-200 px-2.5 text-[11px] whitespace-nowrap ${
+                            editingSubdomain ? "bg-gray-50 text-gray-500" : "bg-gray-100 text-gray-400"
+                        }`}>
+                            .{baseDomain}
+                        </span>
+                    </div>
+                    {!editingSubdomain ? (
+                        <>
+                            <span className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-xs font-bold shrink-0">
+                                {t("dashboard.settingsPage.subdomainClaimed")}
+                                <span aria-hidden>✓</span>
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setEditingSubdomain(true)}
+                                disabled={subdomainLimitReached}
+                                title={subdomainLimitReached ? t("dashboard.settingsPage.subdomainLimitReached") : undefined}
+                                className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition-colors shrink-0 ${
+                                    subdomainLimitReached
+                                        ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
+                                        : "border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
+                                }`}
+                            >
+                                {t("dashboard.settingsPage.subdomainChange")}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                type="button"
+                                onClick={handleSaveSubdomain}
+                                disabled={savingSubdomain || !subdomain.trim()}
+                                className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+                            >
+                                {savingSubdomain ? t("dashboard.settingsPage.subdomainSaving") : t("dashboard.settingsPage.subdomainSave")}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSubdomain(savedSubdomain);
+                                    setEditingSubdomain(false);
+                                }}
+                                className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-xs font-semibold hover:bg-gray-50 transition-colors shrink-0"
+                            >
+                                {t("dashboard.settingsPage.subdomainCancel")}
+                            </button>
+                        </>
+                    )}
+                </div>
+                {savedSubdomain && (
+                    <div className="space-y-1">
+                        <p className="text-xs text-gray-500">
+                            {t("dashboard.settingsPage.currentLink")}{" "}
+                            <a
+                                href={`${protocol}://${savedSubdomain}.${baseDomain}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-mono font-semibold text-orange-600 hover:underline break-all"
+                            >
+                                {savedSubdomain}.{baseDomain}
+                            </a>
+                        </p>
+                        <p className="text-xs text-gray-400">
+                            {t("dashboard.settingsPage.subdomainChangesUsed")} {subdomainChanges}/{SUBDOMAIN_CHANGE_LIMIT}
+                        </p>
+                        {subdomainLimitReached && (
+                            <p className="text-xs font-medium text-amber-600">
+                                {t("dashboard.settingsPage.subdomainLimitReached")}
+                            </p>
+                        )}
+                    </div>
+                )}
+            </div>
+
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-5">
                 <div className="flex items-center justify-between">
+                    <h2 className="text-base font-bold text-gray-900">{t("dashboard.settingsPage.customDomainTitle")}</h2>
                     <span
                         className={`text-[11px] font-semibold px-2.5 py-1 rounded-md ${
                             customDomainStatus === "verified"

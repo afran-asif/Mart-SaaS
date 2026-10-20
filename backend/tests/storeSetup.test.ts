@@ -59,6 +59,25 @@ describe("store setup", () => {
         expect(r.status).toBe(400);
     });
 
+    test("allows at most 3 subdomain changes", async () => {
+        for (let i = 1; i <= 3; i++) {
+            const r = await put({ storeName: "Limit Store", subdomain: `lim${t}-${i}` });
+            expect(r.status).toBe(200);
+        }
+        const blocked = await put({ storeName: "Limit Store", subdomain: `lim${t}-4` });
+        expect(blocked.status).toBe(403);
+        expect(blocked.body.limitReached).toBe(true);
+        const saved = await Store.findById(store._id);
+        expect(saved?.subdomainChanges).toBe(3);
+    });
+
+    test("same subdomain does not count as change", async () => {
+        await put({ storeName: "Limit Store", subdomain: `once${t}` });
+        await put({ storeName: "Renamed Only", subdomain: `once${t}` });
+        const saved = await Store.findById(store._id);
+        expect(saved?.subdomainChanges).toBe(1);
+    });
+
     test("requires auth", async () => {
         const r = await request(app).put("/api/v1/store/setup").send({ storeName: "X", subdomain: `noauth${t}` });
         expect(r.status).toBe(401);

@@ -7,6 +7,8 @@ export const RESERVED_SUBDOMAINS = new Set([
 
 export const SUBDOMAIN_REGEX = /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/;
 
+export const SUBDOMAIN_CHANGE_LIMIT = 3;
+
 export const normalizeSubdomain = (value: string): string =>
     String(value || "")
         .toLowerCase()

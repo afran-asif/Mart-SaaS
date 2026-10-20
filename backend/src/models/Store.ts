@@ -4,6 +4,7 @@ export interface IStore extends Document {
     vendorId: Types.ObjectId;
     storeName: string;
     subdomain: string;
+    subdomainChanges?: number;
     logo?: string;
     status: 'active' | 'suspended';
     useOwnSSLCommerz: boolean;
@@ -65,6 +66,11 @@ const storeSchema = new Schema<IStore>(
                 },
                 message: 'Subdomain must contain only alphanumeric characters and hyphens'
             }
+        },
+        subdomainChanges: {
+            type: Number,
+            default: 0,
+            min: 0
         },
         logo: {
             type: String,

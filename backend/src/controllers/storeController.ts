@@ -6,7 +6,7 @@ import { encrypt } from "../utils/encryption";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
 import { getEffectivePlan, getPlanLimits, isStoreLocked } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
-import { normalizeSubdomain, validateSubdomain } from "../utils/subdomain";
+import { normalizeSubdomain, validateSubdomain, SUBDOMAIN_CHANGE_LIMIT } from "../utils/subdomain";
 
 export const getAllActiveStores = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -49,13 +49,23 @@ export const setupStore = async (req: AuthenticatedRequest, res: Response): Prom
         }
 
         const oldSubdomain = store.subdomain;
+        const changesUsed = store.subdomainChanges || 0;
         if (subdomain !== oldSubdomain) {
+            if (changesUsed >= SUBDOMAIN_CHANGE_LIMIT) {
+                res.status(403).json({
+                    message: `You have reached the limit of ${SUBDOMAIN_CHANGE_LIMIT} subdomain changes.`,
+                    limitReached: true,
+                    subdomainChanges: changesUsed,
+                });
+                return;
+            }
             const taken = await Store.findOne({ subdomain, _id: { $ne: store._id } });
             if (taken) {
                 res.status(409).json({ message: "Subdomain is already taken." });
                 return;
             }
             store.subdomain = subdomain;
+            store.subdomainChanges = changesUsed + 1;
         }
         store.storeName = storeName;
 
@@ -80,6 +90,8 @@ export const setupStore = async (req: AuthenticatedRequest, res: Response): Prom
                 id: store._id,
                 storeName: store.storeName,
                 subdomain: store.subdomain,
+                subdomainChanges: store.subdomainChanges || 0,
+                subdomainChangesLimit: SUBDOMAIN_CHANGE_LIMIT,
             },
         });
     } catch (error) {
@@ -459,6 +471,8 @@ export const getMyStore = async (req: AuthenticatedRequest, res: Response): Prom
                 customDomain: store.customDomain,
                 customDomainStatus: store.customDomainStatus,
                 customDomainVerificationCode: store.customDomainVerificationCode,
+                subdomainChanges: store.subdomainChanges || 0,
+                subdomainChangesLimit: SUBDOMAIN_CHANGE_LIMIT,
                 emailNotifications: (store as any).emailNotifications || { newOrderAlert: false },
                 plan: getEffectivePlan(store),
                 planExpiresAt: store.planExpiresAt,
