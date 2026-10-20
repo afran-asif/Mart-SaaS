@@ -6,6 +6,7 @@ import { encrypt } from "../utils/encryption";
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
 import { getEffectivePlan, getPlanLimits, isStoreLocked } from "../utils/plan";
 import { cacheDelTenantStore } from "../utils/cache";
+import { normalizeSubdomain, validateSubdomain } from "../utils/subdomain";
 
 export const getAllActiveStores = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -20,6 +21,66 @@ export const getAllActiveStores = async (_req: Request, res: Response): Promise<
                 storeName: store.storeName,
                 updatedAt: store.updatedAt,
             })),
+        });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+export const setupStore = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const storeName = String(req.body.storeName || "").trim();
+        const subdomain = normalizeSubdomain(req.body.subdomain || "");
+
+        if (storeName.length < 2 || storeName.length > 80) {
+            res.status(400).json({ message: "Store name must be 2-80 characters." });
+            return;
+        }
+        const subdomainError = validateSubdomain(subdomain);
+        if (subdomainError) {
+            res.status(400).json({ message: subdomainError });
+            return;
+        }
+
+        const store = await Store.findOne({ vendorId: req.user._id });
+        if (!store) {
+            res.status(404).json({ message: "Store not found for this vendor." });
+            return;
+        }
+
+        const oldSubdomain = store.subdomain;
+        if (subdomain !== oldSubdomain) {
+            const taken = await Store.findOne({ subdomain, _id: { $ne: store._id } });
+            if (taken) {
+                res.status(409).json({ message: "Subdomain is already taken." });
+                return;
+            }
+            store.subdomain = subdomain;
+        }
+        store.storeName = storeName;
+
+        try {
+            await store.save();
+        } catch (error) {
+            if ((error as { code?: number }).code === 11000) {
+                res.status(409).json({ message: "Subdomain is already taken." });
+                return;
+            }
+            throw error;
+        }
+
+        await cacheDelTenantStore(oldSubdomain, store.customDomain);
+        if (subdomain !== oldSubdomain) {
+            await cacheDelTenantStore(subdomain, store.customDomain);
+        }
+
+        res.status(200).json({
+            success: true,
+            store: {
+                id: store._id,
+                storeName: store.storeName,
+                subdomain: store.subdomain,
+            },
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });

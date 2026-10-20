@@ -9,6 +9,7 @@ import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/sendEmai
 import { uploadToCloudinary, deleteFromCloudinary } from "../middlewares/uploadMiddleware";
 import { seedNewStore } from "../utils/storeDefaults";
 import { OAuth2Client } from "google-auth-library";
+import { generateUniqueSubdomain, normalizeSubdomain, validateSubdomain } from "../utils/subdomain";
 
 const getFrontendUrl = (): string => {
     return (process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/+$/, "");
@@ -231,26 +232,15 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        // নতুন vendor — phone + store details বাধ্যতামূলক
-        const cleanPhone = String(phone || "").replace(/\D/g, "");
-        if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
-            res.status(400).json({ message: "Valid phone number is required (e.g. 017XXXXXXXX).", needProfile: true, email });
-            return;
-        }
-        if (await User.findOne({ phone: cleanPhone })) {
-            res.status(400).json({ message: "This phone number is already registered." });
-            return;
-        }
-        const cleanSub = String(subdomain || "").toLowerCase().trim();
-        if (!cleanSub || !/^[a-z0-9-]{3,30}$/.test(cleanSub)) {
-            res.status(400).json({ message: "Valid subdomain is required (3-30 chars, a-z 0-9 -).", needProfile: true, email });
-            return;
-        }
-        if (await Store.findOne({ subdomain: cleanSub })) {
-            res.status(400).json({ message: "Subdomain is already taken.", needProfile: true, email });
-            return;
-        }
-        const finalName = String(name || googleName || "Vendor").trim().slice(0, 60) || "Vendor";
+        // নতুন vendor — Google login-এ সরাসরি account + store তৈরি, বাকি settings পরে dashboard থেকে
+        const validPhone = String(phone || "").replace(/\D/g, "");
+        let cleanPhone: string | null = /^01[3-9]\d{8}$/.test(validPhone) ? validPhone : null;
+        if (cleanPhone && await User.findOne({ phone: cleanPhone })) cleanPhone = null;
+        const finalName = String(name || googleName || email.split("@")[0] || "Vendor").trim().slice(0, 60) || "Vendor";
+        const requestedSub = normalizeSubdomain(subdomain || "");
+        const cleanSub = requestedSub && !validateSubdomain(requestedSub) && !(await Store.findOne({ subdomain: requestedSub }))
+            ? requestedSub
+            : await generateUniqueSubdomain(storeName || finalName || email.split("@")[0]);
 
         const randomPass = crypto.randomBytes(32).toString("hex");
         const salt = await bcrypt.genSalt(10);
@@ -258,7 +248,7 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
             name: finalName,
             email,
             password: await bcrypt.hash(randomPass, salt),
-            phone: cleanPhone,
+            phone: cleanPhone || null,
             role: "vendor",
             isVerified: true, // Google already verified
         });
@@ -275,12 +265,13 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
             storeId: store._id,
             storeName: store.storeName,
             email: user.email,
-            phone: cleanPhone,
+            phone: cleanPhone || undefined,
         });
 
         const token = generateToken(res, user._id.toString());
         res.status(201).json({
             success: true,
+            isNewStore: true,
             token,
             user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
             store: { storeName: store.storeName, subdomain: store.subdomain },

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { updateStoreConfig, getMyStore, getAllActiveStores, uploadStoreLogo, uploadHeroImage } from "../controllers/storeController";
+import { updateStoreConfig, getMyStore, getAllActiveStores, uploadStoreLogo, uploadHeroImage, setupStore } from "../controllers/storeController";
 import { requestCustomDomain, verifyCustomDomain, removeCustomDomain } from "../controllers/domainController";
 import { protect, authorize } from "../middlewares/authMiddleware";
 import { requireActivePlan } from "../middlewares/planGate";
@@ -9,6 +9,7 @@ const router = Router();
 
 router.get("/all", getAllActiveStores);
 router.get("/config", protect, authorize("vendor"), requireActivePlan, getMyStore);
+router.put("/setup", protect, authorize("vendor"), setupStore);
 router.put("/config", protect, authorize("vendor"), requireActivePlan, updateStoreConfig);
 router.post("/logo", protect, authorize("vendor"), requireActivePlan, upload.single("logo"), uploadStoreLogo);
 router.post("/hero-image", protect, authorize("vendor"), requireActivePlan, upload.single("heroImage"), uploadHeroImage);

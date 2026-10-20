@@ -3,11 +3,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { loginVendor, loginWithGoogle } from "@/services/authService";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "@/redux/authSlice";
+import { setCredentials, updateStoreInfo } from "@/redux/authSlice";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
+import StoreSetupModal from "@/components/StoreSetupModal";
 import toast from "react-hot-toast";
 
 export default function LocalizedLoginPage() {
@@ -17,6 +18,7 @@ export default function LocalizedLoginPage() {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [newStore, setNewStore] = useState<{ storeName: string; subdomain: string } | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,6 +53,10 @@ export default function LocalizedLoginPage() {
             const data = await loginWithGoogle({ idToken });
             if (data.success) {
                 dispatch(setCredentials({ user: data.user, store: data.store }));
+                if (data.isNewStore && data.store) {
+                    setNewStore({ storeName: data.store.storeName || "", subdomain: data.store.subdomain || "" });
+                    return;
+                }
                 setTimeout(() => {
                     router.push(`/${language}/dashboard`);
                 }, 800);
@@ -160,6 +166,18 @@ export default function LocalizedLoginPage() {
                     </Link>
                 </div>
             </div>
+
+            {newStore && (
+                <StoreSetupModal
+                    initialStoreName={newStore.storeName}
+                    initialSubdomain={newStore.subdomain}
+                    onDone={(store) => {
+                        dispatch(updateStoreInfo(store));
+                        router.push(`/${language}/dashboard`);
+                    }}
+                    onSkip={() => router.push(`/${language}/dashboard`)}
+                />
+            )}
         </div>
     );
 }

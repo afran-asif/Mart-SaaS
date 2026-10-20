@@ -232,6 +232,7 @@
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "phoneLabel": "Phone Number",
+    "phoneOptional": "Phone Number (optional)",
     "storeName": "Store Name",
     "subdomain": "Desired Subdomain",
     "registerButton": "Register Store",
@@ -240,6 +241,20 @@
     "signIn": "Sign In",
     "backHome": "← Back to Home",
     "registerSuccess": "Registration Successful! Redirecting to dashboard..."
+  },
+  "storeSetup": {
+    "title": "Set up your store",
+    "subtitle": "Choose a name and address for your store. You can change the name later from Settings.",
+    "storeNameLabel": "Store Name",
+    "storeNamePlaceholder": "e.g. Sestone Premium Gym",
+    "subdomainLabel": "Store Link",
+    "subdomainPlaceholder": "my-store",
+    "subdomainHint": "3-30 characters: lowercase letters, numbers and hyphens.",
+    "save": "Create Store",
+    "saving": "Saving...",
+    "skip": "Later",
+    "saved": "Store updated successfully.",
+    "saveFailed": "Could not update store. Please try again."
   },
   "verifyEmail": {
     "verifying": "Verifying your email...",

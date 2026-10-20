@@ -232,6 +232,7 @@
     "emailLabel": "ইমেইল ঠিকানা",
     "passwordLabel": "পাসওয়ার্ড",
     "phoneLabel": "ফোন নম্বর",
+    "phoneOptional": "ফোন নম্বর (ঐচ্ছিক)",
     "storeName": "দোকানের নাম",
     "subdomain": "পছন্দের সাবডোমেইন",
     "registerButton": "স্টোর নিবন্ধন করুন",
@@ -240,6 +241,20 @@
     "signIn": "সাইন ইন",
     "backHome": "← হোমে ফিরুন",
     "registerSuccess": "নিবন্ধন সফল! ড্যাশবোর্ডে যাচ্ছে..."
+  },
+  "storeSetup": {
+    "title": "আপনার স্টোর সেটআপ করুন",
+    "subtitle": "স্টোরের নাম ও ঠিকানা দিন। নাম পরে Settings থেকে বদলাতে পারবেন।",
+    "storeNameLabel": "স্টোরের নাম",
+    "storeNamePlaceholder": "যেমন: Sestone Premium Gym",
+    "subdomainLabel": "স্টোর লিংক",
+    "subdomainPlaceholder": "my-store",
+    "subdomainHint": "৩-৩০ অক্ষর: ছোট হাতের ইংরেজি অক্ষর, সংখ্যা ও হাইফেন।",
+    "save": "স্টোর তৈরি করুন",
+    "saving": "সেভ হচ্ছে...",
+    "skip": "পরে",
+    "saved": "স্টোর সফলভাবে আপডেট হয়েছে।",
+    "saveFailed": "স্টোর আপডেট করা যায়নি। আবার চেষ্টা করুন।"
   },
   "verifyEmail": {
     "verifying": "আপনার ইমেইল ভেরিফাই করা হচ্ছে...",

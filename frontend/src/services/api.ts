@@ -62,10 +62,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const message =
+        const normalized = new Error(
             error?.response?.data?.message ||
             error?.message ||
-            "Something went wrong";
-        return Promise.reject(new Error(message));
+            "Something went wrong"
+        ) as Error & { response?: unknown; status?: number };
+        normalized.response = error?.response;
+        normalized.status = error?.response?.status;
+        return Promise.reject(normalized);
     }
 );

@@ -59,11 +59,29 @@ describe("google auth", () => {
         expect(r.body.token).toBeTruthy();
     });
 
-    test("new user without profile → 400 needProfile", async () => {
-        goodToken("brand-new@t.com");
+    test("new user without profile → auto account + store", async () => {
+        const t = Date.now();
+        goodToken(`brand-new-${t}@t.com`, "Brand New");
         const r = await request(app).post("/api/v1/auth/google").send({ idToken: "t" });
-        expect(r.status).toBe(400);
-        expect(r.body.needProfile).toBe(true);
+        expect(r.status).toBe(201);
+        expect(r.body.token).toBeTruthy();
+        expect(r.body.store.subdomain).toBeTruthy();
+        const me = await User.findOne({ email: `brand-new-${t}@t.com` });
+        expect(me?.phone).toBeNull();
+        const store = await Store.findOne({ vendorId: me?._id });
+        expect(store?.plan).toBe("pro");
+        expect(store?.planExpiresAt).toBeTruthy();
+    });
+
+    test("auto subdomain unique for same google name", async () => {
+        const t = Date.now();
+        goodToken(`dup-a-${t}@t.com`, "Same Name");
+        const a = await request(app).post("/api/v1/auth/google").send({ idToken: "t" });
+        goodToken(`dup-b-${t}@t.com`, "Same Name");
+        const b = await request(app).post("/api/v1/auth/google").send({ idToken: "t" });
+        expect(a.status).toBe(201);
+        expect(b.status).toBe(201);
+        expect(a.body.store.subdomain).not.toBe(b.body.store.subdomain);
     });
 
     test("new user full → 201 with store + trial", async () => {
@@ -84,18 +102,43 @@ describe("google auth", () => {
         expect(me?.isVerified).toBe(true);
     });
 
-    test("duplicate phone blocked", async () => {
+    test("new user without phone → 201", async () => {
+        const t = Date.now();
+        goodToken(`gnp${t}@t.com`, "No Phone");
+        const r = await request(app).post("/api/v1/auth/google").send({
+            idToken: "t",
+            storeName: "No Phone Store",
+            subdomain: `gnp${t}`,
+        });
+        expect(r.status).toBe(201);
+        expect(r.body.store.subdomain).toBe(`gnp${t}`);
+        const me = await User.findOne({ email: `gnp${t}@t.com` });
+        expect(me?.phone).toBeNull();
+    });
+
+    test("invalid phone ignored, account still created", async () => {
+        const t = Date.now();
+        goodToken(`gip${t}@t.com`);
+        const r = await request(app).post("/api/v1/auth/google").send({
+            idToken: "t",
+            phone: "12345",
+        });
+        expect(r.status).toBe(201);
+        const me = await User.findOne({ email: `gip${t}@t.com` });
+        expect(me?.phone).toBeNull();
+    });
+
+    test("duplicate phone ignored, account still created", async () => {
         const t = Date.now();
         await User.create({ name: "V", email: `gp${t}@t.com`, password: "x", phone: "01611112222", role: "vendor", isVerified: true });
         goodToken(`gp2${t}@t.com`);
         const r = await request(app).post("/api/v1/auth/google").send({
             idToken: "t",
             phone: "01611112222",
-            storeName: "S",
-            subdomain: `gp${t}`,
         });
-        expect(r.status).toBe(400);
-        expect(r.body.message).toMatch(/phone/i);
+        expect(r.status).toBe(201);
+        const me = await User.findOne({ email: `gp2${t}@t.com` });
+        expect(me?.phone).toBeNull();
     });
 
     test("customer role cannot access dashboard", async () => {

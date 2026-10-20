@@ -4,8 +4,9 @@ import Link from "next/link";
 import { registerVendor, loginWithGoogle } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "@/redux/authSlice";
+import { setCredentials, updateStoreInfo } from "@/redux/authSlice";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
+import StoreSetupModal from "@/components/StoreSetupModal";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -42,6 +43,7 @@ export default function LocalizedRegisterPage() {
     // Google flow — idToken পেলে existing user হলে direct login, নতুন হলে profile step
     const [googleIdToken, setGoogleIdToken] = useState<string | null>(null);
     const [googleEmail, setGoogleEmail] = useState("");
+    const [newStore, setNewStore] = useState<{ storeName: string; subdomain: string } | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -88,6 +90,10 @@ export default function LocalizedRegisterPage() {
             const data = await loginWithGoogle({ idToken });
             if (data.success) {
                 dispatch(setCredentials({ user: data.user, store: data.store }));
+                if (data.isNewStore && data.store) {
+                    setNewStore({ storeName: data.store.storeName || "", subdomain: data.store.subdomain || "" });
+                    return;
+                }
                 router.push(`/${language}/dashboard`);
             }
         } catch (error: any) {
@@ -175,12 +181,12 @@ export default function LocalizedRegisterPage() {
                         )}
 
                         <div>
-                            <label className="text-sm font-medium text-gray-700">{t("register.phoneLabel")}</label>
+                            <label className="text-sm font-medium text-gray-700">{googleIdToken ? t("register.phoneOptional") : t("register.phoneLabel")}</label>
                             <input
                                 name="phone"
                                 type="tel"
-                                required
-                                pattern="01[3-9][0-9]{8}"
+                                required={!googleIdToken}
+                                pattern={googleIdToken ? undefined : "01[3-9][0-9]{8}"}
                                 title="01XXXXXXXXX"
                                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 placeholder="01XXXXXXXXX"
@@ -258,6 +264,18 @@ export default function LocalizedRegisterPage() {
                     </Link>
                 </div>
             </div>
+
+            {newStore && (
+                <StoreSetupModal
+                    initialStoreName={newStore.storeName}
+                    initialSubdomain={newStore.subdomain}
+                    onDone={(store) => {
+                        dispatch(updateStoreInfo(store));
+                        router.push(`/${language}/dashboard`);
+                    }}
+                    onSkip={() => router.push(`/${language}/dashboard`)}
+                />
+            )}
         </div>
     );
 }
