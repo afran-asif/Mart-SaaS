@@ -4,3 +4,5 @@ frontend/node_modules/
 node_modules/
 dist/
 .env
+backend/dev-backend.log
+frontend/dev-frontend.log
