@@ -53,16 +53,43 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
             res.status(404).json({ message: 'User not found' });
             return;
         }
-        const { name } = req.body as { name?: string };
+        const { name, phone } = req.body as { name?: string; phone?: string };
         if (!name?.trim()) {
             res.status(400).json({ message: 'Name is required' });
             return;
         }
         user.name = name.trim().slice(0, 60);
+
+        if (phone !== undefined) {
+            const cleanPhone = String(phone || "").replace(/\D/g, "");
+            if (cleanPhone && !/^01[3-9]\d{8}$/.test(cleanPhone)) {
+                res.status(400).json({ message: 'Valid phone number is required (e.g. 017XXXXXXXX).' });
+                return;
+            }
+            if (cleanPhone) {
+                const taken = await User.findOne({ phone: cleanPhone, _id: { $ne: user._id } });
+                if (taken) {
+                    res.status(409).json({ message: 'This phone number is already registered.' });
+                    return;
+                }
+            }
+            user.phone = cleanPhone || null;
+        }
+
         await user.save();
         res.status(200).json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar || null,
+                phone: (user as any).phone || null,
+                isVerified: user.isVerified,
+                createdAt: user.createdAt,
+                passwordSet: user.passwordSet !== false,
+            },
         });
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
@@ -147,6 +174,7 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
         }
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
+        user.passwordSet = true;
         await user.save();
         res.status(200).json({ success: true, message: 'Password changed successfully' });
     } catch (error) {
@@ -161,7 +189,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
             res.status(401).json({ message: 'Not authenticated' });
             return;
         }
-        const user = await User.findById(tokenUser._id).select("name email role avatar phone");
+        const user = await User.findById(tokenUser._id).select("name email role avatar phone isVerified createdAt passwordSet");
         if (!user) {
             res.status(404).json({ message: 'User not found' });
             return;
@@ -169,7 +197,17 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         const store = await Store.findOne({ vendorId: user._id }).select("storeName subdomain");
         res.status(200).json({
             success: true,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || null, phone: (user as any).phone || null },
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar || null,
+                phone: (user as any).phone || null,
+                isVerified: user.isVerified,
+                createdAt: user.createdAt,
+                passwordSet: user.passwordSet !== false,
+            },
             store: { storeName: store?.storeName, subdomain: store?.subdomain }
         });
     } catch(error) {
@@ -251,6 +289,7 @@ export const googleAuth = async (req: Request, res: Response): Promise<void> => 
             phone: cleanPhone || null,
             role: "vendor",
             isVerified: true, // Google already verified
+            passwordSet: false,
         });
 
         const store = await Store.create({
@@ -545,6 +584,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
+        user.passwordSet = true;
         user.resetPasswordToken = null;
         user.resetPasswordExpires = null;
         await user.save();

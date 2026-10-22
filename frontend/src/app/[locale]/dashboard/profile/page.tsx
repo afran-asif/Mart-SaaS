@@ -15,13 +15,22 @@ export default function LocalizedProfilePage() {
 
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
     const [saving, setSaving] = useState(false);
     const [currentPw, setCurrentPw] = useState("");
     const [newPw, setNewPw] = useState("");
     const [confirmPw, setConfirmPw] = useState("");
+    const [showPw, setShowPw] = useState(false);
     const [changing, setChanging] = useState(false);
     const [uploading, setUploading] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    const initials = (user?.name || "V")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part: string) => part[0]?.toUpperCase() || "")
+        .join("");
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -67,6 +76,7 @@ export default function LocalizedProfilePage() {
                 if (data?.success) {
                     dispatch(setUser(data.user));
                     setName(data.user.name || "");
+                    setPhone(data.user.phone || "");
                 }
             } catch {
                 // shell handles auth
@@ -84,8 +94,9 @@ export default function LocalizedProfilePage() {
         }
         setSaving(true);
         try {
-            const data = await updateProfile(name.trim());
+            const data = await updateProfile(name.trim(), phone.trim());
             dispatch(setUser(data.user));
+            setPhone(data.user.phone || "");
             toast.success(t("dashboard.profilePage.profileUpdated"));
         } catch (error: any) {
             toast.error(error.message || "Failed to update profile.");
@@ -153,13 +164,15 @@ export default function LocalizedProfilePage() {
                                 type="button"
                                 onClick={() => avatarInputRef.current?.click()}
                                 disabled={uploading}
-                                className="w-16 h-16 rounded-full bg-orange-50 border-2 border-dashed border-orange-300 text-orange-700 flex flex-col items-center justify-center gap-0.5 hover:bg-orange-100 hover:border-orange-400 transition-colors disabled:opacity-50 cursor-pointer"
+                                className="relative w-16 h-16 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center hover:bg-orange-200 transition-colors disabled:opacity-50 cursor-pointer"
                             >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <span className="text-[8px] font-bold leading-none">Add photo</span>
+                                <span className="text-lg font-black">{initials || "V"}</span>
+                                <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center ring-2 ring-white">
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </span>
                             </button>
                         )}
                         {uploading && (
@@ -171,12 +184,27 @@ export default function LocalizedProfilePage() {
                     <div className="min-w-0 flex-1">
                         <p className="font-bold text-gray-900 truncate">{user?.name}</p>
                         <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                        {user?.phone && (
-                            <p className="text-xs text-gray-500 truncate mt-0.5">📱 {user.phone}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 capitalize">
+                                {user?.role}
+                            </span>
+                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                                user?.isVerified
+                                    ? "bg-green-50 text-green-700"
+                                    : "bg-amber-50 text-amber-700"
+                            }`}>
+                                {user?.isVerified ? t("dashboard.profilePage.verified") : t("dashboard.profilePage.unverified")}
+                            </span>
+                        </div>
+                        {user?.createdAt && (
+                            <p className="text-[11px] text-gray-400 mt-1">
+                                {t("dashboard.profilePage.joined")}{" "}
+                                {new Date(user.createdAt).toLocaleDateString(language === "bn" ? "bn-BD" : "en-GB", {
+                                    month: "short",
+                                    year: "numeric",
+                                })}
+                            </p>
                         )}
-                        <span className="inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 capitalize">
-                            {user?.role}
-                        </span>
                         <div className="flex items-center gap-2 mt-2">
                             <input
                                 ref={avatarInputRef}
@@ -224,6 +252,19 @@ export default function LocalizedProfilePage() {
                     </div>
                     <div>
                         <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                            {t("dashboard.profilePage.phone")}
+                        </label>
+                        <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="01XXXXXXXXX"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-orange-500 text-sm outline-none"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">{t("dashboard.profilePage.phoneHint")}</p>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                             {t("dashboard.profilePage.email")}
                         </label>
                         <input
@@ -247,14 +288,35 @@ export default function LocalizedProfilePage() {
             </div>
 
             {/* Change password */}
+            {user?.passwordSet === false ? (
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-2">
+                    <h2 className="text-sm font-bold text-gray-900">{t("dashboard.profilePage.changePassword")}</h2>
+                    <p className="text-xs text-gray-500">{t("dashboard.profilePage.googlePasswordNote")}</p>
+                    <Link
+                        href={`/${language}/forgot-password`}
+                        className="inline-block text-xs font-bold text-orange-600 hover:underline"
+                    >
+                        {t("dashboard.profilePage.setPassword")}
+                    </Link>
+                </div>
+            ) : (
             <form onSubmit={handleChangePassword} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-3">
-                <h2 className="text-sm font-bold text-gray-900">{t("dashboard.profilePage.changePassword")}</h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-bold text-gray-900">{t("dashboard.profilePage.changePassword")}</h2>
+                    <button
+                        type="button"
+                        onClick={() => setShowPw((v) => !v)}
+                        className="text-[11px] font-semibold text-gray-400 hover:text-orange-600 transition-colors"
+                    >
+                        {showPw ? t("dashboard.profilePage.hidePassword") : t("dashboard.profilePage.showPassword")}
+                    </button>
+                </div>
                 <div>
                     <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
                         {t("dashboard.profilePage.currentPassword")}
                     </label>
                     <input
-                        type="password"
+                        type={showPw ? "text" : "password"}
                         value={currentPw}
                         onChange={(e) => setCurrentPw(e.target.value)}
                         required
@@ -267,7 +329,7 @@ export default function LocalizedProfilePage() {
                             {t("dashboard.profilePage.newPassword")}
                         </label>
                         <input
-                            type="password"
+                            type={showPw ? "text" : "password"}
                             value={newPw}
                             onChange={(e) => setNewPw(e.target.value)}
                             required
@@ -280,7 +342,7 @@ export default function LocalizedProfilePage() {
                             {t("dashboard.profilePage.confirmPassword")}
                         </label>
                         <input
-                            type="password"
+                            type={showPw ? "text" : "password"}
                             value={confirmPw}
                             onChange={(e) => setConfirmPw(e.target.value)}
                             required
@@ -298,6 +360,7 @@ export default function LocalizedProfilePage() {
                     </button>
                 </div>
             </form>
+            )}
         </div>
     );
 }

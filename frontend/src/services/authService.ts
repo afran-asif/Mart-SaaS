@@ -35,8 +35,9 @@ export const fetchMe = async () => {
     return response.data;
 }
 
-export const updateProfile = async (name: string) => {
-    const response = await api.put("/auth/profile", { name });
+export const updateProfile = async (name: string, phone?: string) => {
+    const payload = phone === undefined ? { name } : { name, phone };
+    const response = await api.put("/auth/profile", payload);
     return response.data;
 }
 

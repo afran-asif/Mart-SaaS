@@ -4,6 +4,7 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
+    passwordSet?: boolean;
     role: string;
     phone: string | null;
     avatar: string | null;
@@ -34,6 +35,10 @@ const userSchema = new Schema<IUser>(
             type: String,
             required: [true, "Please add a password"],
             trim: true
+        },
+        passwordSet: {
+            type: Boolean,
+            default: true
         },
         phone: {
             type: String,
