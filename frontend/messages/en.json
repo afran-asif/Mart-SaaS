@@ -95,7 +95,7 @@
     "subtitle": "Effortlessly manage your catalog, track incoming customer orders, update store branding, and inspect live revenue data without ever touching code.",
     "point1": "Instant product image uploads via Cloudinary",
     "point2": "Real-time status updates: Pending, Processing, Delivered",
-      "point3": "Steadfast courier integration with tracking",
+    "point3": "Steadfast courier integration with tracking",
     "createAccount": "Create Vendor Account",
     "loginDashboard": "Log In to Dashboard"
   },
@@ -125,7 +125,7 @@
     "proFeature5": "Marketing pixels (FB/Google/TikTok)",
     "proFeature6": "Steadfast courier integration",
     "proFeature7": "Priority 24/7 support",
-      "proFeature8": "Unlimited products",
+    "proFeature8": "Unlimited products",
     "proCta": "Launch Pro Store",
     "trialBannerTitle": "Start with 30 days free",
     "trialBannerDesc": "Full Pro access for 30 days — no card, no payment. Pay only if you love it.",
@@ -146,7 +146,14 @@
     "planFeatOrders": "Unlimited orders every month",
     "planFeatCourier": "Steadfast courier integration with live tracking",
     "planFeatCod": "Cash on Delivery with district-wise auto charges",
-    "planFeatAnalytics": "Sales analytics dashboard with revenue reports"
+    "planFeatAnalytics": "Sales analytics dashboard with revenue reports",
+    "freePlanName": "Free Plan",
+    "freePlanDuration": "1 Month",
+    "freePlanBadge": "1 Month Free",
+    "freePlanPrice": "৳0",
+    "freePlanDesc": "30 days full Pro access — no credit card, no payment. Just start selling.",
+    "freePlanCta": "Start Free Trial",
+    "plan1Desc": "After trial, keep your store live and active with full Pro features."
   },
   "faq": {
     "badge": "Got Questions?",

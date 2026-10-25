@@ -663,7 +663,7 @@ export default function LocalizedHomePage() {
       </section>
 
       {/* ---------------- Pricing Section ---------------- */}
-      <section id="pricing" className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
             {t("pricing.badge")}
@@ -692,9 +692,31 @@ export default function LocalizedHomePage() {
           </ul>
         </div>
 
-        <div className="mt-8 grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
-          {/* 1 Month */}
-          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+          {/* Free Plan — 1 Month */}
+          <div className="rounded-3xl bg-white p-7 sm:p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-4 right-4 rounded-full bg-emerald-100 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+              {t("pricing.freePlanBadge")}
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">{t("pricing.freePlanName")}</span>
+              <div className="mt-4 flex items-center gap-2 flex-wrap">
+                <span className="text-4xl font-extrabold text-gray-900">{t("pricing.freePlanPrice")}</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">{t("pricing.trialBadge")}</span>
+              </div>
+              <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.freePlanDuration")}</p>
+              <p className="mt-2 text-xs text-gray-500">{t("pricing.freePlanDesc")}</p>
+            </div>
+            <Link
+              href={`/${language}/register`}
+              className="mt-8 block w-full text-center rounded-xl border-2 border-emerald-600 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition"
+            >
+              {t("pricing.freePlanCta")}
+            </Link>
+          </div>
+
+          {/* 1 Month (Paid) */}
+          <div className="rounded-3xl bg-white p-7 sm:p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-4 right-4 rounded-full bg-orange-100 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
               50% OFF
             </div>
@@ -703,10 +725,9 @@ export default function LocalizedHomePage() {
               <div className="mt-4 flex items-center gap-2 flex-wrap">
                 <span className="text-lg font-semibold text-gray-400 line-through">৳598</span>
                 <span className="text-4xl font-extrabold text-gray-900">৳299</span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">{t("pricing.trialBadge")}</span>
               </div>
               <p className="mt-1 text-sm font-medium text-gray-500">{t("pricing.plan1Duration")}</p>
-              <p className="mt-2 text-xs text-gray-500">{t("pricing.trialBannerDesc")}</p>
+              <p className="mt-2 text-xs text-gray-500">{t("pricing.plan1Desc")}</p>
             </div>
             <Link
               href={`/${language}/register`}
@@ -717,7 +738,7 @@ export default function LocalizedHomePage() {
           </div>
 
           {/* 3 Months */}
-          <div className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
+          <div className="rounded-3xl bg-white p-7 sm:p-8 shadow-sm ring-1 ring-gray-200 flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-4 right-4 rounded-full bg-green-100 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-700">
               {t("pricing.plan3Badge")}
             </div>
@@ -738,7 +759,7 @@ export default function LocalizedHomePage() {
           </div>
 
           {/* 6 Months — Best Value */}
-          <div className="rounded-3xl bg-gradient-to-b from-orange-600 to-orange-700 p-8 text-white shadow-xl flex flex-col justify-between relative overflow-hidden">
+          <div className="rounded-3xl bg-gradient-to-b from-orange-600 to-orange-700 p-7 sm:p-8 text-white shadow-xl flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-4 right-4 rounded-full bg-white/20 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
               {t("pricing.plan6Badge")}
             </div>
